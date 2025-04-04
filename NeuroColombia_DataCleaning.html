@@ -7,9 +7,9 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 <meta name="author" content="Daniel Manrique-Castano">
-<meta name="keywords" content="Epidemiology, Neuropsychology, Mental healh, Colombia">
+<meta name="keywords" content="Epidemiology, Neuropsychology, Mental health, Colombia">
 
-<title>Data tables handling for NeuroColombia research project</title>
+<title>Data handling for NeuroColombia research project</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -3086,7 +3086,7 @@ vertical-align: -.125em;
 <header id="title-block-header" class="quarto-title-block default toc-left page-columns page-full">
   <div class="quarto-title-banner page-columns page-full">
     <div class="quarto-title column-body">
-      <h1 class="title">Data tables handling for NeuroColombia research project</h1>
+      <h1 class="title">Data handling for NeuroColombia research project</h1>
             <p class="subtitle lead">Data analysis notebook</p>
                       </div>
   </div>
@@ -3111,7 +3111,7 @@ vertical-align: -.125em;
       <div>
       <div class="quarto-title-meta-heading">Published</div>
       <div class="quarto-title-meta-contents">
-        <p class="date">Tuesday, March 11, 2025</p>
+        <p class="date">Friday, April 4, 2025</p>
       </div>
     </div>
     
@@ -3122,7 +3122,7 @@ vertical-align: -.125em;
   <div>
     <div class="keywords">
       <div class="block-title">Keywords</div>
-      <p>Epidemiology, Neuropsychology, Mental healh, Colombia</p>
+      <p>Epidemiology, Neuropsychology, Mental health, Colombia</p>
     </div>
   </div>
   
@@ -3133,10 +3133,24 @@ vertical-align: -.125em;
    
   <ul class="collapse">
   <li><a href="#install-and-load-packages" id="toc-install-and-load-packages" class="nav-link active" data-scroll-target="#install-and-load-packages"><span class="header-section-number">1</span> Install and load packages</a></li>
-  <li><a href="#load-data-tables" id="toc-load-data-tables" class="nav-link" data-scroll-target="#load-data-tables"><span class="header-section-number">2</span> Load data tables</a></li>
-  <li><a href="#data-processing" id="toc-data-processing" class="nav-link" data-scroll-target="#data-processing"><span class="header-section-number">3</span> Data processing</a></li>
+  <li><a href="#handling-of-neuropsychological-case-data" id="toc-handling-of-neuropsychological-case-data" class="nav-link" data-scroll-target="#handling-of-neuropsychological-case-data"><span class="header-section-number">2</span> Handling of neuropsychological case data</a>
+  <ul class="collapse">
+  <li><a href="#load-data" id="toc-load-data" class="nav-link" data-scroll-target="#load-data"><span class="header-section-number">2.1</span> Load data</a></li>
+  <li><a href="#handling-of-dataset-columns" id="toc-handling-of-dataset-columns" class="nav-link" data-scroll-target="#handling-of-dataset-columns"><span class="header-section-number">2.2</span> Handling of dataset columns</a></li>
+  <li><a href="#subset-the-dataset" id="toc-subset-the-dataset" class="nav-link" data-scroll-target="#subset-the-dataset"><span class="header-section-number">2.3</span> Subset the dataset</a></li>
+  </ul></li>
+  <li><a href="#handling-of-dane-data" id="toc-handling-of-dane-data" class="nav-link" data-scroll-target="#handling-of-dane-data"><span class="header-section-number">3</span> Handling of DANE data</a>
+  <ul class="collapse">
+  <li><a href="#load-data-1" id="toc-load-data-1" class="nav-link" data-scroll-target="#load-data-1"><span class="header-section-number">3.1</span> Load data</a></li>
+  <li><a href="#transforming-wide-to-long-format" id="toc-transforming-wide-to-long-format" class="nav-link" data-scroll-target="#transforming-wide-to-long-format"><span class="header-section-number">3.2</span> Transforming wide to long format</a></li>
+  </ul></li>
+  <li><a href="#relate-diagnostic-and-population-data" id="toc-relate-diagnostic-and-population-data" class="nav-link" data-scroll-target="#relate-diagnostic-and-population-data"><span class="header-section-number">4</span> Relate diagnostic and population data</a>
+  <ul class="collapse">
+  <li><a href="#merging-datasets" id="toc-merging-datasets" class="nav-link" data-scroll-target="#merging-datasets"><span class="header-section-number">4.1</span> Merging datasets</a></li>
+  <li><a href="#handling-citycapital-data" id="toc-handling-citycapital-data" class="nav-link" data-scroll-target="#handling-citycapital-data"><span class="header-section-number">4.2</span> Handling city/capital data</a></li>
+  </ul></li>
   </ul>
-<div class="quarto-alternate-formats"><h2>Other Formats</h2><ul><li><a href="NeuroColombia_DataHandling.pdf"><i class="bi bi-file-pdf"></i>Typst</a></li></ul></div></nav>
+<div class="quarto-alternate-formats"><h2>Other Formats</h2><ul><li><a href="NeuroColombia_DataCleaning.pdf"><i class="bi bi-file-pdf"></i>Typst</a></li></ul></div></nav>
 </div>
 <div id="quarto-margin-sidebar" class="sidebar margin-sidebar zindex-bottom">
 </div>
@@ -3146,184 +3160,3225 @@ vertical-align: -.125em;
 
 
 
-<section id="install-and-load-packages" class="level2" data-number="1">
-<h2 data-number="1" class="anchored" data-anchor-id="install-and-load-packages"><span class="header-section-number">1</span> Install and load packages</h2>
-<p>We install the required packages to open and handle the data tables.</p>
+<section id="install-and-load-packages" class="level1" data-number="1">
+<h1 data-number="1"><span class="header-section-number">1</span> Install and load packages</h1>
+<p>We install the required packages to handle data</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> (<span class="sc">!</span><span class="fu">requireNamespace</span>(<span class="st">&quot;dplyr&quot;</span>, <span class="at">quietly =</span> <span class="cn">TRUE</span>)) <span class="fu">install.packages</span>(<span class="st">&quot;dplyr&quot;</span>)</span>
-<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> (<span class="sc">!</span><span class="fu">requireNamespace</span>(<span class="st">&quot;readxl&quot;</span>, <span class="at">quietly =</span> <span class="cn">TRUE</span>)) <span class="fu">install.packages</span>(<span class="st">&quot;readxl&quot;</span>)</span>
-<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> (<span class="sc">!</span><span class="fu">requireNamespace</span>(<span class="st">&quot;ggplot2&quot;</span>, <span class="at">quietly =</span> <span class="cn">TRUE</span>)) <span class="fu">install.packages</span>(<span class="st">&quot;ggplot2&quot;</span>)</span>
-<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> (<span class="sc">!</span><span class="fu">requireNamespace</span>(<span class="st">&quot;here&quot;</span>, <span class="at">quietly =</span> <span class="cn">TRUE</span>)) <span class="fu">install.packages</span>(<span class="st">&quot;here&quot;</span>)</span>
-<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> (<span class="sc">!</span><span class="fu">requireNamespace</span>(<span class="st">&quot;tidyr&quot;</span>, <span class="at">quietly =</span> <span class="cn">TRUE</span>)) <span class="fu">install.packages</span>(<span class="st">&quot;tidyr&quot;</span>)</span>
-<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> (<span class="sc">!</span><span class="fu">requireNamespace</span>(<span class="st">&quot;tibble&quot;</span>, <span class="at">quietly =</span> <span class="cn">TRUE</span>)) <span class="fu">install.packages</span>(<span class="st">&quot;tibble&quot;</span>)</span>
-<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(dplyr)</span>
-<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(readxl)</span>
-<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(ggplot2)</span>
-<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(here)</span>
-<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidyr)</span>
-<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tibble)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> (<span class="sc">!</span><span class="fu">requireNamespace</span>(<span class="st">&quot;gt&quot;</span>, <span class="at">quietly =</span> <span class="cn">TRUE</span>)) <span class="fu">install.packages</span>(<span class="st">&quot;gt&quot;</span>)</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> (<span class="sc">!</span><span class="fu">requireNamespace</span>(<span class="st">&quot;purrr&quot;</span>, <span class="at">quietly =</span> <span class="cn">TRUE</span>)) <span class="fu">install.packages</span>(<span class="st">&quot;purrr&quot;</span>)</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> (<span class="sc">!</span><span class="fu">requireNamespace</span>(<span class="st">&quot;readxl&quot;</span>, <span class="at">quietly =</span> <span class="cn">TRUE</span>)) <span class="fu">install.packages</span>(<span class="st">&quot;readxl&quot;</span>)</span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> (<span class="sc">!</span><span class="fu">requireNamespace</span>(<span class="st">&quot;stringr&quot;</span>, <span class="at">quietly =</span> <span class="cn">TRUE</span>)) <span class="fu">install.packages</span>(<span class="st">&quot;stringr&quot;</span>)</span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> (<span class="sc">!</span><span class="fu">requireNamespace</span>(<span class="st">&quot;stringi&quot;</span>, <span class="at">quietly =</span> <span class="cn">TRUE</span>)) <span class="fu">install.packages</span>(<span class="st">&quot;stringi&quot;</span>)</span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> (<span class="sc">!</span><span class="fu">requireNamespace</span>(<span class="st">&quot;tidyr&quot;</span>, <span class="at">quietly =</span> <span class="cn">TRUE</span>)) <span class="fu">install.packages</span>(<span class="st">&quot;tidyr&quot;</span>)</span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(dplyr)</span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(gt)</span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(purrr)</span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(readxl)</span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(stringr)</span>
+<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(stringi)</span>
+<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidyr)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 </section>
-<section id="load-data-tables" class="level2" data-number="2">
-<h2 data-number="2" class="anchored" data-anchor-id="load-data-tables"><span class="header-section-number">2</span> Load data tables</h2>
-<p>We load three data tables associated with neuropsichological diagnostics (<code>Ministery_DiagnosticData.xlsx</code>) and population data for each city in Colombia (<code>DANE_PopulationData_2005-2019.xlsx</code> and <code>DANE_PopulationData_2005-2019.xlsx</code>).</p>
+<section id="handling-of-neuropsychological-case-data" class="level1" data-number="2">
+<h1 data-number="2"><span class="header-section-number">2</span> Handling of neuropsychological case data</h1>
+<p>In this section, we process original neuropsychological data from the Colombian Ministry of Health to generate clean, clear data tables.</p>
+<section id="load-data" class="level2" data-number="2.1">
+<h2 data-number="2.1" class="anchored" data-anchor-id="load-data"><span class="header-section-number">2.1</span> Load data</h2>
+<p>We load the <code>Data_Raw/Ministry_OriginalData.xls&#39; which contains the original data for the number of neurological diagnoses in the country. We use the</code>map_dfr` function to merge all the tabs of the Excel file.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>Ministery_Data <span class="ot">&lt;-</span> <span class="fu">read_excel</span>(<span class="fu">here</span>(<span class="st">&quot;Data_Processed/Ministery_DiagnosticData.xlsx&quot;</span>)) </span>
-<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>Dane_Data_2019 <span class="ot">&lt;-</span> <span class="fu">read_excel</span>(<span class="fu">here</span>(<span class="st">&quot;Data_Raw/DANE_PopulationData_2005-2019.xlsx&quot;</span>)) </span>
-<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>Dane_Data_2035 <span class="ot">&lt;-</span> <span class="fu">read_excel</span>(<span class="fu">here</span>(<span class="st">&quot;Data_Raw/DANE_PopulationData_2020-2035.xlsx&quot;</span>)) </span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Define the file path </span></span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>file_path <span class="ot">&lt;-</span> <span class="st">&quot;Data_Raw/Ministry_OriginalData.xlsx&quot;</span></span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Get all sheet names</span></span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>sheet_names <span class="ot">&lt;-</span> <span class="fu">excel_sheets</span>(file_path)</span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a><span class="co"># Read all sheets and combine them into a single dataframe</span></span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>Ministry_data_Raw <span class="ot">&lt;-</span> <span class="fu">map_dfr</span>(sheet_names, <span class="sc">~</span> <span class="fu">read_excel</span>(file_path, <span class="at">sheet =</span> .x), <span class="at">.id =</span> <span class="st">&quot;SheetName&quot;</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>We render the resulting table using the <code>gt</code> function.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>gt<span class="sc">::</span><span class="fu">gt</span>(Ministry_data_Raw[<span class="dv">1</span><span class="sc">:</span><span class="dv">10</span>,])</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div id="hpnblraxzr" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
+<style>#hpnblraxzr table {
+font-family: system-ui, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
+-webkit-font-smoothing: antialiased;
+-moz-osx-font-smoothing: grayscale;
+}
+#hpnblraxzr thead, #hpnblraxzr tbody, #hpnblraxzr tfoot, #hpnblraxzr tr, #hpnblraxzr td, #hpnblraxzr th {
+border-style: none;
+}
+#hpnblraxzr p {
+margin: 0;
+padding: 0;
+}
+#hpnblraxzr .gt_table {
+display: table;
+border-collapse: collapse;
+line-height: normal;
+margin-left: auto;
+margin-right: auto;
+color: #333333;
+font-size: 16px;
+font-weight: normal;
+font-style: normal;
+background-color: #FFFFFF;
+width: auto;
+border-top-style: solid;
+border-top-width: 2px;
+border-top-color: #A8A8A8;
+border-right-style: none;
+border-right-width: 2px;
+border-right-color: #D3D3D3;
+border-bottom-style: solid;
+border-bottom-width: 2px;
+border-bottom-color: #A8A8A8;
+border-left-style: none;
+border-left-width: 2px;
+border-left-color: #D3D3D3;
+}
+#hpnblraxzr .gt_caption {
+padding-top: 4px;
+padding-bottom: 4px;
+}
+#hpnblraxzr .gt_title {
+color: #333333;
+font-size: 125%;
+font-weight: initial;
+padding-top: 4px;
+padding-bottom: 4px;
+padding-left: 5px;
+padding-right: 5px;
+border-bottom-color: #FFFFFF;
+border-bottom-width: 0;
+}
+#hpnblraxzr .gt_subtitle {
+color: #333333;
+font-size: 85%;
+font-weight: initial;
+padding-top: 3px;
+padding-bottom: 5px;
+padding-left: 5px;
+padding-right: 5px;
+border-top-color: #FFFFFF;
+border-top-width: 0;
+}
+#hpnblraxzr .gt_heading {
+background-color: #FFFFFF;
+text-align: center;
+border-bottom-color: #FFFFFF;
+border-left-style: none;
+border-left-width: 1px;
+border-left-color: #D3D3D3;
+border-right-style: none;
+border-right-width: 1px;
+border-right-color: #D3D3D3;
+}
+#hpnblraxzr .gt_bottom_border {
+border-bottom-style: solid;
+border-bottom-width: 2px;
+border-bottom-color: #D3D3D3;
+}
+#hpnblraxzr .gt_col_headings {
+border-top-style: solid;
+border-top-width: 2px;
+border-top-color: #D3D3D3;
+border-bottom-style: solid;
+border-bottom-width: 2px;
+border-bottom-color: #D3D3D3;
+border-left-style: none;
+border-left-width: 1px;
+border-left-color: #D3D3D3;
+border-right-style: none;
+border-right-width: 1px;
+border-right-color: #D3D3D3;
+}
+#hpnblraxzr .gt_col_heading {
+color: #333333;
+background-color: #FFFFFF;
+font-size: 100%;
+font-weight: normal;
+text-transform: inherit;
+border-left-style: none;
+border-left-width: 1px;
+border-left-color: #D3D3D3;
+border-right-style: none;
+border-right-width: 1px;
+border-right-color: #D3D3D3;
+vertical-align: bottom;
+padding-top: 5px;
+padding-bottom: 6px;
+padding-left: 5px;
+padding-right: 5px;
+overflow-x: hidden;
+}
+#hpnblraxzr .gt_column_spanner_outer {
+color: #333333;
+background-color: #FFFFFF;
+font-size: 100%;
+font-weight: normal;
+text-transform: inherit;
+padding-top: 0;
+padding-bottom: 0;
+padding-left: 4px;
+padding-right: 4px;
+}
+#hpnblraxzr .gt_column_spanner_outer:first-child {
+padding-left: 0;
+}
+#hpnblraxzr .gt_column_spanner_outer:last-child {
+padding-right: 0;
+}
+#hpnblraxzr .gt_column_spanner {
+border-bottom-style: solid;
+border-bottom-width: 2px;
+border-bottom-color: #D3D3D3;
+vertical-align: bottom;
+padding-top: 5px;
+padding-bottom: 5px;
+overflow-x: hidden;
+display: inline-block;
+width: 100%;
+}
+#hpnblraxzr .gt_spanner_row {
+border-bottom-style: hidden;
+}
+#hpnblraxzr .gt_group_heading {
+padding-top: 8px;
+padding-bottom: 8px;
+padding-left: 5px;
+padding-right: 5px;
+color: #333333;
+background-color: #FFFFFF;
+font-size: 100%;
+font-weight: initial;
+text-transform: inherit;
+border-top-style: solid;
+border-top-width: 2px;
+border-top-color: #D3D3D3;
+border-bottom-style: solid;
+border-bottom-width: 2px;
+border-bottom-color: #D3D3D3;
+border-left-style: none;
+border-left-width: 1px;
+border-left-color: #D3D3D3;
+border-right-style: none;
+border-right-width: 1px;
+border-right-color: #D3D3D3;
+vertical-align: middle;
+text-align: left;
+}
+#hpnblraxzr .gt_empty_group_heading {
+padding: 0.5px;
+color: #333333;
+background-color: #FFFFFF;
+font-size: 100%;
+font-weight: initial;
+border-top-style: solid;
+border-top-width: 2px;
+border-top-color: #D3D3D3;
+border-bottom-style: solid;
+border-bottom-width: 2px;
+border-bottom-color: #D3D3D3;
+vertical-align: middle;
+}
+#hpnblraxzr .gt_from_md > :first-child {
+margin-top: 0;
+}
+#hpnblraxzr .gt_from_md > :last-child {
+margin-bottom: 0;
+}
+#hpnblraxzr .gt_row {
+padding-top: 8px;
+padding-bottom: 8px;
+padding-left: 5px;
+padding-right: 5px;
+margin: 10px;
+border-top-style: solid;
+border-top-width: 1px;
+border-top-color: #D3D3D3;
+border-left-style: none;
+border-left-width: 1px;
+border-left-color: #D3D3D3;
+border-right-style: none;
+border-right-width: 1px;
+border-right-color: #D3D3D3;
+vertical-align: middle;
+overflow-x: hidden;
+}
+#hpnblraxzr .gt_stub {
+color: #333333;
+background-color: #FFFFFF;
+font-size: 100%;
+font-weight: initial;
+text-transform: inherit;
+border-right-style: solid;
+border-right-width: 2px;
+border-right-color: #D3D3D3;
+padding-left: 5px;
+padding-right: 5px;
+}
+#hpnblraxzr .gt_stub_row_group {
+color: #333333;
+background-color: #FFFFFF;
+font-size: 100%;
+font-weight: initial;
+text-transform: inherit;
+border-right-style: solid;
+border-right-width: 2px;
+border-right-color: #D3D3D3;
+padding-left: 5px;
+padding-right: 5px;
+vertical-align: top;
+}
+#hpnblraxzr .gt_row_group_first td {
+border-top-width: 2px;
+}
+#hpnblraxzr .gt_row_group_first th {
+border-top-width: 2px;
+}
+#hpnblraxzr .gt_summary_row {
+color: #333333;
+background-color: #FFFFFF;
+text-transform: inherit;
+padding-top: 8px;
+padding-bottom: 8px;
+padding-left: 5px;
+padding-right: 5px;
+}
+#hpnblraxzr .gt_first_summary_row {
+border-top-style: solid;
+border-top-color: #D3D3D3;
+}
+#hpnblraxzr .gt_first_summary_row.thick {
+border-top-width: 2px;
+}
+#hpnblraxzr .gt_last_summary_row {
+padding-top: 8px;
+padding-bottom: 8px;
+padding-left: 5px;
+padding-right: 5px;
+border-bottom-style: solid;
+border-bottom-width: 2px;
+border-bottom-color: #D3D3D3;
+}
+#hpnblraxzr .gt_grand_summary_row {
+color: #333333;
+background-color: #FFFFFF;
+text-transform: inherit;
+padding-top: 8px;
+padding-bottom: 8px;
+padding-left: 5px;
+padding-right: 5px;
+}
+#hpnblraxzr .gt_first_grand_summary_row {
+padding-top: 8px;
+padding-bottom: 8px;
+padding-left: 5px;
+padding-right: 5px;
+border-top-style: double;
+border-top-width: 6px;
+border-top-color: #D3D3D3;
+}
+#hpnblraxzr .gt_last_grand_summary_row_top {
+padding-top: 8px;
+padding-bottom: 8px;
+padding-left: 5px;
+padding-right: 5px;
+border-bottom-style: double;
+border-bottom-width: 6px;
+border-bottom-color: #D3D3D3;
+}
+#hpnblraxzr .gt_striped {
+background-color: rgba(128, 128, 128, 0.05);
+}
+#hpnblraxzr .gt_table_body {
+border-top-style: solid;
+border-top-width: 2px;
+border-top-color: #D3D3D3;
+border-bottom-style: solid;
+border-bottom-width: 2px;
+border-bottom-color: #D3D3D3;
+}
+#hpnblraxzr .gt_footnotes {
+color: #333333;
+background-color: #FFFFFF;
+border-bottom-style: none;
+border-bottom-width: 2px;
+border-bottom-color: #D3D3D3;
+border-left-style: none;
+border-left-width: 2px;
+border-left-color: #D3D3D3;
+border-right-style: none;
+border-right-width: 2px;
+border-right-color: #D3D3D3;
+}
+#hpnblraxzr .gt_footnote {
+margin: 0px;
+font-size: 90%;
+padding-top: 4px;
+padding-bottom: 4px;
+padding-left: 5px;
+padding-right: 5px;
+}
+#hpnblraxzr .gt_sourcenotes {
+color: #333333;
+background-color: #FFFFFF;
+border-bottom-style: none;
+border-bottom-width: 2px;
+border-bottom-color: #D3D3D3;
+border-left-style: none;
+border-left-width: 2px;
+border-left-color: #D3D3D3;
+border-right-style: none;
+border-right-width: 2px;
+border-right-color: #D3D3D3;
+}
+#hpnblraxzr .gt_sourcenote {
+font-size: 90%;
+padding-top: 4px;
+padding-bottom: 4px;
+padding-left: 5px;
+padding-right: 5px;
+}
+#hpnblraxzr .gt_left {
+text-align: left;
+}
+#hpnblraxzr .gt_center {
+text-align: center;
+}
+#hpnblraxzr .gt_right {
+text-align: right;
+font-variant-numeric: tabular-nums;
+}
+#hpnblraxzr .gt_font_normal {
+font-weight: normal;
+}
+#hpnblraxzr .gt_font_bold {
+font-weight: bold;
+}
+#hpnblraxzr .gt_font_italic {
+font-style: italic;
+}
+#hpnblraxzr .gt_super {
+font-size: 65%;
+}
+#hpnblraxzr .gt_footnote_marks {
+font-size: 75%;
+vertical-align: 0.4em;
+position: initial;
+}
+#hpnblraxzr .gt_asterisk {
+font-size: 100%;
+vertical-align: 0;
+}
+#hpnblraxzr .gt_indent_1 {
+text-indent: 5px;
+}
+#hpnblraxzr .gt_indent_2 {
+text-indent: 10px;
+}
+#hpnblraxzr .gt_indent_3 {
+text-indent: 15px;
+}
+#hpnblraxzr .gt_indent_4 {
+text-indent: 20px;
+}
+#hpnblraxzr .gt_indent_5 {
+text-indent: 25px;
+}
+#hpnblraxzr .katex-display {
+display: inline-flex !important;
+margin-bottom: 0.75em !important;
+}
+#hpnblraxzr div.Reactable > div.rt-table > div.rt-thead > div.rt-tr.rt-tr-group-header > div.rt-th-group:after {
+height: 0px !important;
+}
+</style>
+
+<table class="gt_table caption-top table table-sm table-striped small" data-quarto-postprocess="true" data-quarto-disable-processing="false" data-quarto-bootstrap="false">
+<thead>
+<tr class="gt_col_headings header">
+<th id="SheetName" class="gt_col_heading gt_columns_bottom_border gt_right" data-quarto-table-cell-role="th" scope="col">SheetName</th>
+<th id="Año" class="gt_col_heading gt_columns_bottom_border gt_right" data-quarto-table-cell-role="th" scope="col">Año</th>
+<th id="Departamento" class="gt_col_heading gt_columns_bottom_border gt_left" data-quarto-table-cell-role="th" scope="col">Departamento</th>
+<th id="Municipio" class="gt_col_heading gt_columns_bottom_border gt_left" data-quarto-table-cell-role="th" scope="col">Municipio</th>
+<th id="Diagnósticos" class="gt_col_heading gt_columns_bottom_border gt_left" data-quarto-table-cell-role="th" scope="col">Diagnósticos</th>
+<th id="Edad" class="gt_col_heading gt_columns_bottom_border gt_left" data-quarto-table-cell-role="th" scope="col">Edad</th>
+<th id="Sexo" class="gt_col_heading gt_columns_bottom_border gt_left" data-quarto-table-cell-role="th" scope="col">Sexo</th>
+<th id="Personas-Atendidas" class="gt_col_heading gt_columns_bottom_border gt_right" data-quarto-table-cell-role="th" scope="col">Personas Atendidas</th>
+</tr>
+</thead>
+<tbody class="gt_table_body">
+<tr class="odd">
+<td class="gt_row gt_right" headers="SheetName">1</td>
+<td class="gt_row gt_right" headers="Año">2016</td>
+<td class="gt_row gt_left" headers="Departamento">05 - Antioquia</td>
+<td class="gt_row gt_left" headers="Municipio">05001 - Medellín</td>
+<td class="gt_row gt_left" headers="Diagnósticos">F700 - RETRASO MENTAL LEVE: DETERIORO DEL COMPORTAMIENTO NULO O MINIMO</td>
+<td class="gt_row gt_left" headers="Edad">De 02 años</td>
+<td class="gt_row gt_left" headers="Sexo">MASCULINO</td>
+<td class="gt_row gt_right" headers="Personas Atendidas">1</td>
+</tr>
+<tr class="even">
+<td class="gt_row gt_right" headers="SheetName">1</td>
+<td class="gt_row gt_right" headers="Año">2016</td>
+<td class="gt_row gt_left" headers="Departamento">05 - Antioquia</td>
+<td class="gt_row gt_left" headers="Municipio">05001 - Medellín</td>
+<td class="gt_row gt_left" headers="Diagnósticos">F700 - RETRASO MENTAL LEVE: DETERIORO DEL COMPORTAMIENTO NULO O MINIMO</td>
+<td class="gt_row gt_left" headers="Edad">De 04 años</td>
+<td class="gt_row gt_left" headers="Sexo">FEMENINO</td>
+<td class="gt_row gt_right" headers="Personas Atendidas">2</td>
+</tr>
+<tr class="odd">
+<td class="gt_row gt_right" headers="SheetName">1</td>
+<td class="gt_row gt_right" headers="Año">2016</td>
+<td class="gt_row gt_left" headers="Departamento">05 - Antioquia</td>
+<td class="gt_row gt_left" headers="Municipio">05001 - Medellín</td>
+<td class="gt_row gt_left" headers="Diagnósticos">F700 - RETRASO MENTAL LEVE: DETERIORO DEL COMPORTAMIENTO NULO O MINIMO</td>
+<td class="gt_row gt_left" headers="Edad">De 04 años</td>
+<td class="gt_row gt_left" headers="Sexo">MASCULINO</td>
+<td class="gt_row gt_right" headers="Personas Atendidas">1</td>
+</tr>
+<tr class="even">
+<td class="gt_row gt_right" headers="SheetName">1</td>
+<td class="gt_row gt_right" headers="Año">2016</td>
+<td class="gt_row gt_left" headers="Departamento">05 - Antioquia</td>
+<td class="gt_row gt_left" headers="Municipio">05001 - Medellín</td>
+<td class="gt_row gt_left" headers="Diagnósticos">F700 - RETRASO MENTAL LEVE: DETERIORO DEL COMPORTAMIENTO NULO O MINIMO</td>
+<td class="gt_row gt_left" headers="Edad">De 06 años</td>
+<td class="gt_row gt_left" headers="Sexo">FEMENINO</td>
+<td class="gt_row gt_right" headers="Personas Atendidas">1</td>
+</tr>
+<tr class="odd">
+<td class="gt_row gt_right" headers="SheetName">1</td>
+<td class="gt_row gt_right" headers="Año">2016</td>
+<td class="gt_row gt_left" headers="Departamento">05 - Antioquia</td>
+<td class="gt_row gt_left" headers="Municipio">05001 - Medellín</td>
+<td class="gt_row gt_left" headers="Diagnósticos">F700 - RETRASO MENTAL LEVE: DETERIORO DEL COMPORTAMIENTO NULO O MINIMO</td>
+<td class="gt_row gt_left" headers="Edad">De 06 años</td>
+<td class="gt_row gt_left" headers="Sexo">MASCULINO</td>
+<td class="gt_row gt_right" headers="Personas Atendidas">1</td>
+</tr>
+<tr class="even">
+<td class="gt_row gt_right" headers="SheetName">1</td>
+<td class="gt_row gt_right" headers="Año">2016</td>
+<td class="gt_row gt_left" headers="Departamento">05 - Antioquia</td>
+<td class="gt_row gt_left" headers="Municipio">05001 - Medellín</td>
+<td class="gt_row gt_left" headers="Diagnósticos">F700 - RETRASO MENTAL LEVE: DETERIORO DEL COMPORTAMIENTO NULO O MINIMO</td>
+<td class="gt_row gt_left" headers="Edad">De 06 años</td>
+<td class="gt_row gt_left" headers="Sexo">NR - NO REPORTADO</td>
+<td class="gt_row gt_right" headers="Personas Atendidas">1</td>
+</tr>
+<tr class="odd">
+<td class="gt_row gt_right" headers="SheetName">1</td>
+<td class="gt_row gt_right" headers="Año">2016</td>
+<td class="gt_row gt_left" headers="Departamento">05 - Antioquia</td>
+<td class="gt_row gt_left" headers="Municipio">05001 - Medellín</td>
+<td class="gt_row gt_left" headers="Diagnósticos">F700 - RETRASO MENTAL LEVE: DETERIORO DEL COMPORTAMIENTO NULO O MINIMO</td>
+<td class="gt_row gt_left" headers="Edad">De 07 años</td>
+<td class="gt_row gt_left" headers="Sexo">FEMENINO</td>
+<td class="gt_row gt_right" headers="Personas Atendidas">3</td>
+</tr>
+<tr class="even">
+<td class="gt_row gt_right" headers="SheetName">1</td>
+<td class="gt_row gt_right" headers="Año">2016</td>
+<td class="gt_row gt_left" headers="Departamento">05 - Antioquia</td>
+<td class="gt_row gt_left" headers="Municipio">05001 - Medellín</td>
+<td class="gt_row gt_left" headers="Diagnósticos">F700 - RETRASO MENTAL LEVE: DETERIORO DEL COMPORTAMIENTO NULO O MINIMO</td>
+<td class="gt_row gt_left" headers="Edad">De 07 años</td>
+<td class="gt_row gt_left" headers="Sexo">MASCULINO</td>
+<td class="gt_row gt_right" headers="Personas Atendidas">8</td>
+</tr>
+<tr class="odd">
+<td class="gt_row gt_right" headers="SheetName">1</td>
+<td class="gt_row gt_right" headers="Año">2016</td>
+<td class="gt_row gt_left" headers="Departamento">05 - Antioquia</td>
+<td class="gt_row gt_left" headers="Municipio">05001 - Medellín</td>
+<td class="gt_row gt_left" headers="Diagnósticos">F700 - RETRASO MENTAL LEVE: DETERIORO DEL COMPORTAMIENTO NULO O MINIMO</td>
+<td class="gt_row gt_left" headers="Edad">De 08 años</td>
+<td class="gt_row gt_left" headers="Sexo">FEMENINO</td>
+<td class="gt_row gt_right" headers="Personas Atendidas">5</td>
+</tr>
+<tr class="even">
+<td class="gt_row gt_right" headers="SheetName">1</td>
+<td class="gt_row gt_right" headers="Año">2016</td>
+<td class="gt_row gt_left" headers="Departamento">05 - Antioquia</td>
+<td class="gt_row gt_left" headers="Municipio">05001 - Medellín</td>
+<td class="gt_row gt_left" headers="Diagnósticos">F700 - RETRASO MENTAL LEVE: DETERIORO DEL COMPORTAMIENTO NULO O MINIMO</td>
+<td class="gt_row gt_left" headers="Edad">De 08 años</td>
+<td class="gt_row gt_left" headers="Sexo">MASCULINO</td>
+<td class="gt_row gt_right" headers="Personas Atendidas">6</td>
+</tr>
+</tbody>
+</table>
+
+</div>
+</div>
 </div>
 </section>
-<section id="data-processing" class="level2" data-number="3">
-<h2 data-number="3" class="anchored" data-anchor-id="data-processing"><span class="header-section-number">3</span> Data processing</h2>
-<section id="subseting-of-data-tables" class="level3" data-number="3.1">
-<h3 data-number="3.1" class="anchored" data-anchor-id="subseting-of-data-tables"><span class="header-section-number">3.1</span> Subseting of data tables</h3>
-<p>Next, we subset the <code>Ministery_Data</code> to obtain the age (Edad) of interest for the current analysis.</p>
+<section id="handling-of-dataset-columns" class="level2" data-number="2.2">
+<h2 data-number="2.2" class="anchored" data-anchor-id="handling-of-dataset-columns"><span class="header-section-number">2.2</span> Handling of dataset columns</h2>
+<p>After visually inspecting the dataset, we exclude the first row containing the original tab/sheet number, change the names of the variable columns, and set English as the working language for the dataset:</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="co"># We select the rows containing ages from 0 to 11 years old</span></span>
-<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>Ministery_Data <span class="ot">&lt;-</span> Ministery_Data <span class="sc">%&gt;%</span> </span>
-<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(Edad <span class="sc">&gt;=</span> <span class="dv">0</span>, Edad <span class="sc">&lt;=</span> <span class="dv">11</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Eliminate the first column</span></span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>Ministry_data_Raw <span class="ot">&lt;-</span> Ministry_data_Raw <span class="sc">%&gt;%</span> <span class="fu">select</span>(<span class="sc">-</span>SheetName)</span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Change column names in order</span></span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a><span class="fu">colnames</span>(Ministry_data_Raw) <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">&quot;Year&quot;</span>, <span class="st">&quot;Department&quot;</span>,  <span class="st">&quot;City&quot;</span>, <span class="st">&quot;Diagnostic&quot;</span>, <span class="st">&quot;Age&quot;</span>, <span class="st">&quot;Sex&quot;</span>, <span class="st">&quot;Cases&quot;</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
-<p>We inspect the results</p>
+<p>Then we format the labels of the dataset as they contain unwanted characters that obscure the data:</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(Ministery_Data)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>Ministry_data_clean <span class="ot">&lt;-</span> Ministry_data_Raw <span class="sc">%&gt;%</span></span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Remove numbers and hyphen from &#39;Department&#39; column</span></span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">Department =</span> <span class="fu">str_remove</span>(Department, <span class="st">&quot;^</span><span class="sc">\\</span><span class="st">d+</span><span class="sc">\\</span><span class="st">s-</span><span class="sc">\\</span><span class="st">s*&quot;</span>),</span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>         <span class="at">Department =</span> <span class="fu">str_to_title</span>(Department)) <span class="sc">%&gt;%</span>  <span class="co"># Convert to Title Case</span></span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Remove numbers and hyphen from &#39;City&#39; column</span></span>
+<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">City =</span> <span class="fu">str_remove</span>(City, <span class="st">&quot;^</span><span class="sc">\\</span><span class="st">d+</span><span class="sc">\\</span><span class="st">s-</span><span class="sc">\\</span><span class="st">s*&quot;</span>),</span>
+<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a>         <span class="at">City =</span> <span class="fu">str_to_title</span>(City)) <span class="sc">%&gt;%</span>  <span class="co"># Convert to Title Case</span></span>
+<span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb5-10"><a href="#cb5-10" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Extract only the diagnostic code starting with &quot;F&quot;</span></span>
+<span id="cb5-11"><a href="#cb5-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">Diagnostic =</span> <span class="fu">str_extract</span>(Diagnostic, <span class="st">&quot;^F</span><span class="sc">\\</span><span class="st">d+&quot;</span>)) <span class="sc">%&gt;%</span></span>
+<span id="cb5-12"><a href="#cb5-12" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb5-13"><a href="#cb5-13" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Extract only numeric values from &#39;Age&#39; column</span></span>
+<span id="cb5-14"><a href="#cb5-14" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">Age =</span> <span class="fu">str_extract</span>(Age, <span class="st">&quot;</span><span class="sc">\\</span><span class="st">d+&quot;</span>)) <span class="sc">%&gt;%</span></span>
+<span id="cb5-15"><a href="#cb5-15" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb5-16"><a href="#cb5-16" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Replace &quot;MASCULINO&quot; with &quot;Men&quot; and &quot;FEMENINO&quot; with &quot;Women&quot;</span></span>
+<span id="cb5-17"><a href="#cb5-17" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">Sex =</span> <span class="fu">recode</span>(Sex, <span class="st">&quot;MASCULINO&quot;</span> <span class="ot">=</span> <span class="st">&quot;Men&quot;</span>, <span class="st">&quot;FEMENINO&quot;</span> <span class="ot">=</span> <span class="st">&quot;Women&quot;</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>Now, we verify the resulting table:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>gt<span class="sc">::</span><span class="fu">gt</span>(Ministry_data_clean[<span class="dv">1</span><span class="sc">:</span><span class="dv">10</span>,])</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div id="xpufoqbvhu" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
+<style>#xpufoqbvhu table {
+font-family: system-ui, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
+-webkit-font-smoothing: antialiased;
+-moz-osx-font-smoothing: grayscale;
+}
+#xpufoqbvhu thead, #xpufoqbvhu tbody, #xpufoqbvhu tfoot, #xpufoqbvhu tr, #xpufoqbvhu td, #xpufoqbvhu th {
+border-style: none;
+}
+#xpufoqbvhu p {
+margin: 0;
+padding: 0;
+}
+#xpufoqbvhu .gt_table {
+display: table;
+border-collapse: collapse;
+line-height: normal;
+margin-left: auto;
+margin-right: auto;
+color: #333333;
+font-size: 16px;
+font-weight: normal;
+font-style: normal;
+background-color: #FFFFFF;
+width: auto;
+border-top-style: solid;
+border-top-width: 2px;
+border-top-color: #A8A8A8;
+border-right-style: none;
+border-right-width: 2px;
+border-right-color: #D3D3D3;
+border-bottom-style: solid;
+border-bottom-width: 2px;
+border-bottom-color: #A8A8A8;
+border-left-style: none;
+border-left-width: 2px;
+border-left-color: #D3D3D3;
+}
+#xpufoqbvhu .gt_caption {
+padding-top: 4px;
+padding-bottom: 4px;
+}
+#xpufoqbvhu .gt_title {
+color: #333333;
+font-size: 125%;
+font-weight: initial;
+padding-top: 4px;
+padding-bottom: 4px;
+padding-left: 5px;
+padding-right: 5px;
+border-bottom-color: #FFFFFF;
+border-bottom-width: 0;
+}
+#xpufoqbvhu .gt_subtitle {
+color: #333333;
+font-size: 85%;
+font-weight: initial;
+padding-top: 3px;
+padding-bottom: 5px;
+padding-left: 5px;
+padding-right: 5px;
+border-top-color: #FFFFFF;
+border-top-width: 0;
+}
+#xpufoqbvhu .gt_heading {
+background-color: #FFFFFF;
+text-align: center;
+border-bottom-color: #FFFFFF;
+border-left-style: none;
+border-left-width: 1px;
+border-left-color: #D3D3D3;
+border-right-style: none;
+border-right-width: 1px;
+border-right-color: #D3D3D3;
+}
+#xpufoqbvhu .gt_bottom_border {
+border-bottom-style: solid;
+border-bottom-width: 2px;
+border-bottom-color: #D3D3D3;
+}
+#xpufoqbvhu .gt_col_headings {
+border-top-style: solid;
+border-top-width: 2px;
+border-top-color: #D3D3D3;
+border-bottom-style: solid;
+border-bottom-width: 2px;
+border-bottom-color: #D3D3D3;
+border-left-style: none;
+border-left-width: 1px;
+border-left-color: #D3D3D3;
+border-right-style: none;
+border-right-width: 1px;
+border-right-color: #D3D3D3;
+}
+#xpufoqbvhu .gt_col_heading {
+color: #333333;
+background-color: #FFFFFF;
+font-size: 100%;
+font-weight: normal;
+text-transform: inherit;
+border-left-style: none;
+border-left-width: 1px;
+border-left-color: #D3D3D3;
+border-right-style: none;
+border-right-width: 1px;
+border-right-color: #D3D3D3;
+vertical-align: bottom;
+padding-top: 5px;
+padding-bottom: 6px;
+padding-left: 5px;
+padding-right: 5px;
+overflow-x: hidden;
+}
+#xpufoqbvhu .gt_column_spanner_outer {
+color: #333333;
+background-color: #FFFFFF;
+font-size: 100%;
+font-weight: normal;
+text-transform: inherit;
+padding-top: 0;
+padding-bottom: 0;
+padding-left: 4px;
+padding-right: 4px;
+}
+#xpufoqbvhu .gt_column_spanner_outer:first-child {
+padding-left: 0;
+}
+#xpufoqbvhu .gt_column_spanner_outer:last-child {
+padding-right: 0;
+}
+#xpufoqbvhu .gt_column_spanner {
+border-bottom-style: solid;
+border-bottom-width: 2px;
+border-bottom-color: #D3D3D3;
+vertical-align: bottom;
+padding-top: 5px;
+padding-bottom: 5px;
+overflow-x: hidden;
+display: inline-block;
+width: 100%;
+}
+#xpufoqbvhu .gt_spanner_row {
+border-bottom-style: hidden;
+}
+#xpufoqbvhu .gt_group_heading {
+padding-top: 8px;
+padding-bottom: 8px;
+padding-left: 5px;
+padding-right: 5px;
+color: #333333;
+background-color: #FFFFFF;
+font-size: 100%;
+font-weight: initial;
+text-transform: inherit;
+border-top-style: solid;
+border-top-width: 2px;
+border-top-color: #D3D3D3;
+border-bottom-style: solid;
+border-bottom-width: 2px;
+border-bottom-color: #D3D3D3;
+border-left-style: none;
+border-left-width: 1px;
+border-left-color: #D3D3D3;
+border-right-style: none;
+border-right-width: 1px;
+border-right-color: #D3D3D3;
+vertical-align: middle;
+text-align: left;
+}
+#xpufoqbvhu .gt_empty_group_heading {
+padding: 0.5px;
+color: #333333;
+background-color: #FFFFFF;
+font-size: 100%;
+font-weight: initial;
+border-top-style: solid;
+border-top-width: 2px;
+border-top-color: #D3D3D3;
+border-bottom-style: solid;
+border-bottom-width: 2px;
+border-bottom-color: #D3D3D3;
+vertical-align: middle;
+}
+#xpufoqbvhu .gt_from_md > :first-child {
+margin-top: 0;
+}
+#xpufoqbvhu .gt_from_md > :last-child {
+margin-bottom: 0;
+}
+#xpufoqbvhu .gt_row {
+padding-top: 8px;
+padding-bottom: 8px;
+padding-left: 5px;
+padding-right: 5px;
+margin: 10px;
+border-top-style: solid;
+border-top-width: 1px;
+border-top-color: #D3D3D3;
+border-left-style: none;
+border-left-width: 1px;
+border-left-color: #D3D3D3;
+border-right-style: none;
+border-right-width: 1px;
+border-right-color: #D3D3D3;
+vertical-align: middle;
+overflow-x: hidden;
+}
+#xpufoqbvhu .gt_stub {
+color: #333333;
+background-color: #FFFFFF;
+font-size: 100%;
+font-weight: initial;
+text-transform: inherit;
+border-right-style: solid;
+border-right-width: 2px;
+border-right-color: #D3D3D3;
+padding-left: 5px;
+padding-right: 5px;
+}
+#xpufoqbvhu .gt_stub_row_group {
+color: #333333;
+background-color: #FFFFFF;
+font-size: 100%;
+font-weight: initial;
+text-transform: inherit;
+border-right-style: solid;
+border-right-width: 2px;
+border-right-color: #D3D3D3;
+padding-left: 5px;
+padding-right: 5px;
+vertical-align: top;
+}
+#xpufoqbvhu .gt_row_group_first td {
+border-top-width: 2px;
+}
+#xpufoqbvhu .gt_row_group_first th {
+border-top-width: 2px;
+}
+#xpufoqbvhu .gt_summary_row {
+color: #333333;
+background-color: #FFFFFF;
+text-transform: inherit;
+padding-top: 8px;
+padding-bottom: 8px;
+padding-left: 5px;
+padding-right: 5px;
+}
+#xpufoqbvhu .gt_first_summary_row {
+border-top-style: solid;
+border-top-color: #D3D3D3;
+}
+#xpufoqbvhu .gt_first_summary_row.thick {
+border-top-width: 2px;
+}
+#xpufoqbvhu .gt_last_summary_row {
+padding-top: 8px;
+padding-bottom: 8px;
+padding-left: 5px;
+padding-right: 5px;
+border-bottom-style: solid;
+border-bottom-width: 2px;
+border-bottom-color: #D3D3D3;
+}
+#xpufoqbvhu .gt_grand_summary_row {
+color: #333333;
+background-color: #FFFFFF;
+text-transform: inherit;
+padding-top: 8px;
+padding-bottom: 8px;
+padding-left: 5px;
+padding-right: 5px;
+}
+#xpufoqbvhu .gt_first_grand_summary_row {
+padding-top: 8px;
+padding-bottom: 8px;
+padding-left: 5px;
+padding-right: 5px;
+border-top-style: double;
+border-top-width: 6px;
+border-top-color: #D3D3D3;
+}
+#xpufoqbvhu .gt_last_grand_summary_row_top {
+padding-top: 8px;
+padding-bottom: 8px;
+padding-left: 5px;
+padding-right: 5px;
+border-bottom-style: double;
+border-bottom-width: 6px;
+border-bottom-color: #D3D3D3;
+}
+#xpufoqbvhu .gt_striped {
+background-color: rgba(128, 128, 128, 0.05);
+}
+#xpufoqbvhu .gt_table_body {
+border-top-style: solid;
+border-top-width: 2px;
+border-top-color: #D3D3D3;
+border-bottom-style: solid;
+border-bottom-width: 2px;
+border-bottom-color: #D3D3D3;
+}
+#xpufoqbvhu .gt_footnotes {
+color: #333333;
+background-color: #FFFFFF;
+border-bottom-style: none;
+border-bottom-width: 2px;
+border-bottom-color: #D3D3D3;
+border-left-style: none;
+border-left-width: 2px;
+border-left-color: #D3D3D3;
+border-right-style: none;
+border-right-width: 2px;
+border-right-color: #D3D3D3;
+}
+#xpufoqbvhu .gt_footnote {
+margin: 0px;
+font-size: 90%;
+padding-top: 4px;
+padding-bottom: 4px;
+padding-left: 5px;
+padding-right: 5px;
+}
+#xpufoqbvhu .gt_sourcenotes {
+color: #333333;
+background-color: #FFFFFF;
+border-bottom-style: none;
+border-bottom-width: 2px;
+border-bottom-color: #D3D3D3;
+border-left-style: none;
+border-left-width: 2px;
+border-left-color: #D3D3D3;
+border-right-style: none;
+border-right-width: 2px;
+border-right-color: #D3D3D3;
+}
+#xpufoqbvhu .gt_sourcenote {
+font-size: 90%;
+padding-top: 4px;
+padding-bottom: 4px;
+padding-left: 5px;
+padding-right: 5px;
+}
+#xpufoqbvhu .gt_left {
+text-align: left;
+}
+#xpufoqbvhu .gt_center {
+text-align: center;
+}
+#xpufoqbvhu .gt_right {
+text-align: right;
+font-variant-numeric: tabular-nums;
+}
+#xpufoqbvhu .gt_font_normal {
+font-weight: normal;
+}
+#xpufoqbvhu .gt_font_bold {
+font-weight: bold;
+}
+#xpufoqbvhu .gt_font_italic {
+font-style: italic;
+}
+#xpufoqbvhu .gt_super {
+font-size: 65%;
+}
+#xpufoqbvhu .gt_footnote_marks {
+font-size: 75%;
+vertical-align: 0.4em;
+position: initial;
+}
+#xpufoqbvhu .gt_asterisk {
+font-size: 100%;
+vertical-align: 0;
+}
+#xpufoqbvhu .gt_indent_1 {
+text-indent: 5px;
+}
+#xpufoqbvhu .gt_indent_2 {
+text-indent: 10px;
+}
+#xpufoqbvhu .gt_indent_3 {
+text-indent: 15px;
+}
+#xpufoqbvhu .gt_indent_4 {
+text-indent: 20px;
+}
+#xpufoqbvhu .gt_indent_5 {
+text-indent: 25px;
+}
+#xpufoqbvhu .katex-display {
+display: inline-flex !important;
+margin-bottom: 0.75em !important;
+}
+#xpufoqbvhu div.Reactable > div.rt-table > div.rt-thead > div.rt-tr.rt-tr-group-header > div.rt-th-group:after {
+height: 0px !important;
+}
+</style>
+
+<table class="gt_table caption-top table table-sm table-striped small" data-quarto-postprocess="true" data-quarto-disable-processing="false" data-quarto-bootstrap="false">
+<thead>
+<tr class="gt_col_headings header">
+<th id="Year" class="gt_col_heading gt_columns_bottom_border gt_right" data-quarto-table-cell-role="th" scope="col">Year</th>
+<th id="Department" class="gt_col_heading gt_columns_bottom_border gt_left" data-quarto-table-cell-role="th" scope="col">Department</th>
+<th id="City" class="gt_col_heading gt_columns_bottom_border gt_left" data-quarto-table-cell-role="th" scope="col">City</th>
+<th id="Diagnostic" class="gt_col_heading gt_columns_bottom_border gt_left" data-quarto-table-cell-role="th" scope="col">Diagnostic</th>
+<th id="Age" class="gt_col_heading gt_columns_bottom_border gt_right" data-quarto-table-cell-role="th" scope="col">Age</th>
+<th id="Sex" class="gt_col_heading gt_columns_bottom_border gt_left" data-quarto-table-cell-role="th" scope="col">Sex</th>
+<th id="Cases" class="gt_col_heading gt_columns_bottom_border gt_right" data-quarto-table-cell-role="th" scope="col">Cases</th>
+</tr>
+</thead>
+<tbody class="gt_table_body">
+<tr class="odd">
+<td class="gt_row gt_right" headers="Year">2016</td>
+<td class="gt_row gt_left" headers="Department">Antioquia</td>
+<td class="gt_row gt_left" headers="City">Medellín</td>
+<td class="gt_row gt_left" headers="Diagnostic">F700</td>
+<td class="gt_row gt_right" headers="Age">02</td>
+<td class="gt_row gt_left" headers="Sex">Men</td>
+<td class="gt_row gt_right" headers="Cases">1</td>
+</tr>
+<tr class="even">
+<td class="gt_row gt_right" headers="Year">2016</td>
+<td class="gt_row gt_left" headers="Department">Antioquia</td>
+<td class="gt_row gt_left" headers="City">Medellín</td>
+<td class="gt_row gt_left" headers="Diagnostic">F700</td>
+<td class="gt_row gt_right" headers="Age">04</td>
+<td class="gt_row gt_left" headers="Sex">Women</td>
+<td class="gt_row gt_right" headers="Cases">2</td>
+</tr>
+<tr class="odd">
+<td class="gt_row gt_right" headers="Year">2016</td>
+<td class="gt_row gt_left" headers="Department">Antioquia</td>
+<td class="gt_row gt_left" headers="City">Medellín</td>
+<td class="gt_row gt_left" headers="Diagnostic">F700</td>
+<td class="gt_row gt_right" headers="Age">04</td>
+<td class="gt_row gt_left" headers="Sex">Men</td>
+<td class="gt_row gt_right" headers="Cases">1</td>
+</tr>
+<tr class="even">
+<td class="gt_row gt_right" headers="Year">2016</td>
+<td class="gt_row gt_left" headers="Department">Antioquia</td>
+<td class="gt_row gt_left" headers="City">Medellín</td>
+<td class="gt_row gt_left" headers="Diagnostic">F700</td>
+<td class="gt_row gt_right" headers="Age">06</td>
+<td class="gt_row gt_left" headers="Sex">Women</td>
+<td class="gt_row gt_right" headers="Cases">1</td>
+</tr>
+<tr class="odd">
+<td class="gt_row gt_right" headers="Year">2016</td>
+<td class="gt_row gt_left" headers="Department">Antioquia</td>
+<td class="gt_row gt_left" headers="City">Medellín</td>
+<td class="gt_row gt_left" headers="Diagnostic">F700</td>
+<td class="gt_row gt_right" headers="Age">06</td>
+<td class="gt_row gt_left" headers="Sex">Men</td>
+<td class="gt_row gt_right" headers="Cases">1</td>
+</tr>
+<tr class="even">
+<td class="gt_row gt_right" headers="Year">2016</td>
+<td class="gt_row gt_left" headers="Department">Antioquia</td>
+<td class="gt_row gt_left" headers="City">Medellín</td>
+<td class="gt_row gt_left" headers="Diagnostic">F700</td>
+<td class="gt_row gt_right" headers="Age">06</td>
+<td class="gt_row gt_left" headers="Sex">NR - NO REPORTADO</td>
+<td class="gt_row gt_right" headers="Cases">1</td>
+</tr>
+<tr class="odd">
+<td class="gt_row gt_right" headers="Year">2016</td>
+<td class="gt_row gt_left" headers="Department">Antioquia</td>
+<td class="gt_row gt_left" headers="City">Medellín</td>
+<td class="gt_row gt_left" headers="Diagnostic">F700</td>
+<td class="gt_row gt_right" headers="Age">07</td>
+<td class="gt_row gt_left" headers="Sex">Women</td>
+<td class="gt_row gt_right" headers="Cases">3</td>
+</tr>
+<tr class="even">
+<td class="gt_row gt_right" headers="Year">2016</td>
+<td class="gt_row gt_left" headers="Department">Antioquia</td>
+<td class="gt_row gt_left" headers="City">Medellín</td>
+<td class="gt_row gt_left" headers="Diagnostic">F700</td>
+<td class="gt_row gt_right" headers="Age">07</td>
+<td class="gt_row gt_left" headers="Sex">Men</td>
+<td class="gt_row gt_right" headers="Cases">8</td>
+</tr>
+<tr class="odd">
+<td class="gt_row gt_right" headers="Year">2016</td>
+<td class="gt_row gt_left" headers="Department">Antioquia</td>
+<td class="gt_row gt_left" headers="City">Medellín</td>
+<td class="gt_row gt_left" headers="Diagnostic">F700</td>
+<td class="gt_row gt_right" headers="Age">08</td>
+<td class="gt_row gt_left" headers="Sex">Women</td>
+<td class="gt_row gt_right" headers="Cases">5</td>
+</tr>
+<tr class="even">
+<td class="gt_row gt_right" headers="Year">2016</td>
+<td class="gt_row gt_left" headers="Department">Antioquia</td>
+<td class="gt_row gt_left" headers="City">Medellín</td>
+<td class="gt_row gt_left" headers="Diagnostic">F700</td>
+<td class="gt_row gt_right" headers="Age">08</td>
+<td class="gt_row gt_left" headers="Sex">Men</td>
+<td class="gt_row gt_right" headers="Cases">6</td>
+</tr>
+</tbody>
+</table>
+
+</div>
+</div>
+</div>
+<p>Our next step is to eliminate all the Spanish accents to make all data tablñes compatible and avoid misshandling of information.For this pupose we use the <code>stringi</code> package to support unicode transformations.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>Ministry_data_clean <span class="ot">&lt;-</span> Ministry_data_clean <span class="sc">%&gt;%</span></span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>    <span class="at">Department =</span> <span class="fu">stri_trans_general</span>(Department, <span class="st">&quot;Latin-ASCII&quot;</span>),</span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>    <span class="at">City =</span> <span class="fu">stri_trans_general</span>(City, <span class="st">&quot;Latin-ASCII&quot;</span>)</span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a>  )</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>Further processing of the data revealed that some article words in <code>City</code> and <code>Department</code> names are capitalised, for example Santa Rosa <strong>De</strong>* Osos or Valle <strong>Del</strong> Cauca. To standardise these characters with other datasets, we will decapitalise this article.Also, we modify the Label for Bogotá to make it compatible with other tables.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>Ministry_data_clean <span class="ot">&lt;-</span> Ministry_data_clean <span class="sc">%&gt;%</span></span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">City =</span> <span class="fu">str_replace_all</span>(City, <span class="st">&quot;</span><span class="sc">\\</span><span class="st">bDe</span><span class="sc">\\</span><span class="st">b&quot;</span>, <span class="st">&quot;de&quot;</span>),</span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>         <span class="at">City =</span> <span class="fu">str_replace_all</span>(City, <span class="st">&quot;</span><span class="sc">\\</span><span class="st">bDel</span><span class="sc">\\</span><span class="st">b&quot;</span>, <span class="st">&quot;del&quot;</span>),</span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a>         <span class="at">City =</span> <span class="fu">str_replace_all</span>(City, <span class="st">&quot;</span><span class="sc">\\</span><span class="st">bLa</span><span class="sc">\\</span><span class="st">b&quot;</span>, <span class="st">&quot;la&quot;</span>),</span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a>         <span class="at">Department =</span> <span class="fu">str_replace_all</span>(Department, <span class="st">&quot;</span><span class="sc">\\</span><span class="st">bDe</span><span class="sc">\\</span><span class="st">b&quot;</span>, <span class="st">&quot;de&quot;</span>),</span>
+<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a>         <span class="at">Department =</span> <span class="fu">str_replace_all</span>(Department, <span class="st">&quot;</span><span class="sc">\\</span><span class="st">bDel</span><span class="sc">\\</span><span class="st">b&quot;</span>, <span class="st">&quot;del&quot;</span>),</span>
+<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a>         <span class="at">Department =</span> <span class="fu">str_replace</span>(Department, <span class="st">&quot;Bogota, D</span><span class="sc">\\</span><span class="st">.c&quot;</span>, <span class="st">&quot;Bogota, D.C&quot;</span>),</span>
+<span id="cb8-8"><a href="#cb8-8" aria-hidden="true" tabindex="-1"></a>         <span class="at">City =</span> <span class="fu">str_replace</span>(City, <span class="st">&quot;Bogota, D</span><span class="sc">\\</span><span class="st">.c&quot;</span>, <span class="st">&quot;Bogota, D.C&quot;</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+<section id="subset-the-dataset" class="level2" data-number="2.3">
+<h2 data-number="2.3" class="anchored" data-anchor-id="subset-the-dataset"><span class="header-section-number">2.3</span> Subset the dataset</h2>
+<p>We subset the dataset based on the following criteria:</p>
+<ul>
+<li>Valid <code>sex</code> entry: Cases with “NR - NO REPORTADO” (not reported are excluded).</li>
+<li>For <code>year</code>, we select cases from 0 to 11 years old</li>
+<li>We select valid entries for <code>Department</code> and <code>City</code>. “No Definido” (Not defined) cases are excluded.</li>
+</ul>
+<p>We use the <code>filter</code> function to subset the dataset:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Subset data for Sex = &quot;Men&quot; or &quot;Women&quot; and Age between 0 and 11</span></span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>Ministery_DiagnosticData <span class="ot">&lt;-</span> Ministry_data_clean <span class="sc">%&gt;%</span></span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(Sex <span class="sc">%in%</span> <span class="fu">c</span>(<span class="st">&quot;Men&quot;</span>, <span class="st">&quot;Women&quot;</span>),</span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a>         <span class="fu">as.numeric</span>(Age) <span class="sc">&gt;=</span> <span class="dv">0</span> <span class="sc">&amp;</span> <span class="fu">as.numeric</span>(Age) <span class="sc">&lt;=</span> <span class="dv">11</span>,</span>
+<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a>         <span class="sc">!</span>Department <span class="sc">%in%</span> <span class="fu">c</span>(<span class="st">&quot;No Definido&quot;</span>, <span class="st">&quot;-1 - No Definido&quot;</span>),</span>
+<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a>         <span class="sc">!</span>City <span class="sc">%in%</span> <span class="fu">c</span>(<span class="st">&quot;No Definido&quot;</span>, <span class="st">&quot;-1 - No Definido&quot;</span>))</span>
+<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-8"><a href="#cb9-8" aria-hidden="true" tabindex="-1"></a><span class="co"># Make sure year and age are numerical</span></span>
+<span id="cb9-9"><a href="#cb9-9" aria-hidden="true" tabindex="-1"></a>Ministery_DiagnosticData<span class="sc">$</span>Year <span class="ot">&lt;-</span> <span class="fu">as.numeric</span>(Ministery_DiagnosticData<span class="sc">$</span>Year)</span>
+<span id="cb9-10"><a href="#cb9-10" aria-hidden="true" tabindex="-1"></a>Ministery_DiagnosticData<span class="sc">$</span>Age <span class="ot">&lt;-</span> <span class="fu">as.numeric</span>(Ministery_DiagnosticData<span class="sc">$</span>Age)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>The resulting table contains <code>385,991</code> diagnostic cases. We display the structure of the dataset to check its attributes:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb10"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Display the subsetted dataset</span></span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a><span class="fu">str</span>(Ministery_DiagnosticData)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code># A tibble: 6 × 8
-    Año Año_Cod Departamento Municipio Diagnostico  Edad Sexo    Cantidad
-  &lt;dbl&gt;   &lt;dbl&gt; &lt;chr&gt;        &lt;chr&gt;     &lt;chr&gt;       &lt;dbl&gt; &lt;chr&gt;      &lt;dbl&gt;
-1  2016       0 Antioquia    Medellín  F700            2 Hombres        1
-2  2016       0 Antioquia    Medellín  F700            4 Mujeres        2
-3  2016       0 Antioquia    Medellín  F700            4 Hombres        1
-4  2016       0 Antioquia    Medellín  F700            6 Mujeres        1
-5  2016       0 Antioquia    Medellín  F700            6 Hombres        1
-6  2016       0 Antioquia    Medellín  F700            7 Mujeres        3</code></pre>
+<pre><code>tibble [382,008 × 7] (S3: tbl_df/tbl/data.frame)
+ $ Year      : num [1:382008] 2016 2016 2016 2016 2016 ...
+ $ Department: chr [1:382008] &quot;Antioquia&quot; &quot;Antioquia&quot; &quot;Antioquia&quot; &quot;Antioquia&quot; ...
+ $ City      : chr [1:382008] &quot;Medellin&quot; &quot;Medellin&quot; &quot;Medellin&quot; &quot;Medellin&quot; ...
+ $ Diagnostic: chr [1:382008] &quot;F700&quot; &quot;F700&quot; &quot;F700&quot; &quot;F700&quot; ...
+ $ Age       : num [1:382008] 2 4 4 6 6 7 7 8 8 9 ...
+ $ Sex       : chr [1:382008] &quot;Men&quot; &quot;Women&quot; &quot;Men&quot; &quot;Women&quot; ...
+ $ Cases     : num [1:382008] 1 2 1 1 1 3 8 5 6 8 ...</code></pre>
 </div>
 </div>
-<p>Now, we merge the Dane_Data_2019 and Dane_Data_2035 in a single dataset (<code>Dane_Data_Total</code>) and then subset the rows of interest, which includes the counts of men (Hombres) and women (Mujeres) from 0 to 11 years old..</p>
+<p>The table contains the following variables:</p>
+<p><strong>Year:</strong> Year in which the neurological diagnosis was made. Date range from 2016 to 2022.</p>
+<p><strong>Department:</strong> Geographical Colombian department where the diagnosis was made (Colombia has 32 departments)</p>
+<p><strong>City:</strong> City where the diagnosis was made.</p>
+<p><strong>Diagnosis:</strong> Neuropsychological diagnosis according to <a href="https://icd.who.int/en/">CIE-11</a>.</p>
+<p><strong>Age:</strong> Age of the diagnosed person.</p>
+<p><strong>Sex:</strong> Biological sex/gender of the diagnosed person (men or women).</p>
+<p><strong>Cases:</strong> Number of diagnosed cases.</p>
+<p>Finally, we write a <code>.cvs</code> file (with UTF-8 encoding) in the “Data_Processed” folder to save the clean table.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="co"># We merge the datasets</span></span>
-<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>Dane_Data_Total <span class="ot">&lt;-</span> <span class="fu">rbind</span>(Dane_Data_2019, Dane_Data_2035)</span>
-<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a><span class="co"># We select the rows containing total counts for ÁREA GEOGRÁFICA (Including urban and rural areas)</span></span>
-<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a>Dane_Data_Total <span class="ot">&lt;-</span> <span class="fu">subset</span>(Dane_Data_Total, <span class="st">`</span><span class="at">ÁREA GEOGRÁFICA</span><span class="st">`</span> <span class="sc">==</span> <span class="st">&quot;Total&quot;</span>)</span>
-<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a><span class="co"># We subset ID variables and columns containing counts for population between 0 and 11 years old</span></span>
-<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a>Dane_Data_Total <span class="ot">&lt;-</span> Dane_Data_Total <span class="sc">%&gt;%</span> </span>
-<span id="cb6-9"><a href="#cb6-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(DP, DPNOM, DPMP, MPIO, AÑO, <span class="st">`</span><span class="at">ÁREA GEOGRÁFICA</span><span class="st">`</span>, <span class="fu">matches</span>(<span class="st">&quot;^(Hombres|Mujeres)_([0-9]|1[0-1])$&quot;</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb12"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="fu">write.csv</span>(Ministery_DiagnosticData, <span class="st">&quot;Data_Processed/Ministery_DiagnosticData.csv&quot;</span>, <span class="at">row.names =</span> <span class="cn">FALSE</span>, <span class="at">fileEncoding =</span> <span class="st">&quot;UTF-8&quot;</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
-<p>Here, we inspect the resulting data for <code>Dane_Data_Total</code>.</p>
-<div class="cell">
-<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(Dane_Data_Total)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-stdout">
-<pre><code># A tibble: 6 × 30
-  DP    DPNOM  DPMP  MPIO    AÑO `ÁREA GEOGRÁFICA` Hombres_0 Hombres_1 Hombres_2
-  &lt;chr&gt; &lt;chr&gt;  &lt;chr&gt; &lt;chr&gt; &lt;dbl&gt; &lt;chr&gt;                 &lt;dbl&gt;     &lt;dbl&gt;     &lt;dbl&gt;
-1 05    Antio… Mede… 05001  2005 Total                 14301     14726     15179
-2 05    Antio… Mede… 05001  2006 Total                 14149     14476     14889
-3 05    Antio… Mede… 05001  2007 Total                 13926     14328     14657
-4 05    Antio… Mede… 05001  2008 Total                 13750     14123     14510
-5 05    Antio… Mede… 05001  2009 Total                 13633     13971     14333
-6 05    Antio… Mede… 05001  2010 Total                 13608     13911     14231
-# ℹ 21 more variables: Hombres_3 &lt;dbl&gt;, Hombres_4 &lt;dbl&gt;, Hombres_5 &lt;dbl&gt;,
-#   Hombres_6 &lt;dbl&gt;, Hombres_7 &lt;dbl&gt;, Hombres_8 &lt;dbl&gt;, Hombres_9 &lt;dbl&gt;,
-#   Hombres_10 &lt;dbl&gt;, Hombres_11 &lt;dbl&gt;, Mujeres_0 &lt;dbl&gt;, Mujeres_1 &lt;dbl&gt;,
-#   Mujeres_2 &lt;dbl&gt;, Mujeres_3 &lt;dbl&gt;, Mujeres_4 &lt;dbl&gt;, Mujeres_5 &lt;dbl&gt;,
-#   Mujeres_6 &lt;dbl&gt;, Mujeres_7 &lt;dbl&gt;, Mujeres_8 &lt;dbl&gt;, Mujeres_9 &lt;dbl&gt;,
-#   Mujeres_10 &lt;dbl&gt;, Mujeres_11 &lt;dbl&gt;</code></pre>
+<div class="callout callout-style-default callout-warning callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Warning
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Please note that as this file contains special Spanish characters, if opened in Excel, the user needs to make sure of the encoding:</p>
+<p>Open Excel → Go to Data → Get External Data → From Text. Choose the .csv file and set UTF-8 encoding in the import wizard.</p>
 </div>
 </div>
 </section>
-<section id="relating-information-between-data-tables" class="level3" data-number="3.2">
-<h3 data-number="3.2" class="anchored" data-anchor-id="relating-information-between-data-tables"><span class="header-section-number">3.2</span> Relating information between data tables</h3>
-<p>In this step, we transform the <code>Dane_Data_Total</code> from wide to long format and setup the variable <code>Edad</code> as numeric.</p>
+</section>
+<section id="handling-of-dane-data" class="level1" data-number="3">
+<h1 data-number="3"><span class="header-section-number">3</span> Handling of DANE data</h1>
+<p>In this section, we retrive data from DANE (National Administrative Department of Statistics) in Colombia, which contains information about the population</p>
+<section id="load-data-1" class="level2" data-number="3.1">
+<h2 data-number="3.1" class="anchored" data-anchor-id="load-data-1"><span class="header-section-number">3.1</span> Load data</h2>
+<p>We load two data tables associated with population data in Colombia: (<code>DANE_PopulationData_2005-2019.xlsx</code> and <code>DANE_PopulationData_2005-2019.xlsx</code>).</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Reshape Dane_Data_Total to long format:</span></span>
-<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>Dane_Data_Total_long <span class="ot">&lt;-</span> Dane_Data_Total <span class="sc">%&gt;%</span></span>
-<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">pivot_longer</span>(</span>
-<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a>    <span class="at">cols =</span> <span class="fu">c</span>(<span class="fu">starts_with</span>(<span class="st">&quot;Hombres_&quot;</span>), <span class="fu">starts_with</span>(<span class="st">&quot;Mujeres_&quot;</span>)),</span>
-<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">names_to =</span> <span class="fu">c</span>(<span class="st">&quot;Sexo&quot;</span>, <span class="st">&quot;Edad&quot;</span>),</span>
-<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a>    <span class="at">names_sep =</span> <span class="st">&quot;_&quot;</span>,</span>
-<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a>    <span class="at">values_to =</span> <span class="st">&quot;Poblacion&quot;</span></span>
-<span id="cb9-8"><a href="#cb9-8" aria-hidden="true" tabindex="-1"></a>  )</span>
-<span id="cb9-9"><a href="#cb9-9" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb9-10"><a href="#cb9-10" aria-hidden="true" tabindex="-1"></a>Dane_Data_Total_long<span class="sc">$</span>Edad <span class="ot">&lt;-</span> <span class="fu">as.numeric</span>(Dane_Data_Total_long<span class="sc">$</span>Edad)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb13"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a>Dane_Data_2019 <span class="ot">&lt;-</span> <span class="fu">read_excel</span>(<span class="st">&quot;Data_Raw/DANE_PopulationData_2005-2019.xlsx&quot;</span>) </span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a>Dane_Data_2035 <span class="ot">&lt;-</span> <span class="fu">read_excel</span>(<span class="st">&quot;Data_Raw/DANE_PopulationData_2020-2035.xlsx&quot;</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
-<p>We create a new column called “Poblacion”, which includes the reference population for the number of diagnostics in the <code>Ministery_Data</code> dataset.</p>
+<p>Now we merge the Dane_Data_2019 and Dane_Data_2035 into a single dataset (<code>Dane_Data_Total</code>), then we subset the rows of interest with the following criteria:</p>
+<ul>
+<li>Men and women between 0 and 11 years old</li>
+<li>Timeperiod from 2016 to 2022</li>
+<li>Valid city labels: “No Definido” (Not defined) rows are excluded.</li>
+</ul>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb10"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(Dane_Data_Total_long)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-stdout">
-<pre><code># A tibble: 6 × 9
-  DP    DPNOM     DPMP     MPIO    AÑO `ÁREA GEOGRÁFICA` Sexo     Edad Poblacion
-  &lt;chr&gt; &lt;chr&gt;     &lt;chr&gt;    &lt;chr&gt; &lt;dbl&gt; &lt;chr&gt;             &lt;chr&gt;   &lt;dbl&gt;     &lt;dbl&gt;
-1 05    Antioquia Medellín 05001  2005 Total             Hombres     0     14301
-2 05    Antioquia Medellín 05001  2005 Total             Hombres     1     14726
-3 05    Antioquia Medellín 05001  2005 Total             Hombres     2     15179
-4 05    Antioquia Medellín 05001  2005 Total             Hombres     3     15651
-5 05    Antioquia Medellín 05001  2005 Total             Hombres     4     16109
-6 05    Antioquia Medellín 05001  2005 Total             Hombres     5     16545</code></pre>
-</div>
-</div>
-<p>Then, we pair the counts per age from <code>Dane_Data_Total_long</code> to the <code>Ministery_Data</code> dataset, considering city (<code>Municipio</code>), year (<code>Año</code>), gender (<code>Sexo</code>) and age (<code>Edad</code>)</p>
-<div class="cell">
-<div class="sourceCode cell-code" id="cb12"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Merge the reshaped reference population with Ministery_Data:</span></span>
-<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a>Ministery_Data_with_pop <span class="ot">&lt;-</span> Ministery_Data <span class="sc">%&gt;%</span></span>
-<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">left_join</span>(Dane_Data_Total_long,</span>
-<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a>            <span class="at">by =</span> <span class="fu">c</span>(<span class="st">&quot;Municipio&quot;</span> <span class="ot">=</span> <span class="st">&quot;DPMP&quot;</span>,    <span class="co"># City match: Municipio vs. DPMP</span></span>
-<span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a>                   <span class="st">&quot;Año&quot;</span> <span class="ot">=</span> <span class="st">&quot;AÑO&quot;</span>,           <span class="co"># Year match: Año vs. AÑO</span></span>
-<span id="cb12-6"><a href="#cb12-6" aria-hidden="true" tabindex="-1"></a>                   <span class="st">&quot;Sexo&quot;</span>,                  <span class="co"># Gender match</span></span>
-<span id="cb12-7"><a href="#cb12-7" aria-hidden="true" tabindex="-1"></a>                   <span class="st">&quot;Edad&quot;</span>                   <span class="co"># Age match</span></span>
-<span id="cb12-8"><a href="#cb12-8" aria-hidden="true" tabindex="-1"></a>            ))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-</div>
-<p>Next, we generate a column to indicate if the city (<code>Municipio</code>) is a Departemental capital or not.</p>
-<div class="cell">
-<div class="sourceCode cell-code" id="cb13"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="co"># We create a lookup table for department capitals</span></span>
-<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a>capitals <span class="ot">&lt;-</span> <span class="fu">tibble</span>(</span>
-<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">Departamento =</span> <span class="fu">c</span>(<span class="st">&quot;Amazonas&quot;</span>, <span class="st">&quot;Antioquia&quot;</span>, <span class="st">&quot;Arauca&quot;</span>, <span class="st">&quot;Atlántico&quot;</span>, <span class="st">&quot;Bolívar&quot;</span>, </span>
-<span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a>                   <span class="st">&quot;Boyacá&quot;</span>, <span class="st">&quot;Caldas&quot;</span>, <span class="st">&quot;Caquetá&quot;</span>, <span class="st">&quot;Casanare&quot;</span>, <span class="st">&quot;Cauca&quot;</span>, <span class="st">&quot;Cesar&quot;</span>, </span>
-<span id="cb13-5"><a href="#cb13-5" aria-hidden="true" tabindex="-1"></a>                   <span class="st">&quot;Chocó&quot;</span>, <span class="st">&quot;Córdoba&quot;</span>, <span class="st">&quot;Cundinamarca&quot;</span>, <span class="st">&quot;Guainía&quot;</span>, <span class="st">&quot;Guaviare&quot;</span>, </span>
-<span id="cb13-6"><a href="#cb13-6" aria-hidden="true" tabindex="-1"></a>                   <span class="st">&quot;Huila&quot;</span>, <span class="st">&quot;La Guajira&quot;</span>, <span class="st">&quot;Magdalena&quot;</span>, <span class="st">&quot;Meta&quot;</span>, <span class="st">&quot;Nariño&quot;</span>, </span>
-<span id="cb13-7"><a href="#cb13-7" aria-hidden="true" tabindex="-1"></a>                   <span class="st">&quot;Norte de Santander&quot;</span>, <span class="st">&quot;Putumayo&quot;</span>, <span class="st">&quot;Quindío&quot;</span>, <span class="st">&quot;Risaralda&quot;</span>, </span>
-<span id="cb13-8"><a href="#cb13-8" aria-hidden="true" tabindex="-1"></a>                   <span class="st">&quot;San Andrés y Providencia&quot;</span>, <span class="st">&quot;Santander&quot;</span>, <span class="st">&quot;Sucre&quot;</span>, <span class="st">&quot;Tolima&quot;</span>, </span>
-<span id="cb13-9"><a href="#cb13-9" aria-hidden="true" tabindex="-1"></a>                   <span class="st">&quot;Valle del Cauca&quot;</span>, <span class="st">&quot;Vaupés&quot;</span>, <span class="st">&quot;Vichada&quot;</span>, <span class="st">&quot;Bogotá, D.C.&quot;</span>),</span>
-<span id="cb13-10"><a href="#cb13-10" aria-hidden="true" tabindex="-1"></a>  <span class="at">CapitalMunicipio =</span> <span class="fu">c</span>(<span class="st">&quot;Leticia&quot;</span>, <span class="st">&quot;Medellín&quot;</span>, <span class="st">&quot;Arauca&quot;</span>, <span class="st">&quot;Barranquilla&quot;</span>, <span class="st">&quot;Cartagena&quot;</span>, </span>
-<span id="cb13-11"><a href="#cb13-11" aria-hidden="true" tabindex="-1"></a>                       <span class="st">&quot;Tunja&quot;</span>, <span class="st">&quot;Manizales&quot;</span>, <span class="st">&quot;Florencia&quot;</span>, <span class="st">&quot;Yopal&quot;</span>, <span class="st">&quot;Popayán&quot;</span>, <span class="st">&quot;Valledupar&quot;</span>, </span>
-<span id="cb13-12"><a href="#cb13-12" aria-hidden="true" tabindex="-1"></a>                       <span class="st">&quot;Quibdó&quot;</span>, <span class="st">&quot;Montería&quot;</span>, <span class="st">&quot;Bogotá&quot;</span>, <span class="st">&quot;Inírida&quot;</span>, <span class="st">&quot;San José del Guaviare&quot;</span>, </span>
-<span id="cb13-13"><a href="#cb13-13" aria-hidden="true" tabindex="-1"></a>                       <span class="st">&quot;Neiva&quot;</span>, <span class="st">&quot;Riohacha&quot;</span>, <span class="st">&quot;Santa Marta&quot;</span>, <span class="st">&quot;Villavicencio&quot;</span>, <span class="st">&quot;Pasto&quot;</span>, </span>
-<span id="cb13-14"><a href="#cb13-14" aria-hidden="true" tabindex="-1"></a>                       <span class="st">&quot;Cúcuta&quot;</span>, <span class="st">&quot;Mocoa&quot;</span>, <span class="st">&quot;Armenia&quot;</span>, <span class="st">&quot;Pereira&quot;</span>, <span class="st">&quot;San Andrés&quot;</span>, </span>
-<span id="cb13-15"><a href="#cb13-15" aria-hidden="true" tabindex="-1"></a>                       <span class="st">&quot;Bucaramanga&quot;</span>, <span class="st">&quot;Sincelejo&quot;</span>, <span class="st">&quot;Ibagué&quot;</span>, <span class="st">&quot;Cali&quot;</span>, <span class="st">&quot;Mitú&quot;</span>, <span class="st">&quot;Puerto Carreño&quot;</span>, <span class="st">&quot;Bogotá, D.C.&quot;</span>)</span>
-<span id="cb13-16"><a href="#cb13-16" aria-hidden="true" tabindex="-1"></a>)</span>
-<span id="cb13-17"><a href="#cb13-17" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb13-18"><a href="#cb13-18" aria-hidden="true" tabindex="-1"></a><span class="co"># We perform a left join with the capitals lookup and then create the new &quot;Capital&quot; column.</span></span>
-<span id="cb13-19"><a href="#cb13-19" aria-hidden="true" tabindex="-1"></a>Ministery_Data_with_capital <span class="ot">&lt;-</span> Ministery_Data_with_pop <span class="sc">%&gt;%</span></span>
-<span id="cb13-20"><a href="#cb13-20" aria-hidden="true" tabindex="-1"></a>  <span class="fu">left_join</span>(capitals, <span class="at">by =</span> <span class="st">&quot;Departamento&quot;</span>) <span class="sc">%&gt;%</span></span>
-<span id="cb13-21"><a href="#cb13-21" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">Capital =</span> <span class="fu">if_else</span>(Municipio <span class="sc">==</span> CapitalMunicipio, <span class="st">&quot;Si&quot;</span>, <span class="st">&quot;No&quot;</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-</div>
-<p>Finally, we clean the data subseting the columns of interest and elimintating NAS</p>
-<div class="cell">
-<div class="sourceCode cell-code" id="cb14"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a>Ministery_Data_Compiled <span class="ot">&lt;-</span> Ministery_Data_with_capital <span class="sc">%&gt;%</span> </span>
-<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(Año, Año_Cod, Departamento, Municipio, Capital, Diagnostico, Sexo, Edad, Cantidad, Poblacion)</span>
+<div class="sourceCode cell-code" id="cb14"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="co"># We merge the datasets</span></span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a>Dane_Data_Total <span class="ot">&lt;-</span> <span class="fu">rbind</span>(Dane_Data_2019, Dane_Data_2035)</span>
 <span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb14-4"><a href="#cb14-4" aria-hidden="true" tabindex="-1"></a>Ministery_Data_Compiled <span class="ot">&lt;-</span> <span class="fu">na.omit</span>(Ministery_Data_Compiled)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb14-4"><a href="#cb14-4" aria-hidden="true" tabindex="-1"></a><span class="co"># We select the rows containing total counts for ÁREA GEOGRÁFICA (Including urban and rural areas)</span></span>
+<span id="cb14-5"><a href="#cb14-5" aria-hidden="true" tabindex="-1"></a>Dane_Data_Total <span class="ot">&lt;-</span> <span class="fu">subset</span>(Dane_Data_Total, <span class="st">`</span><span class="at">ÁREA GEOGRÁFICA</span><span class="st">`</span> <span class="sc">==</span> <span class="st">&quot;Total&quot;</span>)</span>
+<span id="cb14-6"><a href="#cb14-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-7"><a href="#cb14-7" aria-hidden="true" tabindex="-1"></a><span class="co"># We subset ID variables and columns containing counts for population between 0 and 11 years old and from 2016 to 2022</span></span>
+<span id="cb14-8"><a href="#cb14-8" aria-hidden="true" tabindex="-1"></a>Dane_Data_Total <span class="ot">&lt;-</span> Dane_Data_Total <span class="sc">%&gt;%</span></span>
+<span id="cb14-9"><a href="#cb14-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(AÑO <span class="sc">&gt;=</span> <span class="dv">2016</span> <span class="sc">&amp;</span> AÑO <span class="sc">&lt;=</span> <span class="dv">2022</span>,</span>
+<span id="cb14-10"><a href="#cb14-10" aria-hidden="true" tabindex="-1"></a>         DPNOM <span class="sc">!=</span> <span class="st">&quot;No Definido&quot;</span>,</span>
+<span id="cb14-11"><a href="#cb14-11" aria-hidden="true" tabindex="-1"></a>         DPMP <span class="sc">!=</span> <span class="st">&quot;No Definido&quot;</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb14-12"><a href="#cb14-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(DPNOM, DPMP, AÑO, <span class="fu">matches</span>(<span class="st">&quot;^(Hombres|Mujeres)_([0-9]|1[0-1])$&quot;</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
-<p>We inspect the resulting dataset for analysis</p>
+<p>Now, we inspect the resulting data for <code>Dane_Data_Total</code>:</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb15"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(Ministery_Data_Compiled)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-stdout">
-<pre><code># A tibble: 6 × 10
-    Año Año_Cod Departamento Municipio Capital Diagnostico Sexo    Edad Cantidad
-  &lt;dbl&gt;   &lt;dbl&gt; &lt;chr&gt;        &lt;chr&gt;     &lt;chr&gt;   &lt;chr&gt;       &lt;chr&gt;  &lt;dbl&gt;    &lt;dbl&gt;
-1  2016       0 Antioquia    Medellín  Si      F700        Hombr…     2        1
-2  2016       0 Antioquia    Medellín  Si      F700        Mujer…     4        2
-3  2016       0 Antioquia    Medellín  Si      F700        Hombr…     4        1
-4  2016       0 Antioquia    Medellín  Si      F700        Mujer…     6        1
-5  2016       0 Antioquia    Medellín  Si      F700        Hombr…     6        1
-6  2016       0 Antioquia    Medellín  Si      F700        Mujer…     7        3
-# ℹ 1 more variable: Poblacion &lt;dbl&gt;</code></pre>
+<div class="sourceCode cell-code" id="cb15"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a>gt<span class="sc">::</span><span class="fu">gt</span>(Dane_Data_Total[<span class="dv">1</span><span class="sc">:</span><span class="dv">10</span>,])</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div id="rphgaqpajz" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
+<style>#rphgaqpajz table {
+font-family: system-ui, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
+-webkit-font-smoothing: antialiased;
+-moz-osx-font-smoothing: grayscale;
+}
+#rphgaqpajz thead, #rphgaqpajz tbody, #rphgaqpajz tfoot, #rphgaqpajz tr, #rphgaqpajz td, #rphgaqpajz th {
+border-style: none;
+}
+#rphgaqpajz p {
+margin: 0;
+padding: 0;
+}
+#rphgaqpajz .gt_table {
+display: table;
+border-collapse: collapse;
+line-height: normal;
+margin-left: auto;
+margin-right: auto;
+color: #333333;
+font-size: 16px;
+font-weight: normal;
+font-style: normal;
+background-color: #FFFFFF;
+width: auto;
+border-top-style: solid;
+border-top-width: 2px;
+border-top-color: #A8A8A8;
+border-right-style: none;
+border-right-width: 2px;
+border-right-color: #D3D3D3;
+border-bottom-style: solid;
+border-bottom-width: 2px;
+border-bottom-color: #A8A8A8;
+border-left-style: none;
+border-left-width: 2px;
+border-left-color: #D3D3D3;
+}
+#rphgaqpajz .gt_caption {
+padding-top: 4px;
+padding-bottom: 4px;
+}
+#rphgaqpajz .gt_title {
+color: #333333;
+font-size: 125%;
+font-weight: initial;
+padding-top: 4px;
+padding-bottom: 4px;
+padding-left: 5px;
+padding-right: 5px;
+border-bottom-color: #FFFFFF;
+border-bottom-width: 0;
+}
+#rphgaqpajz .gt_subtitle {
+color: #333333;
+font-size: 85%;
+font-weight: initial;
+padding-top: 3px;
+padding-bottom: 5px;
+padding-left: 5px;
+padding-right: 5px;
+border-top-color: #FFFFFF;
+border-top-width: 0;
+}
+#rphgaqpajz .gt_heading {
+background-color: #FFFFFF;
+text-align: center;
+border-bottom-color: #FFFFFF;
+border-left-style: none;
+border-left-width: 1px;
+border-left-color: #D3D3D3;
+border-right-style: none;
+border-right-width: 1px;
+border-right-color: #D3D3D3;
+}
+#rphgaqpajz .gt_bottom_border {
+border-bottom-style: solid;
+border-bottom-width: 2px;
+border-bottom-color: #D3D3D3;
+}
+#rphgaqpajz .gt_col_headings {
+border-top-style: solid;
+border-top-width: 2px;
+border-top-color: #D3D3D3;
+border-bottom-style: solid;
+border-bottom-width: 2px;
+border-bottom-color: #D3D3D3;
+border-left-style: none;
+border-left-width: 1px;
+border-left-color: #D3D3D3;
+border-right-style: none;
+border-right-width: 1px;
+border-right-color: #D3D3D3;
+}
+#rphgaqpajz .gt_col_heading {
+color: #333333;
+background-color: #FFFFFF;
+font-size: 100%;
+font-weight: normal;
+text-transform: inherit;
+border-left-style: none;
+border-left-width: 1px;
+border-left-color: #D3D3D3;
+border-right-style: none;
+border-right-width: 1px;
+border-right-color: #D3D3D3;
+vertical-align: bottom;
+padding-top: 5px;
+padding-bottom: 6px;
+padding-left: 5px;
+padding-right: 5px;
+overflow-x: hidden;
+}
+#rphgaqpajz .gt_column_spanner_outer {
+color: #333333;
+background-color: #FFFFFF;
+font-size: 100%;
+font-weight: normal;
+text-transform: inherit;
+padding-top: 0;
+padding-bottom: 0;
+padding-left: 4px;
+padding-right: 4px;
+}
+#rphgaqpajz .gt_column_spanner_outer:first-child {
+padding-left: 0;
+}
+#rphgaqpajz .gt_column_spanner_outer:last-child {
+padding-right: 0;
+}
+#rphgaqpajz .gt_column_spanner {
+border-bottom-style: solid;
+border-bottom-width: 2px;
+border-bottom-color: #D3D3D3;
+vertical-align: bottom;
+padding-top: 5px;
+padding-bottom: 5px;
+overflow-x: hidden;
+display: inline-block;
+width: 100%;
+}
+#rphgaqpajz .gt_spanner_row {
+border-bottom-style: hidden;
+}
+#rphgaqpajz .gt_group_heading {
+padding-top: 8px;
+padding-bottom: 8px;
+padding-left: 5px;
+padding-right: 5px;
+color: #333333;
+background-color: #FFFFFF;
+font-size: 100%;
+font-weight: initial;
+text-transform: inherit;
+border-top-style: solid;
+border-top-width: 2px;
+border-top-color: #D3D3D3;
+border-bottom-style: solid;
+border-bottom-width: 2px;
+border-bottom-color: #D3D3D3;
+border-left-style: none;
+border-left-width: 1px;
+border-left-color: #D3D3D3;
+border-right-style: none;
+border-right-width: 1px;
+border-right-color: #D3D3D3;
+vertical-align: middle;
+text-align: left;
+}
+#rphgaqpajz .gt_empty_group_heading {
+padding: 0.5px;
+color: #333333;
+background-color: #FFFFFF;
+font-size: 100%;
+font-weight: initial;
+border-top-style: solid;
+border-top-width: 2px;
+border-top-color: #D3D3D3;
+border-bottom-style: solid;
+border-bottom-width: 2px;
+border-bottom-color: #D3D3D3;
+vertical-align: middle;
+}
+#rphgaqpajz .gt_from_md > :first-child {
+margin-top: 0;
+}
+#rphgaqpajz .gt_from_md > :last-child {
+margin-bottom: 0;
+}
+#rphgaqpajz .gt_row {
+padding-top: 8px;
+padding-bottom: 8px;
+padding-left: 5px;
+padding-right: 5px;
+margin: 10px;
+border-top-style: solid;
+border-top-width: 1px;
+border-top-color: #D3D3D3;
+border-left-style: none;
+border-left-width: 1px;
+border-left-color: #D3D3D3;
+border-right-style: none;
+border-right-width: 1px;
+border-right-color: #D3D3D3;
+vertical-align: middle;
+overflow-x: hidden;
+}
+#rphgaqpajz .gt_stub {
+color: #333333;
+background-color: #FFFFFF;
+font-size: 100%;
+font-weight: initial;
+text-transform: inherit;
+border-right-style: solid;
+border-right-width: 2px;
+border-right-color: #D3D3D3;
+padding-left: 5px;
+padding-right: 5px;
+}
+#rphgaqpajz .gt_stub_row_group {
+color: #333333;
+background-color: #FFFFFF;
+font-size: 100%;
+font-weight: initial;
+text-transform: inherit;
+border-right-style: solid;
+border-right-width: 2px;
+border-right-color: #D3D3D3;
+padding-left: 5px;
+padding-right: 5px;
+vertical-align: top;
+}
+#rphgaqpajz .gt_row_group_first td {
+border-top-width: 2px;
+}
+#rphgaqpajz .gt_row_group_first th {
+border-top-width: 2px;
+}
+#rphgaqpajz .gt_summary_row {
+color: #333333;
+background-color: #FFFFFF;
+text-transform: inherit;
+padding-top: 8px;
+padding-bottom: 8px;
+padding-left: 5px;
+padding-right: 5px;
+}
+#rphgaqpajz .gt_first_summary_row {
+border-top-style: solid;
+border-top-color: #D3D3D3;
+}
+#rphgaqpajz .gt_first_summary_row.thick {
+border-top-width: 2px;
+}
+#rphgaqpajz .gt_last_summary_row {
+padding-top: 8px;
+padding-bottom: 8px;
+padding-left: 5px;
+padding-right: 5px;
+border-bottom-style: solid;
+border-bottom-width: 2px;
+border-bottom-color: #D3D3D3;
+}
+#rphgaqpajz .gt_grand_summary_row {
+color: #333333;
+background-color: #FFFFFF;
+text-transform: inherit;
+padding-top: 8px;
+padding-bottom: 8px;
+padding-left: 5px;
+padding-right: 5px;
+}
+#rphgaqpajz .gt_first_grand_summary_row {
+padding-top: 8px;
+padding-bottom: 8px;
+padding-left: 5px;
+padding-right: 5px;
+border-top-style: double;
+border-top-width: 6px;
+border-top-color: #D3D3D3;
+}
+#rphgaqpajz .gt_last_grand_summary_row_top {
+padding-top: 8px;
+padding-bottom: 8px;
+padding-left: 5px;
+padding-right: 5px;
+border-bottom-style: double;
+border-bottom-width: 6px;
+border-bottom-color: #D3D3D3;
+}
+#rphgaqpajz .gt_striped {
+background-color: rgba(128, 128, 128, 0.05);
+}
+#rphgaqpajz .gt_table_body {
+border-top-style: solid;
+border-top-width: 2px;
+border-top-color: #D3D3D3;
+border-bottom-style: solid;
+border-bottom-width: 2px;
+border-bottom-color: #D3D3D3;
+}
+#rphgaqpajz .gt_footnotes {
+color: #333333;
+background-color: #FFFFFF;
+border-bottom-style: none;
+border-bottom-width: 2px;
+border-bottom-color: #D3D3D3;
+border-left-style: none;
+border-left-width: 2px;
+border-left-color: #D3D3D3;
+border-right-style: none;
+border-right-width: 2px;
+border-right-color: #D3D3D3;
+}
+#rphgaqpajz .gt_footnote {
+margin: 0px;
+font-size: 90%;
+padding-top: 4px;
+padding-bottom: 4px;
+padding-left: 5px;
+padding-right: 5px;
+}
+#rphgaqpajz .gt_sourcenotes {
+color: #333333;
+background-color: #FFFFFF;
+border-bottom-style: none;
+border-bottom-width: 2px;
+border-bottom-color: #D3D3D3;
+border-left-style: none;
+border-left-width: 2px;
+border-left-color: #D3D3D3;
+border-right-style: none;
+border-right-width: 2px;
+border-right-color: #D3D3D3;
+}
+#rphgaqpajz .gt_sourcenote {
+font-size: 90%;
+padding-top: 4px;
+padding-bottom: 4px;
+padding-left: 5px;
+padding-right: 5px;
+}
+#rphgaqpajz .gt_left {
+text-align: left;
+}
+#rphgaqpajz .gt_center {
+text-align: center;
+}
+#rphgaqpajz .gt_right {
+text-align: right;
+font-variant-numeric: tabular-nums;
+}
+#rphgaqpajz .gt_font_normal {
+font-weight: normal;
+}
+#rphgaqpajz .gt_font_bold {
+font-weight: bold;
+}
+#rphgaqpajz .gt_font_italic {
+font-style: italic;
+}
+#rphgaqpajz .gt_super {
+font-size: 65%;
+}
+#rphgaqpajz .gt_footnote_marks {
+font-size: 75%;
+vertical-align: 0.4em;
+position: initial;
+}
+#rphgaqpajz .gt_asterisk {
+font-size: 100%;
+vertical-align: 0;
+}
+#rphgaqpajz .gt_indent_1 {
+text-indent: 5px;
+}
+#rphgaqpajz .gt_indent_2 {
+text-indent: 10px;
+}
+#rphgaqpajz .gt_indent_3 {
+text-indent: 15px;
+}
+#rphgaqpajz .gt_indent_4 {
+text-indent: 20px;
+}
+#rphgaqpajz .gt_indent_5 {
+text-indent: 25px;
+}
+#rphgaqpajz .katex-display {
+display: inline-flex !important;
+margin-bottom: 0.75em !important;
+}
+#rphgaqpajz div.Reactable > div.rt-table > div.rt-thead > div.rt-tr.rt-tr-group-header > div.rt-th-group:after {
+height: 0px !important;
+}
+</style>
+
+<table class="gt_table caption-top table table-sm table-striped small" data-quarto-postprocess="true" data-quarto-disable-processing="false" data-quarto-bootstrap="false">
+<thead>
+<tr class="gt_col_headings header">
+<th id="DPNOM" class="gt_col_heading gt_columns_bottom_border gt_left" data-quarto-table-cell-role="th" scope="col">DPNOM</th>
+<th id="DPMP" class="gt_col_heading gt_columns_bottom_border gt_left" data-quarto-table-cell-role="th" scope="col">DPMP</th>
+<th id="AÑO" class="gt_col_heading gt_columns_bottom_border gt_right" data-quarto-table-cell-role="th" scope="col">AÑO</th>
+<th id="Hombres_0" class="gt_col_heading gt_columns_bottom_border gt_right" data-quarto-table-cell-role="th" scope="col">Hombres_0</th>
+<th id="Hombres_1" class="gt_col_heading gt_columns_bottom_border gt_right" data-quarto-table-cell-role="th" scope="col">Hombres_1</th>
+<th id="Hombres_2" class="gt_col_heading gt_columns_bottom_border gt_right" data-quarto-table-cell-role="th" scope="col">Hombres_2</th>
+<th id="Hombres_3" class="gt_col_heading gt_columns_bottom_border gt_right" data-quarto-table-cell-role="th" scope="col">Hombres_3</th>
+<th id="Hombres_4" class="gt_col_heading gt_columns_bottom_border gt_right" data-quarto-table-cell-role="th" scope="col">Hombres_4</th>
+<th id="Hombres_5" class="gt_col_heading gt_columns_bottom_border gt_right" data-quarto-table-cell-role="th" scope="col">Hombres_5</th>
+<th id="Hombres_6" class="gt_col_heading gt_columns_bottom_border gt_right" data-quarto-table-cell-role="th" scope="col">Hombres_6</th>
+<th id="Hombres_7" class="gt_col_heading gt_columns_bottom_border gt_right" data-quarto-table-cell-role="th" scope="col">Hombres_7</th>
+<th id="Hombres_8" class="gt_col_heading gt_columns_bottom_border gt_right" data-quarto-table-cell-role="th" scope="col">Hombres_8</th>
+<th id="Hombres_9" class="gt_col_heading gt_columns_bottom_border gt_right" data-quarto-table-cell-role="th" scope="col">Hombres_9</th>
+<th id="Hombres_10" class="gt_col_heading gt_columns_bottom_border gt_right" data-quarto-table-cell-role="th" scope="col">Hombres_10</th>
+<th id="Hombres_11" class="gt_col_heading gt_columns_bottom_border gt_right" data-quarto-table-cell-role="th" scope="col">Hombres_11</th>
+<th id="Mujeres_0" class="gt_col_heading gt_columns_bottom_border gt_right" data-quarto-table-cell-role="th" scope="col">Mujeres_0</th>
+<th id="Mujeres_1" class="gt_col_heading gt_columns_bottom_border gt_right" data-quarto-table-cell-role="th" scope="col">Mujeres_1</th>
+<th id="Mujeres_2" class="gt_col_heading gt_columns_bottom_border gt_right" data-quarto-table-cell-role="th" scope="col">Mujeres_2</th>
+<th id="Mujeres_3" class="gt_col_heading gt_columns_bottom_border gt_right" data-quarto-table-cell-role="th" scope="col">Mujeres_3</th>
+<th id="Mujeres_4" class="gt_col_heading gt_columns_bottom_border gt_right" data-quarto-table-cell-role="th" scope="col">Mujeres_4</th>
+<th id="Mujeres_5" class="gt_col_heading gt_columns_bottom_border gt_right" data-quarto-table-cell-role="th" scope="col">Mujeres_5</th>
+<th id="Mujeres_6" class="gt_col_heading gt_columns_bottom_border gt_right" data-quarto-table-cell-role="th" scope="col">Mujeres_6</th>
+<th id="Mujeres_7" class="gt_col_heading gt_columns_bottom_border gt_right" data-quarto-table-cell-role="th" scope="col">Mujeres_7</th>
+<th id="Mujeres_8" class="gt_col_heading gt_columns_bottom_border gt_right" data-quarto-table-cell-role="th" scope="col">Mujeres_8</th>
+<th id="Mujeres_9" class="gt_col_heading gt_columns_bottom_border gt_right" data-quarto-table-cell-role="th" scope="col">Mujeres_9</th>
+<th id="Mujeres_10" class="gt_col_heading gt_columns_bottom_border gt_right" data-quarto-table-cell-role="th" scope="col">Mujeres_10</th>
+<th id="Mujeres_11" class="gt_col_heading gt_columns_bottom_border gt_right" data-quarto-table-cell-role="th" scope="col">Mujeres_11</th>
+</tr>
+</thead>
+<tbody class="gt_table_body">
+<tr class="odd">
+<td class="gt_row gt_left" headers="DPNOM">Antioquia</td>
+<td class="gt_row gt_left" headers="DPMP">Medellín</td>
+<td class="gt_row gt_right" headers="AÑO">2016</td>
+<td class="gt_row gt_right" headers="Hombres_0">14143</td>
+<td class="gt_row gt_right" headers="Hombres_1">14299</td>
+<td class="gt_row gt_right" headers="Hombres_2">14436</td>
+<td class="gt_row gt_right" headers="Hombres_3">14559</td>
+<td class="gt_row gt_right" headers="Hombres_4">14688</td>
+<td class="gt_row gt_right" headers="Hombres_5">14821</td>
+<td class="gt_row gt_right" headers="Hombres_6">14969</td>
+<td class="gt_row gt_right" headers="Hombres_7">15153</td>
+<td class="gt_row gt_right" headers="Hombres_8">15373</td>
+<td class="gt_row gt_right" headers="Hombres_9">15648</td>
+<td class="gt_row gt_right" headers="Hombres_10">15968</td>
+<td class="gt_row gt_right" headers="Hombres_11">16336</td>
+<td class="gt_row gt_right" headers="Mujeres_0">13475</td>
+<td class="gt_row gt_right" headers="Mujeres_1">13652</td>
+<td class="gt_row gt_right" headers="Mujeres_2">13815</td>
+<td class="gt_row gt_right" headers="Mujeres_3">13970</td>
+<td class="gt_row gt_right" headers="Mujeres_4">14123</td>
+<td class="gt_row gt_right" headers="Mujeres_5">14280</td>
+<td class="gt_row gt_right" headers="Mujeres_6">14457</td>
+<td class="gt_row gt_right" headers="Mujeres_7">14674</td>
+<td class="gt_row gt_right" headers="Mujeres_8">14915</td>
+<td class="gt_row gt_right" headers="Mujeres_9">15206</td>
+<td class="gt_row gt_right" headers="Mujeres_10">15545</td>
+<td class="gt_row gt_right" headers="Mujeres_11">15915</td>
+</tr>
+<tr class="even">
+<td class="gt_row gt_left" headers="DPNOM">Antioquia</td>
+<td class="gt_row gt_left" headers="DPMP">Medellín</td>
+<td class="gt_row gt_right" headers="AÑO">2017</td>
+<td class="gt_row gt_right" headers="Hombres_0">14233</td>
+<td class="gt_row gt_right" headers="Hombres_1">14387</td>
+<td class="gt_row gt_right" headers="Hombres_2">14515</td>
+<td class="gt_row gt_right" headers="Hombres_3">14623</td>
+<td class="gt_row gt_right" headers="Hombres_4">14726</td>
+<td class="gt_row gt_right" headers="Hombres_5">14838</td>
+<td class="gt_row gt_right" headers="Hombres_6">14959</td>
+<td class="gt_row gt_right" headers="Hombres_7">15110</td>
+<td class="gt_row gt_right" headers="Hombres_8">15297</td>
+<td class="gt_row gt_right" headers="Hombres_9">15532</td>
+<td class="gt_row gt_right" headers="Hombres_10">15819</td>
+<td class="gt_row gt_right" headers="Hombres_11">16161</td>
+<td class="gt_row gt_right" headers="Mujeres_0">13564</td>
+<td class="gt_row gt_right" headers="Mujeres_1">13735</td>
+<td class="gt_row gt_right" headers="Mujeres_2">13882</td>
+<td class="gt_row gt_right" headers="Mujeres_3">14035</td>
+<td class="gt_row gt_right" headers="Mujeres_4">14159</td>
+<td class="gt_row gt_right" headers="Mujeres_5">14300</td>
+<td class="gt_row gt_right" headers="Mujeres_6">14443</td>
+<td class="gt_row gt_right" headers="Mujeres_7">14625</td>
+<td class="gt_row gt_right" headers="Mujeres_8">14836</td>
+<td class="gt_row gt_right" headers="Mujeres_9">15092</td>
+<td class="gt_row gt_right" headers="Mujeres_10">15390</td>
+<td class="gt_row gt_right" headers="Mujeres_11">15750</td>
+</tr>
+<tr class="odd">
+<td class="gt_row gt_left" headers="DPNOM">Antioquia</td>
+<td class="gt_row gt_left" headers="DPMP">Medellín</td>
+<td class="gt_row gt_right" headers="AÑO">2018</td>
+<td class="gt_row gt_right" headers="Hombres_0">14474</td>
+<td class="gt_row gt_right" headers="Hombres_1">14600</td>
+<td class="gt_row gt_right" headers="Hombres_2">14699</td>
+<td class="gt_row gt_right" headers="Hombres_3">14782</td>
+<td class="gt_row gt_right" headers="Hombres_4">14861</td>
+<td class="gt_row gt_right" headers="Hombres_5">14942</td>
+<td class="gt_row gt_right" headers="Hombres_6">15036</td>
+<td class="gt_row gt_right" headers="Hombres_7">15155</td>
+<td class="gt_row gt_right" headers="Hombres_8">15305</td>
+<td class="gt_row gt_right" headers="Hombres_9">15498</td>
+<td class="gt_row gt_right" headers="Hombres_10">15738</td>
+<td class="gt_row gt_right" headers="Hombres_11">16039</td>
+<td class="gt_row gt_right" headers="Mujeres_0">13828</td>
+<td class="gt_row gt_right" headers="Mujeres_1">13973</td>
+<td class="gt_row gt_right" headers="Mujeres_2">14097</td>
+<td class="gt_row gt_right" headers="Mujeres_3">14204</td>
+<td class="gt_row gt_right" headers="Mujeres_4">14309</td>
+<td class="gt_row gt_right" headers="Mujeres_5">14415</td>
+<td class="gt_row gt_right" headers="Mujeres_6">14536</td>
+<td class="gt_row gt_right" headers="Mujeres_7">14679</td>
+<td class="gt_row gt_right" headers="Mujeres_8">14852</td>
+<td class="gt_row gt_right" headers="Mujeres_9">15065</td>
+<td class="gt_row gt_right" headers="Mujeres_10">15326</td>
+<td class="gt_row gt_right" headers="Mujeres_11">15640</td>
+</tr>
+<tr class="even">
+<td class="gt_row gt_left" headers="DPNOM">Antioquia</td>
+<td class="gt_row gt_left" headers="DPMP">Medellín</td>
+<td class="gt_row gt_right" headers="AÑO">2019</td>
+<td class="gt_row gt_right" headers="Hombres_0">14863</td>
+<td class="gt_row gt_right" headers="Hombres_1">14902</td>
+<td class="gt_row gt_right" headers="Hombres_2">14984</td>
+<td class="gt_row gt_right" headers="Hombres_3">15040</td>
+<td class="gt_row gt_right" headers="Hombres_4">15081</td>
+<td class="gt_row gt_right" headers="Hombres_5">15122</td>
+<td class="gt_row gt_right" headers="Hombres_6">15179</td>
+<td class="gt_row gt_right" headers="Hombres_7">15258</td>
+<td class="gt_row gt_right" headers="Hombres_8">15370</td>
+<td class="gt_row gt_right" headers="Hombres_9">15523</td>
+<td class="gt_row gt_right" headers="Hombres_10">15724</td>
+<td class="gt_row gt_right" headers="Hombres_11">15983</td>
+<td class="gt_row gt_right" headers="Mujeres_0">14220</td>
+<td class="gt_row gt_right" headers="Mujeres_1">14244</td>
+<td class="gt_row gt_right" headers="Mujeres_2">14345</td>
+<td class="gt_row gt_right" headers="Mujeres_3">14428</td>
+<td class="gt_row gt_right" headers="Mujeres_4">14494</td>
+<td class="gt_row gt_right" headers="Mujeres_5">14559</td>
+<td class="gt_row gt_right" headers="Mujeres_6">14638</td>
+<td class="gt_row gt_right" headers="Mujeres_7">14740</td>
+<td class="gt_row gt_right" headers="Mujeres_8">14873</td>
+<td class="gt_row gt_right" headers="Mujeres_9">15049</td>
+<td class="gt_row gt_right" headers="Mujeres_10">15273</td>
+<td class="gt_row gt_right" headers="Mujeres_11">15554</td>
+</tr>
+<tr class="odd">
+<td class="gt_row gt_left" headers="DPNOM">Antioquia</td>
+<td class="gt_row gt_left" headers="DPMP">Abejorral</td>
+<td class="gt_row gt_right" headers="AÑO">2016</td>
+<td class="gt_row gt_right" headers="Hombres_0">135</td>
+<td class="gt_row gt_right" headers="Hombres_1">133</td>
+<td class="gt_row gt_right" headers="Hombres_2">132</td>
+<td class="gt_row gt_right" headers="Hombres_3">136</td>
+<td class="gt_row gt_right" headers="Hombres_4">141</td>
+<td class="gt_row gt_right" headers="Hombres_5">146</td>
+<td class="gt_row gt_right" headers="Hombres_6">152</td>
+<td class="gt_row gt_right" headers="Hombres_7">158</td>
+<td class="gt_row gt_right" headers="Hombres_8">164</td>
+<td class="gt_row gt_right" headers="Hombres_9">171</td>
+<td class="gt_row gt_right" headers="Hombres_10">176</td>
+<td class="gt_row gt_right" headers="Hombres_11">181</td>
+<td class="gt_row gt_right" headers="Mujeres_0">139</td>
+<td class="gt_row gt_right" headers="Mujeres_1">135</td>
+<td class="gt_row gt_right" headers="Mujeres_2">136</td>
+<td class="gt_row gt_right" headers="Mujeres_3">138</td>
+<td class="gt_row gt_right" headers="Mujeres_4">140</td>
+<td class="gt_row gt_right" headers="Mujeres_5">143</td>
+<td class="gt_row gt_right" headers="Mujeres_6">146</td>
+<td class="gt_row gt_right" headers="Mujeres_7">150</td>
+<td class="gt_row gt_right" headers="Mujeres_8">154</td>
+<td class="gt_row gt_right" headers="Mujeres_9">158</td>
+<td class="gt_row gt_right" headers="Mujeres_10">162</td>
+<td class="gt_row gt_right" headers="Mujeres_11">164</td>
+</tr>
+<tr class="even">
+<td class="gt_row gt_left" headers="DPNOM">Antioquia</td>
+<td class="gt_row gt_left" headers="DPMP">Abejorral</td>
+<td class="gt_row gt_right" headers="AÑO">2017</td>
+<td class="gt_row gt_right" headers="Hombres_0">133</td>
+<td class="gt_row gt_right" headers="Hombres_1">131</td>
+<td class="gt_row gt_right" headers="Hombres_2">130</td>
+<td class="gt_row gt_right" headers="Hombres_3">133</td>
+<td class="gt_row gt_right" headers="Hombres_4">138</td>
+<td class="gt_row gt_right" headers="Hombres_5">143</td>
+<td class="gt_row gt_right" headers="Hombres_6">148</td>
+<td class="gt_row gt_right" headers="Hombres_7">154</td>
+<td class="gt_row gt_right" headers="Hombres_8">159</td>
+<td class="gt_row gt_right" headers="Hombres_9">165</td>
+<td class="gt_row gt_right" headers="Hombres_10">170</td>
+<td class="gt_row gt_right" headers="Hombres_11">176</td>
+<td class="gt_row gt_right" headers="Mujeres_0">136</td>
+<td class="gt_row gt_right" headers="Mujeres_1">133</td>
+<td class="gt_row gt_right" headers="Mujeres_2">133</td>
+<td class="gt_row gt_right" headers="Mujeres_3">135</td>
+<td class="gt_row gt_right" headers="Mujeres_4">136</td>
+<td class="gt_row gt_right" headers="Mujeres_5">139</td>
+<td class="gt_row gt_right" headers="Mujeres_6">143</td>
+<td class="gt_row gt_right" headers="Mujeres_7">146</td>
+<td class="gt_row gt_right" headers="Mujeres_8">150</td>
+<td class="gt_row gt_right" headers="Mujeres_9">152</td>
+<td class="gt_row gt_right" headers="Mujeres_10">156</td>
+<td class="gt_row gt_right" headers="Mujeres_11">159</td>
+</tr>
+<tr class="odd">
+<td class="gt_row gt_left" headers="DPNOM">Antioquia</td>
+<td class="gt_row gt_left" headers="DPMP">Abejorral</td>
+<td class="gt_row gt_right" headers="AÑO">2018</td>
+<td class="gt_row gt_right" headers="Hombres_0">132</td>
+<td class="gt_row gt_right" headers="Hombres_1">130</td>
+<td class="gt_row gt_right" headers="Hombres_2">129</td>
+<td class="gt_row gt_right" headers="Hombres_3">132</td>
+<td class="gt_row gt_right" headers="Hombres_4">136</td>
+<td class="gt_row gt_right" headers="Hombres_5">141</td>
+<td class="gt_row gt_right" headers="Hombres_6">145</td>
+<td class="gt_row gt_right" headers="Hombres_7">151</td>
+<td class="gt_row gt_right" headers="Hombres_8">156</td>
+<td class="gt_row gt_right" headers="Hombres_9">161</td>
+<td class="gt_row gt_right" headers="Hombres_10">167</td>
+<td class="gt_row gt_right" headers="Hombres_11">171</td>
+<td class="gt_row gt_right" headers="Mujeres_0">136</td>
+<td class="gt_row gt_right" headers="Mujeres_1">132</td>
+<td class="gt_row gt_right" headers="Mujeres_2">132</td>
+<td class="gt_row gt_right" headers="Mujeres_3">134</td>
+<td class="gt_row gt_right" headers="Mujeres_4">135</td>
+<td class="gt_row gt_right" headers="Mujeres_5">137</td>
+<td class="gt_row gt_right" headers="Mujeres_6">140</td>
+<td class="gt_row gt_right" headers="Mujeres_7">143</td>
+<td class="gt_row gt_right" headers="Mujeres_8">146</td>
+<td class="gt_row gt_right" headers="Mujeres_9">149</td>
+<td class="gt_row gt_right" headers="Mujeres_10">153</td>
+<td class="gt_row gt_right" headers="Mujeres_11">154</td>
+</tr>
+<tr class="even">
+<td class="gt_row gt_left" headers="DPNOM">Antioquia</td>
+<td class="gt_row gt_left" headers="DPMP">Abejorral</td>
+<td class="gt_row gt_right" headers="AÑO">2019</td>
+<td class="gt_row gt_right" headers="Hombres_0">130</td>
+<td class="gt_row gt_right" headers="Hombres_1">128</td>
+<td class="gt_row gt_right" headers="Hombres_2">129</td>
+<td class="gt_row gt_right" headers="Hombres_3">131</td>
+<td class="gt_row gt_right" headers="Hombres_4">134</td>
+<td class="gt_row gt_right" headers="Hombres_5">139</td>
+<td class="gt_row gt_right" headers="Hombres_6">144</td>
+<td class="gt_row gt_right" headers="Hombres_7">149</td>
+<td class="gt_row gt_right" headers="Hombres_8">154</td>
+<td class="gt_row gt_right" headers="Hombres_9">160</td>
+<td class="gt_row gt_right" headers="Hombres_10">165</td>
+<td class="gt_row gt_right" headers="Hombres_11">168</td>
+<td class="gt_row gt_right" headers="Mujeres_0">131</td>
+<td class="gt_row gt_right" headers="Mujeres_1">130</td>
+<td class="gt_row gt_right" headers="Mujeres_2">130</td>
+<td class="gt_row gt_right" headers="Mujeres_3">131</td>
+<td class="gt_row gt_right" headers="Mujeres_4">132</td>
+<td class="gt_row gt_right" headers="Mujeres_5">135</td>
+<td class="gt_row gt_right" headers="Mujeres_6">138</td>
+<td class="gt_row gt_right" headers="Mujeres_7">140</td>
+<td class="gt_row gt_right" headers="Mujeres_8">144</td>
+<td class="gt_row gt_right" headers="Mujeres_9">147</td>
+<td class="gt_row gt_right" headers="Mujeres_10">148</td>
+<td class="gt_row gt_right" headers="Mujeres_11">152</td>
+</tr>
+<tr class="odd">
+<td class="gt_row gt_left" headers="DPNOM">Antioquia</td>
+<td class="gt_row gt_left" headers="DPMP">Abriaquí</td>
+<td class="gt_row gt_right" headers="AÑO">2016</td>
+<td class="gt_row gt_right" headers="Hombres_0">24</td>
+<td class="gt_row gt_right" headers="Hombres_1">23</td>
+<td class="gt_row gt_right" headers="Hombres_2">23</td>
+<td class="gt_row gt_right" headers="Hombres_3">23</td>
+<td class="gt_row gt_right" headers="Hombres_4">22</td>
+<td class="gt_row gt_right" headers="Hombres_5">22</td>
+<td class="gt_row gt_right" headers="Hombres_6">22</td>
+<td class="gt_row gt_right" headers="Hombres_7">23</td>
+<td class="gt_row gt_right" headers="Hombres_8">23</td>
+<td class="gt_row gt_right" headers="Hombres_9">23</td>
+<td class="gt_row gt_right" headers="Hombres_10">23</td>
+<td class="gt_row gt_right" headers="Hombres_11">23</td>
+<td class="gt_row gt_right" headers="Mujeres_0">19</td>
+<td class="gt_row gt_right" headers="Mujeres_1">20</td>
+<td class="gt_row gt_right" headers="Mujeres_2">20</td>
+<td class="gt_row gt_right" headers="Mujeres_3">19</td>
+<td class="gt_row gt_right" headers="Mujeres_4">20</td>
+<td class="gt_row gt_right" headers="Mujeres_5">20</td>
+<td class="gt_row gt_right" headers="Mujeres_6">19</td>
+<td class="gt_row gt_right" headers="Mujeres_7">19</td>
+<td class="gt_row gt_right" headers="Mujeres_8">19</td>
+<td class="gt_row gt_right" headers="Mujeres_9">20</td>
+<td class="gt_row gt_right" headers="Mujeres_10">20</td>
+<td class="gt_row gt_right" headers="Mujeres_11">20</td>
+</tr>
+<tr class="even">
+<td class="gt_row gt_left" headers="DPNOM">Antioquia</td>
+<td class="gt_row gt_left" headers="DPMP">Abriaquí</td>
+<td class="gt_row gt_right" headers="AÑO">2017</td>
+<td class="gt_row gt_right" headers="Hombres_0">24</td>
+<td class="gt_row gt_right" headers="Hombres_1">23</td>
+<td class="gt_row gt_right" headers="Hombres_2">23</td>
+<td class="gt_row gt_right" headers="Hombres_3">23</td>
+<td class="gt_row gt_right" headers="Hombres_4">22</td>
+<td class="gt_row gt_right" headers="Hombres_5">22</td>
+<td class="gt_row gt_right" headers="Hombres_6">22</td>
+<td class="gt_row gt_right" headers="Hombres_7">22</td>
+<td class="gt_row gt_right" headers="Hombres_8">22</td>
+<td class="gt_row gt_right" headers="Hombres_9">23</td>
+<td class="gt_row gt_right" headers="Hombres_10">23</td>
+<td class="gt_row gt_right" headers="Hombres_11">23</td>
+<td class="gt_row gt_right" headers="Mujeres_0">19</td>
+<td class="gt_row gt_right" headers="Mujeres_1">20</td>
+<td class="gt_row gt_right" headers="Mujeres_2">20</td>
+<td class="gt_row gt_right" headers="Mujeres_3">19</td>
+<td class="gt_row gt_right" headers="Mujeres_4">20</td>
+<td class="gt_row gt_right" headers="Mujeres_5">20</td>
+<td class="gt_row gt_right" headers="Mujeres_6">20</td>
+<td class="gt_row gt_right" headers="Mujeres_7">19</td>
+<td class="gt_row gt_right" headers="Mujeres_8">19</td>
+<td class="gt_row gt_right" headers="Mujeres_9">19</td>
+<td class="gt_row gt_right" headers="Mujeres_10">20</td>
+<td class="gt_row gt_right" headers="Mujeres_11">20</td>
+</tr>
+</tbody>
+</table>
+
 </div>
+</div>
+</div>
+<p>The resulting table provides information on the number of men (Hombres) and women (Mujeres) from 0 to 11 years of age by year, department and city in Colombia.</p>
+<p>As done previusly, we aliminate Spanish accents to avoid misstreatment of information. In addition, we transform the capitalization of article in Department and City names to facilitate the interoperability between data tables.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb16"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a>Dane_Data_Total <span class="ot">&lt;-</span> Dane_Data_Total <span class="sc">%&gt;%</span></span>
+<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
+<span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a>    <span class="at">DPNOM =</span> <span class="fu">stri_trans_general</span>(DPNOM, <span class="st">&quot;Latin-ASCII&quot;</span>),</span>
+<span id="cb16-4"><a href="#cb16-4" aria-hidden="true" tabindex="-1"></a>    <span class="at">DPMP =</span> <span class="fu">stri_trans_general</span>(DPMP, <span class="st">&quot;Latin-ASCII&quot;</span>)</span>
+<span id="cb16-5"><a href="#cb16-5" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb16-6"><a href="#cb16-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb16-7"><a href="#cb16-7" aria-hidden="true" tabindex="-1"></a>Dane_Data_Total <span class="ot">&lt;-</span> Dane_Data_Total <span class="sc">%&gt;%</span></span>
+<span id="cb16-8"><a href="#cb16-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">DPMP =</span> <span class="fu">str_replace_all</span>(DPMP, <span class="st">&quot;</span><span class="sc">\\</span><span class="st">bDe</span><span class="sc">\\</span><span class="st">b&quot;</span>, <span class="st">&quot;de&quot;</span>),</span>
+<span id="cb16-9"><a href="#cb16-9" aria-hidden="true" tabindex="-1"></a>         <span class="at">DPMP =</span> <span class="fu">str_replace_all</span>(DPMP, <span class="st">&quot;</span><span class="sc">\\</span><span class="st">bDel</span><span class="sc">\\</span><span class="st">b&quot;</span>, <span class="st">&quot;del&quot;</span>),</span>
+<span id="cb16-10"><a href="#cb16-10" aria-hidden="true" tabindex="-1"></a>         <span class="at">DPMP =</span> <span class="fu">str_replace_all</span>(DPMP, <span class="st">&quot;</span><span class="sc">\\</span><span class="st">bLa</span><span class="sc">\\</span><span class="st">b&quot;</span>, <span class="st">&quot;la&quot;</span>),</span>
+<span id="cb16-11"><a href="#cb16-11" aria-hidden="true" tabindex="-1"></a>         <span class="at">DPNOM =</span> <span class="fu">str_replace_all</span>(DPNOM, <span class="st">&quot;</span><span class="sc">\\</span><span class="st">bDe</span><span class="sc">\\</span><span class="st">b&quot;</span>, <span class="st">&quot;de&quot;</span>),</span>
+<span id="cb16-12"><a href="#cb16-12" aria-hidden="true" tabindex="-1"></a>         <span class="at">DPNOM =</span> <span class="fu">str_replace_all</span>(DPNOM, <span class="st">&quot;</span><span class="sc">\\</span><span class="st">bDel</span><span class="sc">\\</span><span class="st">b&quot;</span>, <span class="st">&quot;del&quot;</span>),</span>
+<span id="cb16-13"><a href="#cb16-13" aria-hidden="true" tabindex="-1"></a>         <span class="at">DPNOM =</span> <span class="fu">str_replace</span>(DPNOM, <span class="st">&quot;Bogota, D</span><span class="sc">\\</span><span class="st">.c&quot;</span>, <span class="st">&quot;Bogota, D.C&quot;</span>),</span>
+<span id="cb16-14"><a href="#cb16-14" aria-hidden="true" tabindex="-1"></a>         <span class="at">DPMP =</span> <span class="fu">str_replace</span>(DPMP, <span class="st">&quot;Bogota, D</span><span class="sc">\\</span><span class="st">.c&quot;</span>, <span class="st">&quot;Bogota, D.C&quot;</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+<section id="transforming-wide-to-long-format" class="level2" data-number="3.2">
+<h2 data-number="3.2" class="anchored" data-anchor-id="transforming-wide-to-long-format"><span class="header-section-number">3.2</span> Transforming wide to long format</h2>
+<p>In this section, we transform the <code>Dane_Data_Total</code> from wide to long format and setup the variable <code>Edad</code> as numeric. Also, we create a new column called “Poblacion”, which will be the reference population for the number of diagnostics.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb17"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Reshape Dane_Data_Total to long format:</span></span>
+<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a>Dane_Data_Total_long <span class="ot">&lt;-</span> Dane_Data_Total <span class="sc">%&gt;%</span></span>
+<span id="cb17-3"><a href="#cb17-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">pivot_longer</span>(</span>
+<span id="cb17-4"><a href="#cb17-4" aria-hidden="true" tabindex="-1"></a>    <span class="at">cols =</span> <span class="fu">c</span>(<span class="fu">starts_with</span>(<span class="st">&quot;Hombres_&quot;</span>), <span class="fu">starts_with</span>(<span class="st">&quot;Mujeres_&quot;</span>)),</span>
+<span id="cb17-5"><a href="#cb17-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">names_to =</span> <span class="fu">c</span>(<span class="st">&quot;Sexo&quot;</span>, <span class="st">&quot;Edad&quot;</span>),</span>
+<span id="cb17-6"><a href="#cb17-6" aria-hidden="true" tabindex="-1"></a>    <span class="at">names_sep =</span> <span class="st">&quot;_&quot;</span>,</span>
+<span id="cb17-7"><a href="#cb17-7" aria-hidden="true" tabindex="-1"></a>    <span class="at">values_to =</span> <span class="st">&quot;Poblacion&quot;</span></span>
+<span id="cb17-8"><a href="#cb17-8" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb17-9"><a href="#cb17-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-10"><a href="#cb17-10" aria-hidden="true" tabindex="-1"></a>Dane_Data_Total_long<span class="sc">$</span>Edad <span class="ot">&lt;-</span> <span class="fu">as.numeric</span>(Dane_Data_Total_long<span class="sc">$</span>Edad)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>We verify the data strcuture</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb18"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a><span class="fu">str</span>(Dane_Data_Total_long)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>tibble [188,496 × 6] (S3: tbl_df/tbl/data.frame)
+ $ DPNOM    : chr [1:188496] &quot;Antioquia&quot; &quot;Antioquia&quot; &quot;Antioquia&quot; &quot;Antioquia&quot; ...
+ $ DPMP     : chr [1:188496] &quot;Medellin&quot; &quot;Medellin&quot; &quot;Medellin&quot; &quot;Medellin&quot; ...
+ $ AÑO      : num [1:188496] 2016 2016 2016 2016 2016 ...
+ $ Sexo     : chr [1:188496] &quot;Hombres&quot; &quot;Hombres&quot; &quot;Hombres&quot; &quot;Hombres&quot; ...
+ $ Edad     : num [1:188496] 0 1 2 3 4 5 6 7 8 9 ...
+ $ Poblacion: num [1:188496] 14143 14299 14436 14559 14688 ...</code></pre>
+</div>
+</div>
+<p>We see that <code>DPNOM</code> (department), <code>DPMP</code> (city) and <code>Sexo</code> are character variables, while <code>AÑO</code> (year), <code>Edad</code> (age) and <code>Poblacion</code> (population) are numeric. The dataset contains a total of <code>834.768</code> observations.</p>
+<p>Next, we make sure column names and labels are compatible with the <code>Ministery_DiagnosticData</code> dataset.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb20"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Change column names in order</span></span>
+<span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a><span class="fu">colnames</span>(Dane_Data_Total_long) <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">&quot;Department&quot;</span>, <span class="st">&quot;City&quot;</span>,  <span class="st">&quot;Year&quot;</span>, <span class="st">&quot;Sex&quot;</span>, <span class="st">&quot;Age&quot;</span>, <span class="st">&quot;Population&quot;</span>)</span>
+<span id="cb20-3"><a href="#cb20-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-4"><a href="#cb20-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Replace &quot;MASCULINO&quot; with &quot;Men&quot; and &quot;FEMENINO&quot; with &quot;Women&quot;</span></span>
+<span id="cb20-5"><a href="#cb20-5" aria-hidden="true" tabindex="-1"></a>Dane_Data_Total_long <span class="ot">&lt;-</span> Dane_Data_Total_long <span class="sc">%&gt;%</span></span>
+<span id="cb20-6"><a href="#cb20-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">Sex =</span> <span class="fu">recode</span>(Sex, <span class="st">&quot;Hombres&quot;</span> <span class="ot">=</span> <span class="st">&quot;Men&quot;</span>, <span class="st">&quot;Mujeres&quot;</span> <span class="ot">=</span> <span class="st">&quot;Women&quot;</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+</section>
+<section id="relate-diagnostic-and-population-data" class="level1" data-number="4">
+<h1 data-number="4"><span class="header-section-number">4</span> Relate diagnostic and population data</h1>
+<section id="merging-datasets" class="level2" data-number="4.1">
+<h2 data-number="4.1" class="anchored" data-anchor-id="merging-datasets"><span class="header-section-number">4.1</span> Merging datasets</h2>
+<p>In this section we relate the diagnostic and DANE datasets. We want to pair the population by age from the <code>Dane_Data_Total_long</code> dataset with the <code>Ministery_Data</code> dataset, taking into account the municipality (<code>Municipio</code>), year (<code>Año</code>), sex (<code>Sexo</code>) and age (<code>Edad</code>).</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb21"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Merge the reshaped reference population with Ministery_Data:</span></span>
+<span id="cb21-2"><a href="#cb21-2" aria-hidden="true" tabindex="-1"></a>Ministery_Data_with_pop <span class="ot">&lt;-</span> Ministery_DiagnosticData <span class="sc">%&gt;%</span></span>
+<span id="cb21-3"><a href="#cb21-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">left_join</span>(Dane_Data_Total_long,</span>
+<span id="cb21-4"><a href="#cb21-4" aria-hidden="true" tabindex="-1"></a>            <span class="at">by =</span> <span class="fu">c</span>(<span class="st">&quot;City&quot;</span>,  </span>
+<span id="cb21-5"><a href="#cb21-5" aria-hidden="true" tabindex="-1"></a>                   <span class="st">&quot;Department&quot;</span>,</span>
+<span id="cb21-6"><a href="#cb21-6" aria-hidden="true" tabindex="-1"></a>                   <span class="st">&quot;Year&quot;</span>,           </span>
+<span id="cb21-7"><a href="#cb21-7" aria-hidden="true" tabindex="-1"></a>                   <span class="st">&quot;Sex&quot;</span>,                 </span>
+<span id="cb21-8"><a href="#cb21-8" aria-hidden="true" tabindex="-1"></a>                   <span class="st">&quot;Age&quot;</span>                   </span>
+<span id="cb21-9"><a href="#cb21-9" aria-hidden="true" tabindex="-1"></a>            ))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>We verify the result</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb22"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a>gt<span class="sc">::</span><span class="fu">gt</span>(Ministery_Data_with_pop[<span class="dv">1</span><span class="sc">:</span><span class="dv">10</span>,])</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div id="cerjouosix" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
+<style>#cerjouosix table {
+font-family: system-ui, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
+-webkit-font-smoothing: antialiased;
+-moz-osx-font-smoothing: grayscale;
+}
+#cerjouosix thead, #cerjouosix tbody, #cerjouosix tfoot, #cerjouosix tr, #cerjouosix td, #cerjouosix th {
+border-style: none;
+}
+#cerjouosix p {
+margin: 0;
+padding: 0;
+}
+#cerjouosix .gt_table {
+display: table;
+border-collapse: collapse;
+line-height: normal;
+margin-left: auto;
+margin-right: auto;
+color: #333333;
+font-size: 16px;
+font-weight: normal;
+font-style: normal;
+background-color: #FFFFFF;
+width: auto;
+border-top-style: solid;
+border-top-width: 2px;
+border-top-color: #A8A8A8;
+border-right-style: none;
+border-right-width: 2px;
+border-right-color: #D3D3D3;
+border-bottom-style: solid;
+border-bottom-width: 2px;
+border-bottom-color: #A8A8A8;
+border-left-style: none;
+border-left-width: 2px;
+border-left-color: #D3D3D3;
+}
+#cerjouosix .gt_caption {
+padding-top: 4px;
+padding-bottom: 4px;
+}
+#cerjouosix .gt_title {
+color: #333333;
+font-size: 125%;
+font-weight: initial;
+padding-top: 4px;
+padding-bottom: 4px;
+padding-left: 5px;
+padding-right: 5px;
+border-bottom-color: #FFFFFF;
+border-bottom-width: 0;
+}
+#cerjouosix .gt_subtitle {
+color: #333333;
+font-size: 85%;
+font-weight: initial;
+padding-top: 3px;
+padding-bottom: 5px;
+padding-left: 5px;
+padding-right: 5px;
+border-top-color: #FFFFFF;
+border-top-width: 0;
+}
+#cerjouosix .gt_heading {
+background-color: #FFFFFF;
+text-align: center;
+border-bottom-color: #FFFFFF;
+border-left-style: none;
+border-left-width: 1px;
+border-left-color: #D3D3D3;
+border-right-style: none;
+border-right-width: 1px;
+border-right-color: #D3D3D3;
+}
+#cerjouosix .gt_bottom_border {
+border-bottom-style: solid;
+border-bottom-width: 2px;
+border-bottom-color: #D3D3D3;
+}
+#cerjouosix .gt_col_headings {
+border-top-style: solid;
+border-top-width: 2px;
+border-top-color: #D3D3D3;
+border-bottom-style: solid;
+border-bottom-width: 2px;
+border-bottom-color: #D3D3D3;
+border-left-style: none;
+border-left-width: 1px;
+border-left-color: #D3D3D3;
+border-right-style: none;
+border-right-width: 1px;
+border-right-color: #D3D3D3;
+}
+#cerjouosix .gt_col_heading {
+color: #333333;
+background-color: #FFFFFF;
+font-size: 100%;
+font-weight: normal;
+text-transform: inherit;
+border-left-style: none;
+border-left-width: 1px;
+border-left-color: #D3D3D3;
+border-right-style: none;
+border-right-width: 1px;
+border-right-color: #D3D3D3;
+vertical-align: bottom;
+padding-top: 5px;
+padding-bottom: 6px;
+padding-left: 5px;
+padding-right: 5px;
+overflow-x: hidden;
+}
+#cerjouosix .gt_column_spanner_outer {
+color: #333333;
+background-color: #FFFFFF;
+font-size: 100%;
+font-weight: normal;
+text-transform: inherit;
+padding-top: 0;
+padding-bottom: 0;
+padding-left: 4px;
+padding-right: 4px;
+}
+#cerjouosix .gt_column_spanner_outer:first-child {
+padding-left: 0;
+}
+#cerjouosix .gt_column_spanner_outer:last-child {
+padding-right: 0;
+}
+#cerjouosix .gt_column_spanner {
+border-bottom-style: solid;
+border-bottom-width: 2px;
+border-bottom-color: #D3D3D3;
+vertical-align: bottom;
+padding-top: 5px;
+padding-bottom: 5px;
+overflow-x: hidden;
+display: inline-block;
+width: 100%;
+}
+#cerjouosix .gt_spanner_row {
+border-bottom-style: hidden;
+}
+#cerjouosix .gt_group_heading {
+padding-top: 8px;
+padding-bottom: 8px;
+padding-left: 5px;
+padding-right: 5px;
+color: #333333;
+background-color: #FFFFFF;
+font-size: 100%;
+font-weight: initial;
+text-transform: inherit;
+border-top-style: solid;
+border-top-width: 2px;
+border-top-color: #D3D3D3;
+border-bottom-style: solid;
+border-bottom-width: 2px;
+border-bottom-color: #D3D3D3;
+border-left-style: none;
+border-left-width: 1px;
+border-left-color: #D3D3D3;
+border-right-style: none;
+border-right-width: 1px;
+border-right-color: #D3D3D3;
+vertical-align: middle;
+text-align: left;
+}
+#cerjouosix .gt_empty_group_heading {
+padding: 0.5px;
+color: #333333;
+background-color: #FFFFFF;
+font-size: 100%;
+font-weight: initial;
+border-top-style: solid;
+border-top-width: 2px;
+border-top-color: #D3D3D3;
+border-bottom-style: solid;
+border-bottom-width: 2px;
+border-bottom-color: #D3D3D3;
+vertical-align: middle;
+}
+#cerjouosix .gt_from_md > :first-child {
+margin-top: 0;
+}
+#cerjouosix .gt_from_md > :last-child {
+margin-bottom: 0;
+}
+#cerjouosix .gt_row {
+padding-top: 8px;
+padding-bottom: 8px;
+padding-left: 5px;
+padding-right: 5px;
+margin: 10px;
+border-top-style: solid;
+border-top-width: 1px;
+border-top-color: #D3D3D3;
+border-left-style: none;
+border-left-width: 1px;
+border-left-color: #D3D3D3;
+border-right-style: none;
+border-right-width: 1px;
+border-right-color: #D3D3D3;
+vertical-align: middle;
+overflow-x: hidden;
+}
+#cerjouosix .gt_stub {
+color: #333333;
+background-color: #FFFFFF;
+font-size: 100%;
+font-weight: initial;
+text-transform: inherit;
+border-right-style: solid;
+border-right-width: 2px;
+border-right-color: #D3D3D3;
+padding-left: 5px;
+padding-right: 5px;
+}
+#cerjouosix .gt_stub_row_group {
+color: #333333;
+background-color: #FFFFFF;
+font-size: 100%;
+font-weight: initial;
+text-transform: inherit;
+border-right-style: solid;
+border-right-width: 2px;
+border-right-color: #D3D3D3;
+padding-left: 5px;
+padding-right: 5px;
+vertical-align: top;
+}
+#cerjouosix .gt_row_group_first td {
+border-top-width: 2px;
+}
+#cerjouosix .gt_row_group_first th {
+border-top-width: 2px;
+}
+#cerjouosix .gt_summary_row {
+color: #333333;
+background-color: #FFFFFF;
+text-transform: inherit;
+padding-top: 8px;
+padding-bottom: 8px;
+padding-left: 5px;
+padding-right: 5px;
+}
+#cerjouosix .gt_first_summary_row {
+border-top-style: solid;
+border-top-color: #D3D3D3;
+}
+#cerjouosix .gt_first_summary_row.thick {
+border-top-width: 2px;
+}
+#cerjouosix .gt_last_summary_row {
+padding-top: 8px;
+padding-bottom: 8px;
+padding-left: 5px;
+padding-right: 5px;
+border-bottom-style: solid;
+border-bottom-width: 2px;
+border-bottom-color: #D3D3D3;
+}
+#cerjouosix .gt_grand_summary_row {
+color: #333333;
+background-color: #FFFFFF;
+text-transform: inherit;
+padding-top: 8px;
+padding-bottom: 8px;
+padding-left: 5px;
+padding-right: 5px;
+}
+#cerjouosix .gt_first_grand_summary_row {
+padding-top: 8px;
+padding-bottom: 8px;
+padding-left: 5px;
+padding-right: 5px;
+border-top-style: double;
+border-top-width: 6px;
+border-top-color: #D3D3D3;
+}
+#cerjouosix .gt_last_grand_summary_row_top {
+padding-top: 8px;
+padding-bottom: 8px;
+padding-left: 5px;
+padding-right: 5px;
+border-bottom-style: double;
+border-bottom-width: 6px;
+border-bottom-color: #D3D3D3;
+}
+#cerjouosix .gt_striped {
+background-color: rgba(128, 128, 128, 0.05);
+}
+#cerjouosix .gt_table_body {
+border-top-style: solid;
+border-top-width: 2px;
+border-top-color: #D3D3D3;
+border-bottom-style: solid;
+border-bottom-width: 2px;
+border-bottom-color: #D3D3D3;
+}
+#cerjouosix .gt_footnotes {
+color: #333333;
+background-color: #FFFFFF;
+border-bottom-style: none;
+border-bottom-width: 2px;
+border-bottom-color: #D3D3D3;
+border-left-style: none;
+border-left-width: 2px;
+border-left-color: #D3D3D3;
+border-right-style: none;
+border-right-width: 2px;
+border-right-color: #D3D3D3;
+}
+#cerjouosix .gt_footnote {
+margin: 0px;
+font-size: 90%;
+padding-top: 4px;
+padding-bottom: 4px;
+padding-left: 5px;
+padding-right: 5px;
+}
+#cerjouosix .gt_sourcenotes {
+color: #333333;
+background-color: #FFFFFF;
+border-bottom-style: none;
+border-bottom-width: 2px;
+border-bottom-color: #D3D3D3;
+border-left-style: none;
+border-left-width: 2px;
+border-left-color: #D3D3D3;
+border-right-style: none;
+border-right-width: 2px;
+border-right-color: #D3D3D3;
+}
+#cerjouosix .gt_sourcenote {
+font-size: 90%;
+padding-top: 4px;
+padding-bottom: 4px;
+padding-left: 5px;
+padding-right: 5px;
+}
+#cerjouosix .gt_left {
+text-align: left;
+}
+#cerjouosix .gt_center {
+text-align: center;
+}
+#cerjouosix .gt_right {
+text-align: right;
+font-variant-numeric: tabular-nums;
+}
+#cerjouosix .gt_font_normal {
+font-weight: normal;
+}
+#cerjouosix .gt_font_bold {
+font-weight: bold;
+}
+#cerjouosix .gt_font_italic {
+font-style: italic;
+}
+#cerjouosix .gt_super {
+font-size: 65%;
+}
+#cerjouosix .gt_footnote_marks {
+font-size: 75%;
+vertical-align: 0.4em;
+position: initial;
+}
+#cerjouosix .gt_asterisk {
+font-size: 100%;
+vertical-align: 0;
+}
+#cerjouosix .gt_indent_1 {
+text-indent: 5px;
+}
+#cerjouosix .gt_indent_2 {
+text-indent: 10px;
+}
+#cerjouosix .gt_indent_3 {
+text-indent: 15px;
+}
+#cerjouosix .gt_indent_4 {
+text-indent: 20px;
+}
+#cerjouosix .gt_indent_5 {
+text-indent: 25px;
+}
+#cerjouosix .katex-display {
+display: inline-flex !important;
+margin-bottom: 0.75em !important;
+}
+#cerjouosix div.Reactable > div.rt-table > div.rt-thead > div.rt-tr.rt-tr-group-header > div.rt-th-group:after {
+height: 0px !important;
+}
+</style>
+
+<table class="gt_table caption-top table table-sm table-striped small" data-quarto-postprocess="true" data-quarto-disable-processing="false" data-quarto-bootstrap="false">
+<thead>
+<tr class="gt_col_headings header">
+<th id="Year" class="gt_col_heading gt_columns_bottom_border gt_right" data-quarto-table-cell-role="th" scope="col">Year</th>
+<th id="Department" class="gt_col_heading gt_columns_bottom_border gt_left" data-quarto-table-cell-role="th" scope="col">Department</th>
+<th id="City" class="gt_col_heading gt_columns_bottom_border gt_left" data-quarto-table-cell-role="th" scope="col">City</th>
+<th id="Diagnostic" class="gt_col_heading gt_columns_bottom_border gt_left" data-quarto-table-cell-role="th" scope="col">Diagnostic</th>
+<th id="Age" class="gt_col_heading gt_columns_bottom_border gt_right" data-quarto-table-cell-role="th" scope="col">Age</th>
+<th id="Sex" class="gt_col_heading gt_columns_bottom_border gt_left" data-quarto-table-cell-role="th" scope="col">Sex</th>
+<th id="Cases" class="gt_col_heading gt_columns_bottom_border gt_right" data-quarto-table-cell-role="th" scope="col">Cases</th>
+<th id="Population" class="gt_col_heading gt_columns_bottom_border gt_right" data-quarto-table-cell-role="th" scope="col">Population</th>
+</tr>
+</thead>
+<tbody class="gt_table_body">
+<tr class="odd">
+<td class="gt_row gt_right" headers="Year">2016</td>
+<td class="gt_row gt_left" headers="Department">Antioquia</td>
+<td class="gt_row gt_left" headers="City">Medellin</td>
+<td class="gt_row gt_left" headers="Diagnostic">F700</td>
+<td class="gt_row gt_right" headers="Age">2</td>
+<td class="gt_row gt_left" headers="Sex">Men</td>
+<td class="gt_row gt_right" headers="Cases">1</td>
+<td class="gt_row gt_right" headers="Population">14436</td>
+</tr>
+<tr class="even">
+<td class="gt_row gt_right" headers="Year">2016</td>
+<td class="gt_row gt_left" headers="Department">Antioquia</td>
+<td class="gt_row gt_left" headers="City">Medellin</td>
+<td class="gt_row gt_left" headers="Diagnostic">F700</td>
+<td class="gt_row gt_right" headers="Age">4</td>
+<td class="gt_row gt_left" headers="Sex">Women</td>
+<td class="gt_row gt_right" headers="Cases">2</td>
+<td class="gt_row gt_right" headers="Population">14123</td>
+</tr>
+<tr class="odd">
+<td class="gt_row gt_right" headers="Year">2016</td>
+<td class="gt_row gt_left" headers="Department">Antioquia</td>
+<td class="gt_row gt_left" headers="City">Medellin</td>
+<td class="gt_row gt_left" headers="Diagnostic">F700</td>
+<td class="gt_row gt_right" headers="Age">4</td>
+<td class="gt_row gt_left" headers="Sex">Men</td>
+<td class="gt_row gt_right" headers="Cases">1</td>
+<td class="gt_row gt_right" headers="Population">14688</td>
+</tr>
+<tr class="even">
+<td class="gt_row gt_right" headers="Year">2016</td>
+<td class="gt_row gt_left" headers="Department">Antioquia</td>
+<td class="gt_row gt_left" headers="City">Medellin</td>
+<td class="gt_row gt_left" headers="Diagnostic">F700</td>
+<td class="gt_row gt_right" headers="Age">6</td>
+<td class="gt_row gt_left" headers="Sex">Women</td>
+<td class="gt_row gt_right" headers="Cases">1</td>
+<td class="gt_row gt_right" headers="Population">14457</td>
+</tr>
+<tr class="odd">
+<td class="gt_row gt_right" headers="Year">2016</td>
+<td class="gt_row gt_left" headers="Department">Antioquia</td>
+<td class="gt_row gt_left" headers="City">Medellin</td>
+<td class="gt_row gt_left" headers="Diagnostic">F700</td>
+<td class="gt_row gt_right" headers="Age">6</td>
+<td class="gt_row gt_left" headers="Sex">Men</td>
+<td class="gt_row gt_right" headers="Cases">1</td>
+<td class="gt_row gt_right" headers="Population">14969</td>
+</tr>
+<tr class="even">
+<td class="gt_row gt_right" headers="Year">2016</td>
+<td class="gt_row gt_left" headers="Department">Antioquia</td>
+<td class="gt_row gt_left" headers="City">Medellin</td>
+<td class="gt_row gt_left" headers="Diagnostic">F700</td>
+<td class="gt_row gt_right" headers="Age">7</td>
+<td class="gt_row gt_left" headers="Sex">Women</td>
+<td class="gt_row gt_right" headers="Cases">3</td>
+<td class="gt_row gt_right" headers="Population">14674</td>
+</tr>
+<tr class="odd">
+<td class="gt_row gt_right" headers="Year">2016</td>
+<td class="gt_row gt_left" headers="Department">Antioquia</td>
+<td class="gt_row gt_left" headers="City">Medellin</td>
+<td class="gt_row gt_left" headers="Diagnostic">F700</td>
+<td class="gt_row gt_right" headers="Age">7</td>
+<td class="gt_row gt_left" headers="Sex">Men</td>
+<td class="gt_row gt_right" headers="Cases">8</td>
+<td class="gt_row gt_right" headers="Population">15153</td>
+</tr>
+<tr class="even">
+<td class="gt_row gt_right" headers="Year">2016</td>
+<td class="gt_row gt_left" headers="Department">Antioquia</td>
+<td class="gt_row gt_left" headers="City">Medellin</td>
+<td class="gt_row gt_left" headers="Diagnostic">F700</td>
+<td class="gt_row gt_right" headers="Age">8</td>
+<td class="gt_row gt_left" headers="Sex">Women</td>
+<td class="gt_row gt_right" headers="Cases">5</td>
+<td class="gt_row gt_right" headers="Population">14915</td>
+</tr>
+<tr class="odd">
+<td class="gt_row gt_right" headers="Year">2016</td>
+<td class="gt_row gt_left" headers="Department">Antioquia</td>
+<td class="gt_row gt_left" headers="City">Medellin</td>
+<td class="gt_row gt_left" headers="Diagnostic">F700</td>
+<td class="gt_row gt_right" headers="Age">8</td>
+<td class="gt_row gt_left" headers="Sex">Men</td>
+<td class="gt_row gt_right" headers="Cases">6</td>
+<td class="gt_row gt_right" headers="Population">15373</td>
+</tr>
+<tr class="even">
+<td class="gt_row gt_right" headers="Year">2016</td>
+<td class="gt_row gt_left" headers="Department">Antioquia</td>
+<td class="gt_row gt_left" headers="City">Medellin</td>
+<td class="gt_row gt_left" headers="Diagnostic">F700</td>
+<td class="gt_row gt_right" headers="Age">9</td>
+<td class="gt_row gt_left" headers="Sex">Women</td>
+<td class="gt_row gt_right" headers="Cases">8</td>
+<td class="gt_row gt_right" headers="Population">15206</td>
+</tr>
+</tbody>
+</table>
+
+</div>
+</div>
+</div>
+<p>Next, we check if we have some NAs after the joint to look for possible errors.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb23"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a>Ministery_Data_with_pop <span class="sc">%&gt;%</span> <span class="fu">filter</span>(<span class="fu">if_any</span>(<span class="fu">everything</span>(), is.na)) <span class="sc">%&gt;%</span></span>
+<span id="cb23-2"><a href="#cb23-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">count</span>(Department, City, <span class="at">sort =</span> <span class="cn">TRUE</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 25 × 3
+   Department                                               City           n
+   &lt;chr&gt;                                                    &lt;chr&gt;      &lt;int&gt;
+ 1 Bolivar                                                  Cartagena   3967
+ 2 Norte de Santander                                       Cucuta      3183
+ 3 Cauca                                                    Piendamo     754
+ 4 Archipielago de San Andres, Providencia Y Santa Catalina San Andres   506
+ 5 Narino                                                   Cuaspud      304
+ 6 Antioquia                                                Don Matias   298
+ 7 Antioquia                                                San Pedro    281
+ 8 Cordoba                                                  Purisima     268
+ 9 Cauca                                                    Sotara       213
+10 Cesar                                                    Manaure      189
+# ℹ 15 more rows</code></pre>
+</div>
+</div>
+<p>The above shows some cities and departments that contain NAs in the population column. This is the result of different naming convention for some cities and departments in <code>Ministery_DiagnosticData</code> and <code>Dane_Data_Total_long</code>. Therefore, we will manually rename the cities and/or departments in the <code>Dane_Data_Total_long</code> before doing the merge. Please note that we will only rename cities/departments that have data in the <code>Ministery_DiagnosticData</code> dataset.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb25"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Clean and correct city and department names in one of the datasets</span></span>
+<span id="cb25-2"><a href="#cb25-2" aria-hidden="true" tabindex="-1"></a>Dane_Data_Total_long <span class="ot">&lt;-</span> Dane_Data_Total_long <span class="sc">%&gt;%</span></span>
+<span id="cb25-3"><a href="#cb25-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
+<span id="cb25-4"><a href="#cb25-4" aria-hidden="true" tabindex="-1"></a>    <span class="at">City =</span> <span class="fu">case_when</span>(</span>
+<span id="cb25-5"><a href="#cb25-5" aria-hidden="true" tabindex="-1"></a>      City <span class="sc">==</span> <span class="st">&quot;Cartagena de Indias&quot;</span> <span class="sc">~</span> <span class="st">&quot;Cartagena&quot;</span>,</span>
+<span id="cb25-6"><a href="#cb25-6" aria-hidden="true" tabindex="-1"></a>      City <span class="sc">==</span> <span class="st">&quot;San Jose de Cucuta&quot;</span> <span class="sc">~</span> <span class="st">&quot;Cucuta&quot;</span>,</span>
+<span id="cb25-7"><a href="#cb25-7" aria-hidden="true" tabindex="-1"></a>      City <span class="sc">==</span> <span class="st">&quot;Piendamo - Tunia&quot;</span> <span class="sc">~</span> <span class="st">&quot;Piendamo&quot;</span>,</span>
+<span id="cb25-8"><a href="#cb25-8" aria-hidden="true" tabindex="-1"></a>      City <span class="sc">==</span> <span class="st">&quot;Archipielago de San Andres&quot;</span> <span class="sc">~</span> <span class="st">&quot;Archipielago de San Andres, Providencia Y Santa Catalina&quot;</span>,</span>
+<span id="cb25-9"><a href="#cb25-9" aria-hidden="true" tabindex="-1"></a>      City <span class="sc">==</span> <span class="st">&quot;Cuaspud Carlosama&quot;</span> <span class="sc">~</span> <span class="st">&quot;Cuaspud&quot;</span>,</span>
+<span id="cb25-10"><a href="#cb25-10" aria-hidden="true" tabindex="-1"></a>      City <span class="sc">==</span> <span class="st">&quot;Donmatias&quot;</span> <span class="sc">~</span> <span class="st">&quot;Don Matias&quot;</span>,</span>
+<span id="cb25-11"><a href="#cb25-11" aria-hidden="true" tabindex="-1"></a>      City <span class="sc">==</span> <span class="st">&quot;Purisima de La Concepcion&quot;</span> <span class="sc">~</span> <span class="st">&quot;Purisima&quot;</span>,</span>
+<span id="cb25-12"><a href="#cb25-12" aria-hidden="true" tabindex="-1"></a>      City <span class="sc">==</span> <span class="st">&quot;Sotara Paispamba&quot;</span> <span class="sc">~</span> <span class="st">&quot;Sotara&quot;</span>,</span>
+<span id="cb25-13"><a href="#cb25-13" aria-hidden="true" tabindex="-1"></a>      City <span class="sc">==</span> <span class="st">&quot;Manaure Balcon del Cesar&quot;</span> <span class="sc">~</span> <span class="st">&quot;Manaure&quot;</span>,</span>
+<span id="cb25-14"><a href="#cb25-14" aria-hidden="true" tabindex="-1"></a>      City <span class="sc">==</span> <span class="st">&quot;Puerto Leguizamo&quot;</span> <span class="sc">~</span> <span class="st">&quot;Leguizamo&quot;</span>,</span>
+<span id="cb25-15"><a href="#cb25-15" aria-hidden="true" tabindex="-1"></a>      City <span class="sc">==</span> <span class="st">&quot;Cacahual (ANM)&quot;</span> <span class="sc">~</span> <span class="st">&quot;Cacahual&quot;</span>,</span>
+<span id="cb25-16"><a href="#cb25-16" aria-hidden="true" tabindex="-1"></a>      City <span class="sc">==</span> <span class="st">&quot;Guican de La Sierra&quot;</span> <span class="sc">~</span> <span class="st">&quot;Guican&quot;</span>,</span>
+<span id="cb25-17"><a href="#cb25-17" aria-hidden="true" tabindex="-1"></a>      City <span class="sc">==</span> <span class="st">&quot;Lopez de Micay&quot;</span> <span class="sc">~</span> <span class="st">&quot;Lopez&quot;</span>,</span>
+<span id="cb25-18"><a href="#cb25-18" aria-hidden="true" tabindex="-1"></a>      City <span class="sc">==</span> <span class="st">&quot;El Encanto (ANM)&quot;</span> <span class="sc">~</span> <span class="st">&quot;El Encanto&quot;</span>,</span>
+<span id="cb25-19"><a href="#cb25-19" aria-hidden="true" tabindex="-1"></a>      City <span class="sc">==</span> <span class="st">&quot;La Chorrera (ANM)&quot;</span> <span class="sc">~</span> <span class="st">&quot;La Chorrera&quot;</span>,</span>
+<span id="cb25-20"><a href="#cb25-20" aria-hidden="true" tabindex="-1"></a>      City <span class="sc">==</span> <span class="st">&quot;Tarapaca (ANM)&quot;</span> <span class="sc">~</span> <span class="st">&quot;Tarapaca&quot;</span>,</span>
+<span id="cb25-21"><a href="#cb25-21" aria-hidden="true" tabindex="-1"></a>      City <span class="sc">==</span> <span class="st">&quot;Barrancominas (ANM)&quot;</span> <span class="sc">~</span> <span class="st">&quot;Barrancominas&quot;</span>,</span>
+<span id="cb25-22"><a href="#cb25-22" aria-hidden="true" tabindex="-1"></a>      City <span class="sc">==</span> <span class="st">&quot;La Pedrera (ANM)&quot;</span> <span class="sc">~</span> <span class="st">&quot;La Pedrera&quot;</span>,</span>
+<span id="cb25-23"><a href="#cb25-23" aria-hidden="true" tabindex="-1"></a>      City <span class="sc">==</span> <span class="st">&quot;Cartagena de Indias&quot;</span> <span class="sc">~</span> <span class="st">&quot;Cartagena&quot;</span>,</span>
+<span id="cb25-24"><a href="#cb25-24" aria-hidden="true" tabindex="-1"></a>      City <span class="sc">==</span> <span class="st">&quot;Cartagena de Indias&quot;</span> <span class="sc">~</span> <span class="st">&quot;Cartagena&quot;</span>,</span>
+<span id="cb25-25"><a href="#cb25-25" aria-hidden="true" tabindex="-1"></a>      City <span class="sc">==</span> <span class="st">&quot;Puerto Santander (ANM)&quot;</span> <span class="sc">~</span> <span class="st">&quot;Puerto Santander&quot;</span>,</span>
+<span id="cb25-26"><a href="#cb25-26" aria-hidden="true" tabindex="-1"></a>      City <span class="sc">==</span> <span class="st">&quot;Puerto Colombia (ANM)&quot;</span> <span class="sc">~</span> <span class="st">&quot;Puerto Colombia&quot;</span>,</span>
+<span id="cb25-27"><a href="#cb25-27" aria-hidden="true" tabindex="-1"></a>      <span class="cn">TRUE</span> <span class="sc">~</span> City ),</span>
+<span id="cb25-28"><a href="#cb25-28" aria-hidden="true" tabindex="-1"></a>   </span>
+<span id="cb25-29"><a href="#cb25-29" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb25-30"><a href="#cb25-30" aria-hidden="true" tabindex="-1"></a>    <span class="at">Department =</span> <span class="fu">case_when</span>(</span>
+<span id="cb25-31"><a href="#cb25-31" aria-hidden="true" tabindex="-1"></a>      Department <span class="sc">==</span> <span class="st">&quot;Archipielago de San Andres&quot;</span> <span class="sc">~</span> <span class="st">&quot;Archipielago de San Andres, Providencia Y Santa Catalina&quot;</span>,</span>
+<span id="cb25-32"><a href="#cb25-32" aria-hidden="true" tabindex="-1"></a>      <span class="cn">TRUE</span> <span class="sc">~</span> Department )</span>
+<span id="cb25-33"><a href="#cb25-33" aria-hidden="true" tabindex="-1"></a>  )</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>We perform again the joint</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb26"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Merge the reshaped reference population with Ministery_Data:</span></span>
+<span id="cb26-2"><a href="#cb26-2" aria-hidden="true" tabindex="-1"></a>Ministery_Data_with_pop <span class="ot">&lt;-</span> Ministery_DiagnosticData <span class="sc">%&gt;%</span></span>
+<span id="cb26-3"><a href="#cb26-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">left_join</span>(Dane_Data_Total_long,</span>
+<span id="cb26-4"><a href="#cb26-4" aria-hidden="true" tabindex="-1"></a>            <span class="at">by =</span> <span class="fu">c</span>(<span class="st">&quot;City&quot;</span>,  </span>
+<span id="cb26-5"><a href="#cb26-5" aria-hidden="true" tabindex="-1"></a>                   <span class="st">&quot;Department&quot;</span>,</span>
+<span id="cb26-6"><a href="#cb26-6" aria-hidden="true" tabindex="-1"></a>                   <span class="st">&quot;Year&quot;</span>,           </span>
+<span id="cb26-7"><a href="#cb26-7" aria-hidden="true" tabindex="-1"></a>                   <span class="st">&quot;Sex&quot;</span>,                 </span>
+<span id="cb26-8"><a href="#cb26-8" aria-hidden="true" tabindex="-1"></a>                   <span class="st">&quot;Age&quot;</span>                   </span>
+<span id="cb26-9"><a href="#cb26-9" aria-hidden="true" tabindex="-1"></a>            ))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>And verify the NAs</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb27"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb27-1"><a href="#cb27-1" aria-hidden="true" tabindex="-1"></a>Ministery_Data_with_pop <span class="sc">%&gt;%</span> <span class="fu">filter</span>(<span class="fu">if_any</span>(<span class="fu">everything</span>(), is.na)) <span class="sc">%&gt;%</span></span>
+<span id="cb27-2"><a href="#cb27-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">count</span>(Department, City, <span class="at">sort =</span> <span class="cn">TRUE</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 9 × 3
+  Department   City                     n
+  &lt;chr&gt;        &lt;chr&gt;                &lt;int&gt;
+1 Antioquia    San Pedro              281
+2 Cordoba      Purisima               268
+3 Cundinamarca San Juan de Rio Seco    74
+4 Magdalena    Cerro San Antonio       59
+5 Boyaca       Guican                  27
+6 Amazonas     la Chorrera              4
+7 Guainia      Barranco Minas           4
+8 Amazonas     la Pedrera               1
+9 Vaupes       Papunaua                 1</code></pre>
+</div>
+</div>
+<p>We see that this cities do not have corresponding diagnostic data or that the data connot be paired. Therefore, we exclude them from further processing and analysis:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb29"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb29-1"><a href="#cb29-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidyr)</span>
+<span id="cb29-2"><a href="#cb29-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb29-3"><a href="#cb29-3" aria-hidden="true" tabindex="-1"></a>Ministery_Data_with_pop <span class="ot">&lt;-</span> Ministery_Data_with_pop <span class="sc">%&gt;%</span></span>
+<span id="cb29-4"><a href="#cb29-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">drop_na</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+<section id="handling-citycapital-data" class="level2" data-number="4.2">
+<h2 data-number="4.2" class="anchored" data-anchor-id="handling-citycapital-data"><span class="header-section-number">4.2</span> Handling city/capital data</h2>
+<p>Next, we will create a variable that tells us whether a given city is the capital of a department. This is important because capital cities have more mental health and medical diagnostic resources, which can influence neuropsychological diagnostics.For this purpose, we create vectors defining capital cities for each department.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb30"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb30-1"><a href="#cb30-1" aria-hidden="true" tabindex="-1"></a><span class="co"># We create a lookup table for department capitals</span></span>
+<span id="cb30-2"><a href="#cb30-2" aria-hidden="true" tabindex="-1"></a>capitals <span class="ot">&lt;-</span> <span class="fu">tibble</span>(</span>
+<span id="cb30-3"><a href="#cb30-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">Department =</span> <span class="fu">c</span>(<span class="st">&quot;Amazonas&quot;</span>, <span class="st">&quot;Antioquia&quot;</span>, <span class="st">&quot;Arauca&quot;</span>, <span class="st">&quot;Atlantico&quot;</span>, <span class="st">&quot;Bolivar&quot;</span>, </span>
+<span id="cb30-4"><a href="#cb30-4" aria-hidden="true" tabindex="-1"></a>                   <span class="st">&quot;Boyaca&quot;</span>, <span class="st">&quot;Caldas&quot;</span>, <span class="st">&quot;Caqueta&quot;</span>, <span class="st">&quot;Casanare&quot;</span>, <span class="st">&quot;Cauca&quot;</span>, <span class="st">&quot;Cesar&quot;</span>, </span>
+<span id="cb30-5"><a href="#cb30-5" aria-hidden="true" tabindex="-1"></a>                   <span class="st">&quot;Choco&quot;</span>, <span class="st">&quot;Cordoba&quot;</span>, <span class="st">&quot;Cundinamarca&quot;</span>, <span class="st">&quot;Guainia&quot;</span>, <span class="st">&quot;Guaviare&quot;</span>, </span>
+<span id="cb30-6"><a href="#cb30-6" aria-hidden="true" tabindex="-1"></a>                   <span class="st">&quot;Huila&quot;</span>, <span class="st">&quot;La Guajira&quot;</span>, <span class="st">&quot;Magdalena&quot;</span>, <span class="st">&quot;Meta&quot;</span>, <span class="st">&quot;Narino&quot;</span>, </span>
+<span id="cb30-7"><a href="#cb30-7" aria-hidden="true" tabindex="-1"></a>                   <span class="st">&quot;Norte de Santander&quot;</span>, <span class="st">&quot;Putumayo&quot;</span>, <span class="st">&quot;Quindio&quot;</span>, <span class="st">&quot;Risaralda&quot;</span>, </span>
+<span id="cb30-8"><a href="#cb30-8" aria-hidden="true" tabindex="-1"></a>                   <span class="st">&quot;Archipielago de San Andres, Providencia Y Santa Catalina&quot;</span>, <span class="st">&quot;Santander&quot;</span>, <span class="st">&quot;Sucre&quot;</span>, <span class="st">&quot;Tolima&quot;</span>, </span>
+<span id="cb30-9"><a href="#cb30-9" aria-hidden="true" tabindex="-1"></a>                   <span class="st">&quot;Valle del Cauca&quot;</span>, <span class="st">&quot;Vaupes&quot;</span>, <span class="st">&quot;Vichada&quot;</span>, <span class="st">&quot;Bogota, D.C.&quot;</span>),</span>
+<span id="cb30-10"><a href="#cb30-10" aria-hidden="true" tabindex="-1"></a>  <span class="at">CapitalCity =</span> <span class="fu">c</span>(<span class="st">&quot;Leticia&quot;</span>, <span class="st">&quot;Medellin&quot;</span>, <span class="st">&quot;Arauca&quot;</span>, <span class="st">&quot;Barranquilla&quot;</span>, <span class="st">&quot;Cartagena&quot;</span>, </span>
+<span id="cb30-11"><a href="#cb30-11" aria-hidden="true" tabindex="-1"></a>                       <span class="st">&quot;Tunja&quot;</span>, <span class="st">&quot;Manizales&quot;</span>, <span class="st">&quot;Florencia&quot;</span>, <span class="st">&quot;Yopal&quot;</span>, <span class="st">&quot;Popayan&quot;</span>, <span class="st">&quot;Valledupar&quot;</span>, </span>
+<span id="cb30-12"><a href="#cb30-12" aria-hidden="true" tabindex="-1"></a>                       <span class="st">&quot;Quibdo&quot;</span>, <span class="st">&quot;Monteria&quot;</span>, <span class="st">&quot;Bogota&quot;</span>, <span class="st">&quot;Inirida&quot;</span>, <span class="st">&quot;San Jose del Guaviare&quot;</span>, </span>
+<span id="cb30-13"><a href="#cb30-13" aria-hidden="true" tabindex="-1"></a>                       <span class="st">&quot;Neiva&quot;</span>, <span class="st">&quot;Riohacha&quot;</span>, <span class="st">&quot;Santa Marta&quot;</span>, <span class="st">&quot;Villavicencio&quot;</span>, <span class="st">&quot;Pasto&quot;</span>, </span>
+<span id="cb30-14"><a href="#cb30-14" aria-hidden="true" tabindex="-1"></a>                       <span class="st">&quot;Cucuta&quot;</span>, <span class="st">&quot;Mocoa&quot;</span>, <span class="st">&quot;Armenia&quot;</span>, <span class="st">&quot;Pereira&quot;</span>, <span class="st">&quot;San Andres&quot;</span>, </span>
+<span id="cb30-15"><a href="#cb30-15" aria-hidden="true" tabindex="-1"></a>                       <span class="st">&quot;Bucaramanga&quot;</span>, <span class="st">&quot;Sincelejo&quot;</span>, <span class="st">&quot;Ibague&quot;</span>, <span class="st">&quot;Cali&quot;</span>, <span class="st">&quot;Mitu&quot;</span>, <span class="st">&quot;Puerto Carreño&quot;</span>, <span class="st">&quot;Bogota, D.C.&quot;</span>)</span>
+<span id="cb30-16"><a href="#cb30-16" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb30-17"><a href="#cb30-17" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb30-18"><a href="#cb30-18" aria-hidden="true" tabindex="-1"></a><span class="co"># We perform a left join with the capitals lookup and then create the new &quot;Capital&quot; column.</span></span>
+<span id="cb30-19"><a href="#cb30-19" aria-hidden="true" tabindex="-1"></a>Ministery_Data_with_capital <span class="ot">&lt;-</span> Ministery_Data_with_pop <span class="sc">%&gt;%</span></span>
+<span id="cb30-20"><a href="#cb30-20" aria-hidden="true" tabindex="-1"></a>  <span class="fu">left_join</span>(capitals, <span class="at">by =</span> <span class="st">&quot;Department&quot;</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb30-21"><a href="#cb30-21" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">Capital =</span> <span class="fu">if_else</span>(City <span class="sc">==</span> CapitalCity, <span class="st">&quot;Yes&quot;</span>, <span class="st">&quot;No&quot;</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>Next, we verify the resulting table:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb31"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb31-1"><a href="#cb31-1" aria-hidden="true" tabindex="-1"></a>gt<span class="sc">::</span><span class="fu">gt</span>(Ministery_Data_with_capital[<span class="dv">1</span><span class="sc">:</span><span class="dv">10</span>,])</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div id="qxjraxfvth" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
+<style>#qxjraxfvth table {
+font-family: system-ui, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
+-webkit-font-smoothing: antialiased;
+-moz-osx-font-smoothing: grayscale;
+}
+#qxjraxfvth thead, #qxjraxfvth tbody, #qxjraxfvth tfoot, #qxjraxfvth tr, #qxjraxfvth td, #qxjraxfvth th {
+border-style: none;
+}
+#qxjraxfvth p {
+margin: 0;
+padding: 0;
+}
+#qxjraxfvth .gt_table {
+display: table;
+border-collapse: collapse;
+line-height: normal;
+margin-left: auto;
+margin-right: auto;
+color: #333333;
+font-size: 16px;
+font-weight: normal;
+font-style: normal;
+background-color: #FFFFFF;
+width: auto;
+border-top-style: solid;
+border-top-width: 2px;
+border-top-color: #A8A8A8;
+border-right-style: none;
+border-right-width: 2px;
+border-right-color: #D3D3D3;
+border-bottom-style: solid;
+border-bottom-width: 2px;
+border-bottom-color: #A8A8A8;
+border-left-style: none;
+border-left-width: 2px;
+border-left-color: #D3D3D3;
+}
+#qxjraxfvth .gt_caption {
+padding-top: 4px;
+padding-bottom: 4px;
+}
+#qxjraxfvth .gt_title {
+color: #333333;
+font-size: 125%;
+font-weight: initial;
+padding-top: 4px;
+padding-bottom: 4px;
+padding-left: 5px;
+padding-right: 5px;
+border-bottom-color: #FFFFFF;
+border-bottom-width: 0;
+}
+#qxjraxfvth .gt_subtitle {
+color: #333333;
+font-size: 85%;
+font-weight: initial;
+padding-top: 3px;
+padding-bottom: 5px;
+padding-left: 5px;
+padding-right: 5px;
+border-top-color: #FFFFFF;
+border-top-width: 0;
+}
+#qxjraxfvth .gt_heading {
+background-color: #FFFFFF;
+text-align: center;
+border-bottom-color: #FFFFFF;
+border-left-style: none;
+border-left-width: 1px;
+border-left-color: #D3D3D3;
+border-right-style: none;
+border-right-width: 1px;
+border-right-color: #D3D3D3;
+}
+#qxjraxfvth .gt_bottom_border {
+border-bottom-style: solid;
+border-bottom-width: 2px;
+border-bottom-color: #D3D3D3;
+}
+#qxjraxfvth .gt_col_headings {
+border-top-style: solid;
+border-top-width: 2px;
+border-top-color: #D3D3D3;
+border-bottom-style: solid;
+border-bottom-width: 2px;
+border-bottom-color: #D3D3D3;
+border-left-style: none;
+border-left-width: 1px;
+border-left-color: #D3D3D3;
+border-right-style: none;
+border-right-width: 1px;
+border-right-color: #D3D3D3;
+}
+#qxjraxfvth .gt_col_heading {
+color: #333333;
+background-color: #FFFFFF;
+font-size: 100%;
+font-weight: normal;
+text-transform: inherit;
+border-left-style: none;
+border-left-width: 1px;
+border-left-color: #D3D3D3;
+border-right-style: none;
+border-right-width: 1px;
+border-right-color: #D3D3D3;
+vertical-align: bottom;
+padding-top: 5px;
+padding-bottom: 6px;
+padding-left: 5px;
+padding-right: 5px;
+overflow-x: hidden;
+}
+#qxjraxfvth .gt_column_spanner_outer {
+color: #333333;
+background-color: #FFFFFF;
+font-size: 100%;
+font-weight: normal;
+text-transform: inherit;
+padding-top: 0;
+padding-bottom: 0;
+padding-left: 4px;
+padding-right: 4px;
+}
+#qxjraxfvth .gt_column_spanner_outer:first-child {
+padding-left: 0;
+}
+#qxjraxfvth .gt_column_spanner_outer:last-child {
+padding-right: 0;
+}
+#qxjraxfvth .gt_column_spanner {
+border-bottom-style: solid;
+border-bottom-width: 2px;
+border-bottom-color: #D3D3D3;
+vertical-align: bottom;
+padding-top: 5px;
+padding-bottom: 5px;
+overflow-x: hidden;
+display: inline-block;
+width: 100%;
+}
+#qxjraxfvth .gt_spanner_row {
+border-bottom-style: hidden;
+}
+#qxjraxfvth .gt_group_heading {
+padding-top: 8px;
+padding-bottom: 8px;
+padding-left: 5px;
+padding-right: 5px;
+color: #333333;
+background-color: #FFFFFF;
+font-size: 100%;
+font-weight: initial;
+text-transform: inherit;
+border-top-style: solid;
+border-top-width: 2px;
+border-top-color: #D3D3D3;
+border-bottom-style: solid;
+border-bottom-width: 2px;
+border-bottom-color: #D3D3D3;
+border-left-style: none;
+border-left-width: 1px;
+border-left-color: #D3D3D3;
+border-right-style: none;
+border-right-width: 1px;
+border-right-color: #D3D3D3;
+vertical-align: middle;
+text-align: left;
+}
+#qxjraxfvth .gt_empty_group_heading {
+padding: 0.5px;
+color: #333333;
+background-color: #FFFFFF;
+font-size: 100%;
+font-weight: initial;
+border-top-style: solid;
+border-top-width: 2px;
+border-top-color: #D3D3D3;
+border-bottom-style: solid;
+border-bottom-width: 2px;
+border-bottom-color: #D3D3D3;
+vertical-align: middle;
+}
+#qxjraxfvth .gt_from_md > :first-child {
+margin-top: 0;
+}
+#qxjraxfvth .gt_from_md > :last-child {
+margin-bottom: 0;
+}
+#qxjraxfvth .gt_row {
+padding-top: 8px;
+padding-bottom: 8px;
+padding-left: 5px;
+padding-right: 5px;
+margin: 10px;
+border-top-style: solid;
+border-top-width: 1px;
+border-top-color: #D3D3D3;
+border-left-style: none;
+border-left-width: 1px;
+border-left-color: #D3D3D3;
+border-right-style: none;
+border-right-width: 1px;
+border-right-color: #D3D3D3;
+vertical-align: middle;
+overflow-x: hidden;
+}
+#qxjraxfvth .gt_stub {
+color: #333333;
+background-color: #FFFFFF;
+font-size: 100%;
+font-weight: initial;
+text-transform: inherit;
+border-right-style: solid;
+border-right-width: 2px;
+border-right-color: #D3D3D3;
+padding-left: 5px;
+padding-right: 5px;
+}
+#qxjraxfvth .gt_stub_row_group {
+color: #333333;
+background-color: #FFFFFF;
+font-size: 100%;
+font-weight: initial;
+text-transform: inherit;
+border-right-style: solid;
+border-right-width: 2px;
+border-right-color: #D3D3D3;
+padding-left: 5px;
+padding-right: 5px;
+vertical-align: top;
+}
+#qxjraxfvth .gt_row_group_first td {
+border-top-width: 2px;
+}
+#qxjraxfvth .gt_row_group_first th {
+border-top-width: 2px;
+}
+#qxjraxfvth .gt_summary_row {
+color: #333333;
+background-color: #FFFFFF;
+text-transform: inherit;
+padding-top: 8px;
+padding-bottom: 8px;
+padding-left: 5px;
+padding-right: 5px;
+}
+#qxjraxfvth .gt_first_summary_row {
+border-top-style: solid;
+border-top-color: #D3D3D3;
+}
+#qxjraxfvth .gt_first_summary_row.thick {
+border-top-width: 2px;
+}
+#qxjraxfvth .gt_last_summary_row {
+padding-top: 8px;
+padding-bottom: 8px;
+padding-left: 5px;
+padding-right: 5px;
+border-bottom-style: solid;
+border-bottom-width: 2px;
+border-bottom-color: #D3D3D3;
+}
+#qxjraxfvth .gt_grand_summary_row {
+color: #333333;
+background-color: #FFFFFF;
+text-transform: inherit;
+padding-top: 8px;
+padding-bottom: 8px;
+padding-left: 5px;
+padding-right: 5px;
+}
+#qxjraxfvth .gt_first_grand_summary_row {
+padding-top: 8px;
+padding-bottom: 8px;
+padding-left: 5px;
+padding-right: 5px;
+border-top-style: double;
+border-top-width: 6px;
+border-top-color: #D3D3D3;
+}
+#qxjraxfvth .gt_last_grand_summary_row_top {
+padding-top: 8px;
+padding-bottom: 8px;
+padding-left: 5px;
+padding-right: 5px;
+border-bottom-style: double;
+border-bottom-width: 6px;
+border-bottom-color: #D3D3D3;
+}
+#qxjraxfvth .gt_striped {
+background-color: rgba(128, 128, 128, 0.05);
+}
+#qxjraxfvth .gt_table_body {
+border-top-style: solid;
+border-top-width: 2px;
+border-top-color: #D3D3D3;
+border-bottom-style: solid;
+border-bottom-width: 2px;
+border-bottom-color: #D3D3D3;
+}
+#qxjraxfvth .gt_footnotes {
+color: #333333;
+background-color: #FFFFFF;
+border-bottom-style: none;
+border-bottom-width: 2px;
+border-bottom-color: #D3D3D3;
+border-left-style: none;
+border-left-width: 2px;
+border-left-color: #D3D3D3;
+border-right-style: none;
+border-right-width: 2px;
+border-right-color: #D3D3D3;
+}
+#qxjraxfvth .gt_footnote {
+margin: 0px;
+font-size: 90%;
+padding-top: 4px;
+padding-bottom: 4px;
+padding-left: 5px;
+padding-right: 5px;
+}
+#qxjraxfvth .gt_sourcenotes {
+color: #333333;
+background-color: #FFFFFF;
+border-bottom-style: none;
+border-bottom-width: 2px;
+border-bottom-color: #D3D3D3;
+border-left-style: none;
+border-left-width: 2px;
+border-left-color: #D3D3D3;
+border-right-style: none;
+border-right-width: 2px;
+border-right-color: #D3D3D3;
+}
+#qxjraxfvth .gt_sourcenote {
+font-size: 90%;
+padding-top: 4px;
+padding-bottom: 4px;
+padding-left: 5px;
+padding-right: 5px;
+}
+#qxjraxfvth .gt_left {
+text-align: left;
+}
+#qxjraxfvth .gt_center {
+text-align: center;
+}
+#qxjraxfvth .gt_right {
+text-align: right;
+font-variant-numeric: tabular-nums;
+}
+#qxjraxfvth .gt_font_normal {
+font-weight: normal;
+}
+#qxjraxfvth .gt_font_bold {
+font-weight: bold;
+}
+#qxjraxfvth .gt_font_italic {
+font-style: italic;
+}
+#qxjraxfvth .gt_super {
+font-size: 65%;
+}
+#qxjraxfvth .gt_footnote_marks {
+font-size: 75%;
+vertical-align: 0.4em;
+position: initial;
+}
+#qxjraxfvth .gt_asterisk {
+font-size: 100%;
+vertical-align: 0;
+}
+#qxjraxfvth .gt_indent_1 {
+text-indent: 5px;
+}
+#qxjraxfvth .gt_indent_2 {
+text-indent: 10px;
+}
+#qxjraxfvth .gt_indent_3 {
+text-indent: 15px;
+}
+#qxjraxfvth .gt_indent_4 {
+text-indent: 20px;
+}
+#qxjraxfvth .gt_indent_5 {
+text-indent: 25px;
+}
+#qxjraxfvth .katex-display {
+display: inline-flex !important;
+margin-bottom: 0.75em !important;
+}
+#qxjraxfvth div.Reactable > div.rt-table > div.rt-thead > div.rt-tr.rt-tr-group-header > div.rt-th-group:after {
+height: 0px !important;
+}
+</style>
+
+<table class="gt_table caption-top table table-sm table-striped small" data-quarto-postprocess="true" data-quarto-disable-processing="false" data-quarto-bootstrap="false">
+<thead>
+<tr class="gt_col_headings header">
+<th id="Year" class="gt_col_heading gt_columns_bottom_border gt_right" data-quarto-table-cell-role="th" scope="col">Year</th>
+<th id="Department" class="gt_col_heading gt_columns_bottom_border gt_left" data-quarto-table-cell-role="th" scope="col">Department</th>
+<th id="City" class="gt_col_heading gt_columns_bottom_border gt_left" data-quarto-table-cell-role="th" scope="col">City</th>
+<th id="Diagnostic" class="gt_col_heading gt_columns_bottom_border gt_left" data-quarto-table-cell-role="th" scope="col">Diagnostic</th>
+<th id="Age" class="gt_col_heading gt_columns_bottom_border gt_right" data-quarto-table-cell-role="th" scope="col">Age</th>
+<th id="Sex" class="gt_col_heading gt_columns_bottom_border gt_left" data-quarto-table-cell-role="th" scope="col">Sex</th>
+<th id="Cases" class="gt_col_heading gt_columns_bottom_border gt_right" data-quarto-table-cell-role="th" scope="col">Cases</th>
+<th id="Population" class="gt_col_heading gt_columns_bottom_border gt_right" data-quarto-table-cell-role="th" scope="col">Population</th>
+<th id="CapitalCity" class="gt_col_heading gt_columns_bottom_border gt_left" data-quarto-table-cell-role="th" scope="col">CapitalCity</th>
+<th id="Capital" class="gt_col_heading gt_columns_bottom_border gt_left" data-quarto-table-cell-role="th" scope="col">Capital</th>
+</tr>
+</thead>
+<tbody class="gt_table_body">
+<tr class="odd">
+<td class="gt_row gt_right" headers="Year">2016</td>
+<td class="gt_row gt_left" headers="Department">Antioquia</td>
+<td class="gt_row gt_left" headers="City">Medellin</td>
+<td class="gt_row gt_left" headers="Diagnostic">F700</td>
+<td class="gt_row gt_right" headers="Age">2</td>
+<td class="gt_row gt_left" headers="Sex">Men</td>
+<td class="gt_row gt_right" headers="Cases">1</td>
+<td class="gt_row gt_right" headers="Population">14436</td>
+<td class="gt_row gt_left" headers="CapitalCity">Medellin</td>
+<td class="gt_row gt_left" headers="Capital">Yes</td>
+</tr>
+<tr class="even">
+<td class="gt_row gt_right" headers="Year">2016</td>
+<td class="gt_row gt_left" headers="Department">Antioquia</td>
+<td class="gt_row gt_left" headers="City">Medellin</td>
+<td class="gt_row gt_left" headers="Diagnostic">F700</td>
+<td class="gt_row gt_right" headers="Age">4</td>
+<td class="gt_row gt_left" headers="Sex">Women</td>
+<td class="gt_row gt_right" headers="Cases">2</td>
+<td class="gt_row gt_right" headers="Population">14123</td>
+<td class="gt_row gt_left" headers="CapitalCity">Medellin</td>
+<td class="gt_row gt_left" headers="Capital">Yes</td>
+</tr>
+<tr class="odd">
+<td class="gt_row gt_right" headers="Year">2016</td>
+<td class="gt_row gt_left" headers="Department">Antioquia</td>
+<td class="gt_row gt_left" headers="City">Medellin</td>
+<td class="gt_row gt_left" headers="Diagnostic">F700</td>
+<td class="gt_row gt_right" headers="Age">4</td>
+<td class="gt_row gt_left" headers="Sex">Men</td>
+<td class="gt_row gt_right" headers="Cases">1</td>
+<td class="gt_row gt_right" headers="Population">14688</td>
+<td class="gt_row gt_left" headers="CapitalCity">Medellin</td>
+<td class="gt_row gt_left" headers="Capital">Yes</td>
+</tr>
+<tr class="even">
+<td class="gt_row gt_right" headers="Year">2016</td>
+<td class="gt_row gt_left" headers="Department">Antioquia</td>
+<td class="gt_row gt_left" headers="City">Medellin</td>
+<td class="gt_row gt_left" headers="Diagnostic">F700</td>
+<td class="gt_row gt_right" headers="Age">6</td>
+<td class="gt_row gt_left" headers="Sex">Women</td>
+<td class="gt_row gt_right" headers="Cases">1</td>
+<td class="gt_row gt_right" headers="Population">14457</td>
+<td class="gt_row gt_left" headers="CapitalCity">Medellin</td>
+<td class="gt_row gt_left" headers="Capital">Yes</td>
+</tr>
+<tr class="odd">
+<td class="gt_row gt_right" headers="Year">2016</td>
+<td class="gt_row gt_left" headers="Department">Antioquia</td>
+<td class="gt_row gt_left" headers="City">Medellin</td>
+<td class="gt_row gt_left" headers="Diagnostic">F700</td>
+<td class="gt_row gt_right" headers="Age">6</td>
+<td class="gt_row gt_left" headers="Sex">Men</td>
+<td class="gt_row gt_right" headers="Cases">1</td>
+<td class="gt_row gt_right" headers="Population">14969</td>
+<td class="gt_row gt_left" headers="CapitalCity">Medellin</td>
+<td class="gt_row gt_left" headers="Capital">Yes</td>
+</tr>
+<tr class="even">
+<td class="gt_row gt_right" headers="Year">2016</td>
+<td class="gt_row gt_left" headers="Department">Antioquia</td>
+<td class="gt_row gt_left" headers="City">Medellin</td>
+<td class="gt_row gt_left" headers="Diagnostic">F700</td>
+<td class="gt_row gt_right" headers="Age">7</td>
+<td class="gt_row gt_left" headers="Sex">Women</td>
+<td class="gt_row gt_right" headers="Cases">3</td>
+<td class="gt_row gt_right" headers="Population">14674</td>
+<td class="gt_row gt_left" headers="CapitalCity">Medellin</td>
+<td class="gt_row gt_left" headers="Capital">Yes</td>
+</tr>
+<tr class="odd">
+<td class="gt_row gt_right" headers="Year">2016</td>
+<td class="gt_row gt_left" headers="Department">Antioquia</td>
+<td class="gt_row gt_left" headers="City">Medellin</td>
+<td class="gt_row gt_left" headers="Diagnostic">F700</td>
+<td class="gt_row gt_right" headers="Age">7</td>
+<td class="gt_row gt_left" headers="Sex">Men</td>
+<td class="gt_row gt_right" headers="Cases">8</td>
+<td class="gt_row gt_right" headers="Population">15153</td>
+<td class="gt_row gt_left" headers="CapitalCity">Medellin</td>
+<td class="gt_row gt_left" headers="Capital">Yes</td>
+</tr>
+<tr class="even">
+<td class="gt_row gt_right" headers="Year">2016</td>
+<td class="gt_row gt_left" headers="Department">Antioquia</td>
+<td class="gt_row gt_left" headers="City">Medellin</td>
+<td class="gt_row gt_left" headers="Diagnostic">F700</td>
+<td class="gt_row gt_right" headers="Age">8</td>
+<td class="gt_row gt_left" headers="Sex">Women</td>
+<td class="gt_row gt_right" headers="Cases">5</td>
+<td class="gt_row gt_right" headers="Population">14915</td>
+<td class="gt_row gt_left" headers="CapitalCity">Medellin</td>
+<td class="gt_row gt_left" headers="Capital">Yes</td>
+</tr>
+<tr class="odd">
+<td class="gt_row gt_right" headers="Year">2016</td>
+<td class="gt_row gt_left" headers="Department">Antioquia</td>
+<td class="gt_row gt_left" headers="City">Medellin</td>
+<td class="gt_row gt_left" headers="Diagnostic">F700</td>
+<td class="gt_row gt_right" headers="Age">8</td>
+<td class="gt_row gt_left" headers="Sex">Men</td>
+<td class="gt_row gt_right" headers="Cases">6</td>
+<td class="gt_row gt_right" headers="Population">15373</td>
+<td class="gt_row gt_left" headers="CapitalCity">Medellin</td>
+<td class="gt_row gt_left" headers="Capital">Yes</td>
+</tr>
+<tr class="even">
+<td class="gt_row gt_right" headers="Year">2016</td>
+<td class="gt_row gt_left" headers="Department">Antioquia</td>
+<td class="gt_row gt_left" headers="City">Medellin</td>
+<td class="gt_row gt_left" headers="Diagnostic">F700</td>
+<td class="gt_row gt_right" headers="Age">9</td>
+<td class="gt_row gt_left" headers="Sex">Women</td>
+<td class="gt_row gt_right" headers="Cases">8</td>
+<td class="gt_row gt_right" headers="Population">15206</td>
+<td class="gt_row gt_left" headers="CapitalCity">Medellin</td>
+<td class="gt_row gt_left" headers="Capital">Yes</td>
+</tr>
+</tbody>
+</table>
+
+</div>
+</div>
+</div>
+<p>Now we create some auxiliary variables considering the reference population:</p>
+<ul>
+<li><p>Diagnostics_per_hundredthousand: Number of cases per 100.000 inhabitants</p></li>
+<li><p>Diagnostics_Percentage: The percentage of the population diagnosed</p></li>
+</ul>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb32"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb32-1"><a href="#cb32-1" aria-hidden="true" tabindex="-1"></a>Ministery_Data_Compiled <span class="ot">&lt;-</span> Ministery_Data_with_capital <span class="sc">%&gt;%</span></span>
+<span id="cb32-2"><a href="#cb32-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">Diagnostics_per_houndredthousand =</span> <span class="fu">round</span>((Cases <span class="sc">/</span> Population) <span class="sc">*</span> <span class="dv">100000</span>))</span>
+<span id="cb32-3"><a href="#cb32-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb32-4"><a href="#cb32-4" aria-hidden="true" tabindex="-1"></a>Ministery_Data_Compiled <span class="ot">&lt;-</span> Ministery_Data_Compiled <span class="sc">%&gt;%</span></span>
+<span id="cb32-5"><a href="#cb32-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">Diagnostics_Percentage =</span> (Cases <span class="sc">/</span> Population))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <p>And write a .cvs file in the “Data_Processed” folder.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb17"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="fu">write.csv</span>(Ministery_Data_Compiled, <span class="st">&quot;Data_Processed/Ministery_DiagnosticData_Compiled.csv&quot;</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb33"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb33-1"><a href="#cb33-1" aria-hidden="true" tabindex="-1"></a><span class="fu">write.csv</span>(Ministery_Data_Compiled, <span class="st">&quot;Data_Processed/Ministery_DiagnosticData_Compiled.csv&quot;</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 </section>
 </section>
