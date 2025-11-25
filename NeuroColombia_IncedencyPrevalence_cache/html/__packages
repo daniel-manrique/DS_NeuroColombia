@@ -1,0 +1,15 @@
+Rcpp
+brms
+dplyr
+ggplot2
+ggridges
+ggbeeswarm
+gt
+gtsummary
+here
+hrbrthemes
+tibble
+tidyr
+stringi
+viridisLite
+viridis

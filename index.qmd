@@ -1,0 +1,23 @@
+# Introduction {.unnumbered}
+
+Welcome to the **NeuroColombia Data Analysis** project. This book documents the complete data analysis pipeline for investigating neurodevelopmental disorder consultations in Colombia from 2016 to 2022.
+
+## Project Overview
+
+The goal of this project is to analyze the frequency and distribution of neurodevelopmental diagnoses using public health data from the Colombian Ministry of Health and population projections from DANE.
+
+This book is organized into the following chapters:
+
+1.  **[Data Cleaning and Processing](0_NeuroColombia_DataCleaning.qmd)**: Details the procedures for cleaning raw data, standardizing text, and merging diagnostic records with population data.
+2.  **[Consultation Frequency Analysis](1_Consultation_Frequency.qmd)**: Explores temporal trends and geographical distributions of consultations at a general level.
+3.  **[Diagnostic Frequency Analysis](2_Consultation_DiagnosticFrecuency.qmd)**: Breaks down consultations by specific ICD-10 diagnostic categories to identify the most prevalent conditions.
+4.  **[Deep Dive: Top 3 Diagnostics](3_Consultation_MostFrequent.qmd)**: A focused analysis of the three most frequent diagnoses (F900, F809, F808), examining their distribution by sex, age, and geography.
+
+## Data Sources
+
+-   **Ministry of Health**: Raw consultation records (SISPRO).
+-   **DANE**: Official population projections for Colombia.
+
+## Reproducibility
+
+All code used in this analysis is available in the [GitHub repository](https://github.com/daniel-manrique/DS_NeuroColombia). The analysis is written in R and rendered using Quarto.

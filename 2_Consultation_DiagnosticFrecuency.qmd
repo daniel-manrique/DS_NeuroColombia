@@ -1,0 +1,234 @@
+---
+title: "Diagnostic Frequency Analysis"
+---
+
+## Load Project Setup
+
+This chunk sources the `_common.R` script, which loads all packages, the `Plot_theme`, and the main `Neuro_Data` data frame.
+
+```{r}
+#| label: setup
+#| include: false
+source("_common.R")
+```
+
+## Consultations per Diagnostic
+
+We begin by examining how often each diagnostic category appears in the consultation records. This provides a broad overview of the distribution of neurodevelopmental conditions in the dataset and helps us identify which diagnoses account for the largest share of consultations.
+
+### Data Preparation
+
+We group the full dataset by diagnostic category and compute the total number of consultations associated with each condition. This step collapses the dataset across departments and years, allowing us to quantify the overall importance of each diagnostic group at the national level.
+
+```{r}
+#| label: summary-diagnostic
+
+Summary_Diagnostic <- Neuro_Data %>%
+  group_by(Diagnostic) %>%
+  summarise(Total_Cases = sum(Cases, na.rm = TRUE)) %>%
+  ungroup()
+
+Summary_Diagnostic
+
+```
+
+### Data Visualization: Top 10 Diagnostics
+
+The full dataset contains dozens of diagnostic categories, and plotting all of them at once would obscure meaningful patterns. To focus on the most prevalent conditions, we extract the 10 diagnostic categories with the highest number of consultations using `slice_max()`. The bar chart in @fig-Diagnostics_Top10 displays these top diagnoses, ordered from the most to the least frequent. We annotate each bar with the exact number of consultations and use a color gradient to highlight the relative magnitude of each category.
+
+```{r}
+#| label: fig-Diagnostics_Top10
+#| fig-cap: Distribution of the 10 most frequent neurodevelopmental diagnostics (CIE-11).
+#| fig-width: 6
+#| fig-height: 5
+
+# Filter for the 10 most frequent cases
+top_10_data <- Summary_Diagnostic %>%
+  slice_max(Total_Cases, n = 10)
+
+# Create the bar plot
+Diagnostic_fig_Top10 <- ggplot(top_10_data, 
+                               aes(y = reorder(Diagnostic, Total_Cases), # Re-ordered smallest to largest for this plot
+                                   x = Total_Cases,
+                                   fill = Total_Cases)) +
+  geom_bar(stat = "identity") +
+  scale_fill_distiller(palette = "Blues", direction = 1) +
+  geom_text(aes(label=Total_Cases), vjust=0.5, hjust = -0.1, color="black", size=4) +
+  labs(x = "Total cases", y = "ICD-10 nerodevelopmental diagnostics", 
+       title = "10 most frequent consultations") +
+  Plot_theme + 
+  theme(axis.text.x=element_blank(),
+        axis.ticks.x=element_blank(),
+        legend.position = "none") +
+  scale_x_continuous(expand = expansion(mult = c(0, 0.15)))
+
+# Save the new figure
+ggsave(Diagnostic_fig_Top10,
+       filename = "Plots/Diagnostic_fig_Top10.png",
+       width    = 16, 
+       height   = 15,
+       units    = "cm")
+
+Diagnostic_fig_Top10
+```
+
+The distribution of consultations is heavily concentrated in a small number of diagnostic categories. The hyperactive disorder diagnosis (F900) is by far the most common, with more than 300,000 consultations. Other highly frequent diagnoses include mixed developmental disorders (F809) and speech and language disorders (F808), each surpassing 200,000 consultations. Even the least frequent categories in the top 10 exceed 80,000 consultations, indicating that a limited set of neurodevelopmental conditions dominate the national consultation load.
+
+### Full Diagnostic Table
+
+To provide a complete overview of the diagnostic spectrum, we construct a table that lists all ICD-10 neurodevelopmental diagnostic categories and their total number of consultations. Because the full list is long, we sort the diagnostics from most to least frequent and then distribute them into three column groups. We format the resulting wide table with `gt`, add column group headings, and apply a simple APA-style layout. The table is exported both as LaTeX (for direct inclusion in the manuscript) and as a Word document, so that readers and collaborators can easily reuse or adapt the information.
+
+```{r}
+#| label: data-table-multicol
+
+# --- 1. Sort the data ---
+sorted_data <- Summary_Diagnostic %>%
+  arrange(desc(Total_Cases))
+
+# --- 2. Prepare data for 3 columns ---
+n_rows <- nrow(sorted_data)
+rows_per_col <- ceiling(n_rows / 3)
+na_row <- tibble(Diagnostic = NA_character_, Total_Cases = NA_integer_)
+
+col1 <- sorted_data %>% slice(1:rows_per_col)
+col2 <- sorted_data %>% slice((rows_per_col + 1):min(2 * rows_per_col, n_rows))
+col3 <- sorted_data %>% slice((2 * rows_per_col + 1):n_rows)
+
+# Pad shorter columns with NA rows
+if (nrow(col2) < rows_per_col) {
+  col2 <- bind_rows(col2, slice(na_row, rep(1, rows_per_col - nrow(col2))))
+}
+if (nrow(col3) < rows_per_col) {
+  col3 <- bind_rows(col3, slice(na_row, rep(1, rows_per_col - nrow(col3))))
+}
+
+# --- 4. Combine into one wide dataframe ---
+multi_col_data <- bind_cols(
+  col1 %>% rename(Diagnostic_1 = Diagnostic, Cases_1 = Total_Cases),
+  col2 %>% rename(Diagnostic_2 = Diagnostic, Cases_2 = Total_Cases),
+  col3 %>% rename(Diagnostic_3 = Diagnostic, Cases_3 = Total_Cases)
+)
+```
+
+#### Results Table
+
+The prepared `multi_col_data` is formatted with `gt`. We use `tab_spanner` to create "Group 1", "Group 2", and "Group 3" headers over the columns.
+
+```{r}
+#| label: tbl-Diagnostics
+#| tbl-cap: Full list of consultations per diagnostic category
+#| message: false
+#| warning: false
+
+publication_table_gt <- multi_col_data %>%
+  gt() %>%
+  tab_header(
+    title    = md("**Table 2. Consultations by ICD-10 neurodevelopmental diagnostic category**"),
+    subtitle = "Sorted from most to least frequent and arranged in three column groups."
+  ) %>%
+  # Column groupings
+  tab_spanner(label = "Group 1", columns = c(Diagnostic_1, Cases_1)) %>%
+  tab_spanner(label = "Group 2", columns = c(Diagnostic_2, Cases_2)) %>%
+  tab_spanner(label = "Group 3", columns = c(Diagnostic_3, Cases_3)) %>%
+  # Column labels under the spanners
+  cols_label(
+    Diagnostic_1 = "Diagnostic", Cases_1 = "Cases",
+    Diagnostic_2 = "Diagnostic", Cases_2 = "Cases",
+    Diagnostic_3 = "Diagnostic", Cases_3 = "Cases"
+  ) %>%
+  # Number formatting
+  fmt_number(
+    columns  = c(Cases_1, Cases_2, Cases_3),
+    use_seps = TRUE,
+    decimals = 0
+  ) %>%
+  # Show padded NAs as blank cells
+  fmt_missing(
+    columns      = everything(),
+    missing_text = ""
+  ) %>%
+  theme_apa_gt() %>%
+  tab_source_note(
+    source_note = "Note. ICD-10 neurodevelopmental diagnostics, ordered by total number of consultations."
+  )
+
+publication_table_gt
+
+```
+
+#### Save the Table
+
+We export the table to HTML and LaTeX.
+
+```{r}
+#| label: export-diagnostictable_tex
+
+gtsave(publication_table_gt,
+       filename = "Tables/Diagnostic_table.html")
+
+gtsave(publication_table_gt,
+       filename = "Tables/Diagnostic_table.tex")
+
+```
+
+And we also create a Word version.
+
+```{r}
+#| label: export-diagnostictable_word
+
+library(flextable)
+library(officer)
+
+# Build a flextable with grouped headers for Word export
+publication_table_ft <- flextable(multi_col_data)
+
+publication_table_ft <- publication_table_ft %>%
+  # First header row: group labels
+  add_header_row(
+    values    = c("Group 1", "Group 2", "Group 3"),
+    colwidths = c(2, 2, 2)
+  ) %>%
+  # Second header row: column labels
+  set_header_labels(
+    Diagnostic_1 = "Diagnostic", Cases_1 = "Cases",
+    Diagnostic_2 = "Diagnostic", Cases_2 = "Cases",
+    Diagnostic_3 = "Diagnostic", Cases_3 = "Cases"
+  ) %>%
+  theme_apa_flextable() %>%
+  # Center group headers and column labels; bold them
+  align(part = "header", align = "center") %>%
+  bold(part = "header", bold = TRUE) %>%
+  # Right-align numeric columns in the body
+  align(
+    j     = c("Cases_1", "Cases_2", "Cases_3"),
+    align = "right",
+    part  = "body"
+  ) %>%
+  # Add a table note at the bottom
+  add_footer_lines(
+    values = "Note. ICD-10 neurodevelopmental diagnostics, ordered by total number of consultations."
+  ) %>%
+  align(part = "footer", align = "left")
+
+# Export to Word
+save_as_docx(
+  "Table 1. Consultations by ICD-10 neurodevelopmental diagnostic category" = publication_table_ft,
+  path = "Tables/Diagnostic_table.docx"
+)
+
+```
+
+## Create Data Subset for Downstream Analysis
+
+Based on the table and plot, we see that "F900", "F809", and "F808" are the most frequent diagnostics. For the next part of the analysis (see [Deep Dive: Top 3 Diagnostics](3_Consultation_MostFrequent.qmd)), we will focus only on these three.
+
+This chunk filters the original `Neuro_Data` to keep only these diagnostics and saves the result as a new CSV file. This new file will be the input for the next notebook.
+
+```{r}
+#| label: data-create-subset
+
+Neuro_Data_MainDiag <- Neuro_Data  %>%
+  filter(Diagnostic %in% c("F900", "F809", "F808"))
+
+write.csv(Neuro_Data_MainDiag, "Data_Processed/Neuro_Data_MainDiag.csv", row.names = FALSE)
+```

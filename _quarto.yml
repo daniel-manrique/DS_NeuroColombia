@@ -1,0 +1,33 @@
+project:
+  type: book
+  output-dir: _book
+
+book:
+  title: "NeuroColombia Data Analysis"
+  author: "Daniel Manrique-Castano"
+  date: "today"
+  chapters:
+    - index.qmd
+    - 0_NeuroColombia_DataCleaning.qmd
+    - 1_Consultation_Frequency.qmd
+    - 2_Consultation_DiagnosticFrecuency.qmd
+    - 3_Consultation_MostFrequent.qmd
+  sidebar:
+    style: "docked"
+    search: true
+  page-footer:
+    left: "Copyright 2024, Daniel Manrique-Castano"
+    right: 
+      - icon: github
+        href: https://github.com/daniel-manrique/DS_NeuroColombia
+
+format:
+  html:
+    theme: spacelab
+    code-fold: true
+    toc: true
+    number-sections: true
+    highlight-style: github
+
+execute:
+  freeze: auto

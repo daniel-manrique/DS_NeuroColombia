@@ -1,0 +1,17 @@
+\begin{table}
+\fontsize{12.0pt}{14.4pt}\selectfont
+\begin{tabular*}{\linewidth}{@{\extracolsep{\fill}}lccc}
+\toprule
+\textbf{Predictor} & \textbf{Estimate} & \textbf{95\% CI} & \textbf{95\% CI}\textsuperscript{\textit{1}} \\ 
+\midrule\addlinespace[2.5pt]
+{\bfseries (Intercept)} & 94 & 77,  112 & 77, 112 \\ 
+{\bfseries Sex} &  &  &  \\ 
+    SexWomen & -5.0 & -11,  1.1 & -11, 1.1 \\ 
+\bottomrule
+\end{tabular*}
+\begin{minipage}{\linewidth}
+\textsuperscript{\textit{1}}CI = Credible Interval\\
+Note. Outcome is the mean number of consultations per 10,000 individuals in the reference population. Sex is coded 0 = Men (reference), 1 = Women. Department is included as a random intercept. Estimates and 95\% credible intervals come from a Bayesian hierarchical model with Student-t likelihood.\\
+\end{minipage}
+\end{table}
+

@@ -1,0 +1,464 @@
+---
+title: "Data Cleaning and Processing"
+---
+
+## Install and Load Packages
+
+We begin by installing and loading the necessary R packages for data manipulation and processing. These packages provide the tools required for reading Excel files, manipulating strings, and performing efficient data frame operations.
+
+```{r}
+if (!requireNamespace("dplyr", quietly = TRUE)) install.packages("dplyr")
+if (!requireNamespace("gt", quietly = TRUE)) install.packages("gt")
+if (!requireNamespace("purrr", quietly = TRUE)) install.packages("purrr")
+if (!requireNamespace("readxl", quietly = TRUE)) install.packages("readxl")
+if (!requireNamespace("stringr", quietly = TRUE)) install.packages("stringr")
+if (!requireNamespace("stringi", quietly = TRUE)) install.packages("stringi")
+if (!requireNamespace("tidyr", quietly = TRUE)) install.packages("tidyr")
+
+library(dplyr)
+library(gt)
+library(purrr)
+library(readxl)
+library(stringr)
+library(stringi)
+library(tidyr)
+```
+
+## Handling of Neurodevelopmental Data
+
+This section details the processing of raw neurodevelopmental consultation data obtained from the Colombian Ministry of Health. Our objective is to transform the raw Excel sheets into a structured, standardized dataset suitable for analysis.
+
+### Load Data
+
+The raw data is stored in a single Excel file (`Ministry_OriginalData.xlsx`) containing multiple sheets. We use `readxl::excel_sheets()` to retrieve all sheet names and then apply `purrr::map_dfr()` to iteratively read each sheet and combine them into a single data frame, `Ministry_data_Raw`.
+
+```{r}
+#| label: load-ministry-data
+
+# Define the file path 
+file_path <- "Data_Raw/Ministry_OriginalData.xlsx"
+
+# Get all sheet names
+sheet_names <- excel_sheets(file_path)
+
+# Read all sheets and combine them
+Ministry_data_Raw <- map_dfr(sheet_names, ~ read_excel(file_path, sheet = .x), .id = "SheetName")
+```
+
+We display the first 10 rows to inspect the raw structure of the dataset.
+
+```{r}
+#| label: view-raw-ministry-data
+
+gt::gt(Ministry_data_Raw[1:10,])
+```
+
+### Clean and Standardize Ministry Data
+
+Upon visual inspection, we identify several inconsistencies that require cleaning. We perform the following steps to standardize the data.
+
+#### Rename Columns
+
+First, we rename the columns from Spanish to English to ensure clarity and consistency throughout the analysis. We also remove the `SheetName` column as it is no longer needed.
+
+```{r}
+#| label: rename-ministry-cols
+
+# Eliminate the first column
+Ministry_data_Raw <- Ministry_data_Raw %>% select(-SheetName)
+
+# Change column names in order
+colnames(Ministry_data_Raw) <- c("Year", "Department",  "City", "Diagnostic", "Age", "Sex", "Cases")
+
+```
+
+#### Clean Data Values
+
+Next, we clean the values within the columns using string manipulation and recoding techniques:
+
+-   **Department/City**: We remove numerical prefixes (e.g., "05 - Antioquia") and convert the text to Title Case.
+-   **Diagnostic**: We extract only the ICD-10 code (e.g., "F900"), discarding the descriptive text.
+-   **Age**: We extract only the numeric age value.
+-   **Sex**: We recode the values from Spanish ("MASCULINO", "FEMENINO") to English ("Men", "Women").
+
+```{r}
+#| label: clean-ministry-values
+
+Ministry_data_clean <- Ministry_data_Raw %>%
+  # Remove numbers and hyphen from 'Department' column
+  mutate(Department = str_remove(Department, "^\\d+\\s-\\s*"),
+         Department = str_to_title(Department)) %>%  # Convert to Title Case
+  
+  # Remove numbers and hyphen from 'City' column
+  mutate(City = str_remove(City, "^\\d+\\s-\\s*"),
+         City = str_to_title(City)) %>%  # Convert to Title Case
+  
+  # Extract only the diagnostic code starting with "F"
+  mutate(Diagnostic = str_extract(Diagnostic, "^F\\d+")) %>%
+  
+  # Extract only numeric values from 'Age' column
+  mutate(Age = str_extract(Age, "\\d+")) %>%
+  
+  # Replace "MASCULINO" with "Men" and "FEMENINO" with "Women"
+  mutate(Sex = recode(Sex, "MASCULINO" = "Men", "FEMENINO" = "Women"))
+```
+
+#### Standardize Text (Unicode and Capitalization)
+
+To ensure accurate joins with other datasets (such as population data), we must standardize all text fields.
+
+-   **Accents**: We use `stringi::stri_trans_general()` to remove all Spanish accents (e.g., "Bogotá" becomes "Bogota").
+-   **Capitalization**: We standardize common articles (e.g., "De", "Del") to lowercase ("de", "del") and ensure "D.C." is correctly formatted for Bogotá.
+
+```{r}
+#| label: standardize-ministry-text
+
+# Remove accents
+Ministry_data_clean <- Ministry_data_clean %>%
+  mutate(
+    Department = stri_trans_general(Department, "Latin-ASCII"),
+    City = stri_trans_general(City, "Latin-ASCII")
+  )
+
+# Fix capitalization and "D.C."
+Ministry_data_clean <- Ministry_data_clean %>%
+  mutate(City = str_replace_all(City, "\\bDe\\b", "de"),
+         City = str_replace_all(City, "\\bDel\\b", "del"),
+         City = str_replace_all(City, "\\bLa\\b", "la"),
+         Department = str_replace_all(Department, "\\bDe\\b", "de"),
+         Department = str_replace_all(Department, "\\bDel\\b", "del"),
+         Department = str_replace(Department, "\\bD.c\\b", "D.C"),
+         City = str_replace(City, "\\bD.c\\b", "D.C"),
+         City = str_replace(City, "Bogota", "Bogota, D.C"))
+
+# Fix potential duplicates created by the replace (e.g., "Bogota, D.C, D.C.")
+Ministry_data_clean <- Ministry_data_clean %>%
+  mutate(
+    City = case_when(
+      City == "Bogota, D.C, D.C." ~ "Bogota, D.C.", TRUE ~ City ))
+```
+
+We verify the cleaned table structure:
+
+```{r}
+#| label: view-cleaned-ministry-data
+
+gt::gt(Ministry_data_clean[1:10,])
+```
+
+### Subset Ministry Data
+
+We filter the dataset based on the study's specific inclusion criteria:
+
+-   **Sex**: We include only "Men" and "Women" (excluding "NO REPORTADO").
+-   **Age**: We include children aged 0 to 11 years, inclusive.
+-   **Location**: We exclude entries where Department or City is "No Definido" (Not defined).
+-   **Data Types**: We ensure that Year and Age columns are numeric.
+
+```{r}
+#| label: subset-ministry-data
+
+Ministery_DiagnosticData <- Ministry_data_clean %>%
+  filter(Sex %in% c("Men", "Women"),
+         as.numeric(Age) >= 0 & as.numeric(Age) <= 11,
+         !Department %in% c("No Definido", "-1 - No Definido"),
+         !City %in% c("No Definido", "-1 - No Definido"))
+
+# Make sure year and age are numerical
+Ministery_DiagnosticData$Year <- as.numeric(Ministery_DiagnosticData$Year)
+Ministery_DiagnosticData$Age <- as.numeric(Ministery_DiagnosticData$Age)
+```
+
+The resulting table contains `382,008` diagnostic cases. We display the structure of the dataset to verify its attributes:
+
+```{r}
+# Display the subsetted dataset
+str(Ministery_DiagnosticData)
+```
+
+The table contains the following variables:
+
+-   **Year**: Year in which the neurological diagnosis was made (2016–2022).
+-   **Department**: Geographical Colombian department where the diagnosis was made.
+-   **City**: City where the diagnosis was made.
+-   **Diagnosis**: Neurodevelopmental diagnosis according to [ICD-10](https://icd.who.int/en/).
+-   **Age**: Age of the diagnosed person.
+-   **Sex**: Biological sex/gender of the diagnosed person (Men or Women).
+-   **Cases**: Number of diagnosed cases.
+
+We save this intermediate cleaned file. This table contains only the case data, without population denominators. The cleaned data is used in the subsequent analyses: [Consultation Frequency Analysis](1_Consultation_Frequency.qmd).
+
+```{r}
+#| label: save-intermediate-ministry-data
+
+write.csv(Ministery_DiagnosticData, "Data_Processed/Ministery_DiagnosticData.csv", row.names = FALSE, fileEncoding = "UTF-8")
+```
+
+::: callout-warning
+Please note that as this file contains special Spanish characters, if opened in Excel, the user needs to ensure the correct encoding:
+
+1.  Open Excel → Go to Data → Get External Data → From Text.
+2.  Choose the .csv file and set **UTF-8** encoding in the import wizard.
+:::
+
+## Handling of DANE Population Data
+
+In this section, we load, clean, and reshape the population data from DANE (National Administrative Department of Statistics) to serve as the denominator for calculating consultation rates.
+
+### Load and Subset DANE Data
+
+We load two separate Excel files containing population projections (2005-2019 and 2020-2035) and merge them using `rbind()`.
+
+```{r}
+#| label: load-dane-data
+
+Dane_Data_2019 <- read_excel("Data_Raw/DANE_PopulationData_2005-2019.xlsx") 
+Dane_Data_2035 <- read_excel("Data_Raw/DANE_PopulationData_2020-2035.xlsx")
+
+# We merge the datasets
+Dane_Data_Total <- rbind(Dane_Data_2019, Dane_Data_2035)
+```
+
+We then subset this large dataset to match our study criteria:
+
+-   **ÁREA GEOGRÁFICA**: "Total" (to include both urban and rural populations).
+-   **AÑO**: 2016 to 2022.
+-   **DPNOM / DPMP**: Exclude "No Definido".
+-   **Columns**: We select only the ID columns (DPNOM, DPMP, AÑO) and the population columns for men and women aged 0-11 (e.g., "Hombres_0"..."Mujeres_11").
+
+```{r}
+#| label: subset-dane-data
+
+# We select the rows containing total counts
+Dane_Data_Total <- subset(Dane_Data_Total, `ÁREA GEOGRÁFICA` == "Total")
+
+# We subset ID variables and population columns
+Dane_Data_Total <- Dane_Data_Total %>%
+  filter(AÑO >= 2016 & AÑO <= 2022,
+         DPNOM != "No Definido",
+         DPMP != "No Definido") %>%
+  select(DPNOM, DPMP, AÑO, matches("^(Hombres|Mujeres)_([0-9]|1[0-1])$"))
+```
+
+The resulting table provides information on the number of men (Hombres) and women (Mujeres) from 0 to 11 years of age by year, department, and city in Colombia.
+
+### Standardize DANE Text
+
+As with the Ministry data, we standardize all text (remove accents, normalize capitalization) to prepare for merging.
+
+```{r}
+#| label: standardize-dane-text
+
+Dane_Data_Total <- Dane_Data_Total %>%
+  mutate(
+    DPNOM = stri_trans_general(DPNOM, "Latin-ASCII"),
+    DPMP = stri_trans_general(DPMP, "Latin-ASCII")
+  )
+
+Dane_Data_Total <- Dane_Data_Total %>%
+  mutate(DPMP = str_replace_all(DPMP, "\\bDe\\b", "de"),
+         DPMP = str_replace_all(DPMP, "\\bDel\\b", "del"),
+         DPMP = str_replace_all(DPMP, "\\bLa\\b", "la"),
+         DPNOM = str_replace_all(DPNOM, "\\bDe\\b", "de"),
+         DPNOM = str_replace_all(DPNOM, "\\bDel\\b", "del"))
+```
+
+### Reshape DANE Data (Wide to Long)
+
+The DANE data is initially in a "wide" format (one column for each age-sex group). We use `tidyr::pivot_longer()` to reshape it into a "long" format. This creates one row per city-year-sex-age combination, with columns `Sexo`, `Edad`, and `Poblacion`.
+
+```{r}
+#| label: reshape-dane-data
+
+Dane_Data_Total_long <- Dane_Data_Total %>%
+  pivot_longer(
+    cols = c(starts_with("Hombres_"), starts_with("Mujeres_")),
+    names_to = c("Sexo", "Edad"),
+    names_sep = "_",
+    values_to = "Poblacion"
+  )
+
+Dane_Data_Total_long$Edad <- as.numeric(Dane_Data_Total_long$Edad)
+```
+
+### Standardize DANE Columns
+
+Finally, we rename the DANE columns (DPNOM -> Department, etc.) and recode Sex ("Hombres" -> "Men") to exactly match the `Ministery_DiagnosticData` table.
+
+```{r}
+#| label: rename-dane-cols
+
+# Change column names in order
+colnames(Dane_Data_Total_long) <- c("Department", "City",  "Year", "Sex", "Age", "Population")
+
+# Replace "Hombres" with "Men" and "Mujeres" with "Women"
+Dane_Data_Total_long <- Dane_Data_Total_long %>%
+  mutate(Sex = recode(Sex, "Hombres" = "Men", "Mujeres" = "Women"))
+
+```
+
+## Relate Diagnostic and Population Data
+
+### Handle Join Mismatches
+
+Our goal is to join the `Ministery_DiagnosticData` with `Dane_Data_Total_long`. However, preliminary checks revealed NAs, indicating naming convention mismatches between the two datasets (e.g., "Cartagena de Indias" vs. "Cartagena").
+
+To resolve this, we manually recode the city/department names in the `Dane_Data_Total_long` dataset to match the names used in the `Ministery_DiagnosticData` dataset.
+
+```{r}
+#| label: fix-dane-mismatches
+
+Dane_Data_Total_long <- Dane_Data_Total_long %>%
+  mutate(
+    City = case_when(
+      City == "Cartagena de Indias" ~ "Cartagena",
+      City == "San Jose de Cucuta" ~ "Cucuta",
+      City == "Piendamo - Tunia" ~ "Piendamo",
+      City == "Archipielago de San Andres" ~ "Archipielago de San Andres, Providencia Y Santa Catalina",
+      City == "Cuaspud Carlosama" ~ "Cuaspud",
+      City == "Donmatias" ~ "Don Matias",
+      City == "Purisima de La Concepcion" ~ "Purisima",
+      City == "Sotara Paispamba" ~ "Sotara",
+      City == "Manaure Balcon del Cesar" ~ "Manaure",
+      City == "Puerto Leguizamo" ~ "Leguizamo",
+      City == "Cacahual (ANM)" ~ "Cacahual",
+      City == "Guican de La Sierra" ~ "Guican",
+      City == "Lopez de Micay" ~ "Lopez",
+      City == "El Encanto (ANM)" ~ "El Encanto",
+      City == "La Chorrera (ANM)" ~ "La Chorrera",
+      City == "Tarapaca (ANM)" ~ "Tarapaca",
+      City == "Barrancominas (ANM)" ~ "Barrancominas",
+      City == "La Pedrera (ANM)" ~ "La Pedrera",
+      City == "Puerto Santander (ANM)" ~ "Puerto Santander",
+      City == "Puerto Colombia (ANM)" ~ "Puerto Colombia",
+      TRUE ~ City ),
+   
+    Department = case_when(
+      Department == "Archipielago de San Andres" ~ "Archipielago de San Andres, Providencia Y Santa Catalina",
+      TRUE ~ Department )
+  )
+```
+
+### Merge Datasets
+
+With the names corrected, we perform a `dplyr::left_join()` to add the `Population` column to our `Ministery_DiagnosticData`. The join is based on the unique key of **City**, **Department**, **Year**, **Sex**, and **Age**.
+
+```{r}
+#| label: merge-datasets
+
+Ministery_Data_with_pop <- Ministery_DiagnosticData %>%
+  left_join(Dane_Data_Total_long,
+            by = c("City",  
+                   "Department",
+                   "Year",           
+                   "Sex",                 
+                   "Age"                   
+            ))
+
+# As a domain-specific step, we incorporate Bogota, D.C. into the Cundinamarca department
+# This treats Bogota as part of Cundinamarca for analysis.
+Ministery_Data_with_pop <- Ministery_Data_with_pop %>%
+  mutate(
+    Department = case_when(
+      Department == "Bogota, D.C." ~ "Cundinamarca",
+      TRUE ~ Department )
+  )
+```
+
+We check for any remaining NAs and drop them, as they represent entries that could not be paired with a population count.
+
+```{r}
+#| label: drop-na
+
+Ministery_Data_with_pop <- Ministery_Data_with_pop %>%
+  drop_na()
+  
+```
+
+## Feature Engineering
+
+We now engineer new variables to facilitate our analysis.
+
+### Capital City Status
+
+We create a binary variable `Capital` ("Yes" / "No") to indicate if a city is a department capital. This is achieved by creating a capitals lookup table and joining it to our main dataset.
+
+```{r}
+#| label: create-capital-variable
+
+# Create a lookup table for department capitals
+capitals <- tibble(
+  Department = c("Amazonas", "Antioquia", "Arauca", "Atlantico", "Bolivar", 
+                   "Boyaca", "Caldas", "Caqueta", "Casanare", "Cauca", "Cesar", 
+                   "Choco", "Cordoba", "Cundinamarca", "Guainia", "Guaviare", 
+                   "Huila", "La Guajira", "Magdalena", "Meta", "Narino", 
+                   "Norte de Santander", "Putumayo", "Quindio", "Risaralda", 
+                   "Archipielago de San Andres, Providencia Y Santa Catalina", "Santander", "Sucre", "Tolima", 
+                   "Valle del Cauca", "Vaupes", "Vichada"),
+  CapitalCity = c("Leticia", "Medellin", "Arauca", "Barranquilla", "Cartagena", 
+                   "Tunja", "Manizales", "Florencia", "Yopal", "Popayan", "Valledupar", 
+                   "Quibdo", "Monteria", "Bogota, D.C.", "Inirida", "San Jose del Guaviare", 
+                   "Neiva", "Riohacha", "Santa Marta", "Villavicencio", "Pasto", 
+                   "Cucuta", "Mocoa", "Armenia", "Pereira", "San Andres", 
+                   "Bucaramanga", "Sincelejo", "Ibague", "Cali", "Mitu", "Puerto Carreno")
+)
+
+# Join with capitals lookup and create the "Capital" column
+Ministery_Data_with_capital <- Ministery_Data_with_pop %>%
+  left_join(capitals, by = "Department") %>%
+  mutate(Capital = if_else(City == CapitalCity, "Yes", "No"))
+
+```
+
+### Normalized Diagnostic Rates
+
+Using the new `Population` column, we calculate three normalized rates:
+
+-   **Diagnostics_per_tenthousand**: Cases per 10,000 inhabitants (of the reference population).
+-   **Diagnostics_per_houndredthousand**: Cases per 100,000 inhabitants (of the reference population).
+-   **Diagnostics_Percentage**: The raw percentage of the population diagnosed.
+
+```{r}
+#| label: create-rate-variables
+
+Ministery_Data_Compiled <- Ministery_Data_with_capital %>%
+  mutate(Diagnostics_per_tenthousand = round((Cases / Population) * 10000))
+
+Ministery_Data_Compiled <- Ministery_Data_Compiled %>%
+  mutate(Diagnostics_per_houndredthousand = round((Cases / Population) * 100000))
+
+Ministery_Data_Compiled <- Ministery_Data_Compiled %>%
+  mutate(Diagnostics_Percentage = (Cases / Population))
+```
+
+### Diagnostic Groups
+
+Finally, we create a higher-level `Diagnostic_Group` column (e.g., F70, F80) using `case_when()` to bin the specific ICD-10 codes into broader categories.
+
+```{r}
+#| label: create-group-variable
+
+Ministery_Data_Compiled <- Ministery_Data_Compiled %>%
+  mutate(Diagnostic_Group = case_when(
+    Diagnostic %in% c("F700", "F701", "F708", "F709", "F711", "F710", "F718", "F719", "F720", "F721", "F728", "F729", "F730", "F731", "F738", "F739","F780", "F781", "F788", "F789", "F790", "F799", "F798", "F791") ~ "F70",
+    Diagnostic %in% c("F800", "F801", "F802", "F803", "F804", "F805", "F806", "F807", "F808", "F809") ~ "F80",
+    Diagnostic %in% c("F810", "F811", "F812", "F813", "F818", "F8181", "F8189", "F819") ~ "F81",
+    Diagnostic == "F82" ~ "F82",
+    Diagnostic == "F83" ~ "F83",
+    Diagnostic %in% c("F840", "F841", "F842", "F843", "F844", "F845", "F846", "F847", "F848", "F849") ~ "F84",
+    Diagnostic == "F88" ~ "F88",
+    Diagnostic == "F89" ~ "F89",
+    Diagnostic %in% c("F900", "F901", "F908", "F909") ~ "F90",
+    TRUE ~ NA_character_
+  ))
+```
+
+## Final Export
+
+We save the fully cleaned, merged, and feature-engineered dataset. This file, `Ministery_DiagnosticData_Compiled.csv`, serves as the master dataset for all subsequent analysis chapters.
+
+```{r}
+#| label: save-final-data
+
+write.csv(Ministery_Data_Compiled, "Data_Processed/Ministery_DiagnosticData_Compiled.csv", row.names = FALSE)
+```

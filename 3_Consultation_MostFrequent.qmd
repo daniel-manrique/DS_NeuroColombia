@@ -1,0 +1,1046 @@
+---
+title: "Deep Dive: Top 3 Diagnostics"
+---
+
+## Load Project Setup and Data
+
+This first chunk sources the `_common.R` script, which loads all packages, the `Plot_theme`, and the cleaned `Col_map_fixed` object.
+
+It then **loads the subsetted data (`Neuro_Data_MainDiag.csv`)** that was created by the previous notebook (see [Diagnostic Frequency Analysis](2_Consultation_DiagnosticFrecuency.qmd)). All analysis in this file will be based on this "Top 3" dataset.
+
+```{r}
+#| label: setup
+#| include: false
+source("_common.R")
+
+# Load the subsetted data created by File 2
+Neuro_Data_MainDiag <- read.csv("Data_Processed/Neuro_Data_MainDiag.csv")
+```
+
+## Geographical Distribution of Most Frequent Cases
+
+We examine how the three most common neurodevelopmental diagnoses are distributed across Colombian departments. This analysis focuses on median consultation rates per 10,000 inhabitants, which allows us to compare regions while minimizing the influence of extreme values.
+
+### Data Preparation
+
+We begin by summarizing the consultation frequency for each of the three focal diagnostic categories within every department. The data are grouped by Department and Diagnostic, and we compute the median number of consultations per 10,000 inhabitants. This measure gives a stable central estimate for each diagnostic–department combination.
+
+```{r}
+#| label: data-geo-summary-top3
+
+Summary_Common_Geography <- Neuro_Data_MainDiag %>%
+  group_by(Department, Diagnostic) %>%
+  summarise(
+    MedianCases = median(Diagnostics_per_tenthousand, na.rm = TRUE),
+  ) %>%
+  ungroup()
+```
+
+### Results Table
+
+To facilitate comparison across regions, we reshape the dataset so that each diagnostic category occupies its own column. The resulting wide-format table includes the median frequency for each diagnostic, along with a Total column that sums all three ("F808", "F809", "F900"). Departments are then ordered from highest to lowest total case burden.
+
+```{r}
+#| label: tbl-Geo_Summary
+#| tbl-cap: Total Cases by Department and Main Diagnostic
+
+# --- 1. Pivot the data to wide format ---
+wide_geo_summary <- Summary_Common_Geography %>%
+  pivot_wider(
+    names_from = Diagnostic,
+    values_from = MedianCases,
+    values_fill = 0
+  ) %>%
+  mutate(Total_All_Cases = rowSums(across(where(is.numeric)))) %>%
+  arrange(desc(Total_All_Cases))
+
+# --- 2. Create APA-style gt table ---
+geo_table <- wide_geo_summary %>%
+  gt() %>%
+  tab_header(
+    title = md("**Table 2. Median neurodevelopmental consultations per 10.000 inhabitants**")
+  ) %>%
+  cols_label(
+    Department      = "Department",
+    Total_All_Cases = "Total"
+  ) %>%
+  fmt_number(
+    columns = where(is.numeric),
+    use_seps = TRUE,
+    decimals = 0
+  ) %>%
+  # APA 7 styling
+  theme_apa_gt() %>%
+  tab_source_note(
+    source_note = "Median number of consultations per 10,000 inhabitants, grouped by department and diagnostic category."
+  )
+
+# --- 3. Save files ---
+gtsave(geo_table, filename = "Tables/Geo_Summary.html")
+gtsave(geo_table, filename = "Tables/Geo_Summary.tex")
+
+geo_table
+
+```
+
+After summarizing the median burden of the three most frequent neurodevelopmental diagnostic categories (F808, F809, F900) across all departments in @tbl-Geo_Summary, we identify the ten departments with the highest combined consultation rates and extract them using `slice_max()` on the total median burden.
+
+```{r}
+#| label: tbl-Geo_Top10
+#| tbl-cap: Top 10 departments by median neurodevelopmental consultations
+#| message: false
+#| warning: false
+
+library(gt)
+
+# --- 1. Select the top 10 departments by total burden ---
+geo_top10 <- wide_geo_summary %>%
+  slice_max(Total_All_Cases, n = 10)
+
+# --- 2. Create APA-style gt table ---
+geo_top10_gt <- geo_top10 %>%
+  gt() %>%
+  tab_header(
+    title = md("**Table X. Top 10 departments by median neurodevelopmental consultations per 10,000 inhabitants**"),
+    subtitle = "Values correspond to median consultation rates for the three most frequent diagnostic categories."
+  ) %>%
+  cols_label(
+    Department      = "Department",
+    F808            = "F808",
+    F809            = "F809",
+    F900            = "F900",
+    Total_All_Cases = "Total"
+  ) %>%
+  fmt_number(
+    columns  = where(is.numeric),
+    use_seps = TRUE,
+    decimals = 0
+  ) %>%
+  theme_apa_gt() %>%
+  tab_source_note(
+    source_note = "Note. Departments are ordered by the total median burden across the three most frequent diagnostic categories."
+  )
+
+geo_top10_gt
+
+# --- 3. Export gt table to HTML and LaTeX ---
+gtsave(geo_top10_gt, filename = "Tables/Geo_Top10.html")
+gtsave(geo_top10_gt, filename = "Tables/Geo_Top10.tex")
+
+```
+
+The table presents the median number of consultations per 10,000 inhabitants for each of the three diagnostic groups, along with a total column representing the combined burden. This structure highlights the departments where neurodevelopmental consultations occur most frequently and provides a clear comparative overview.
+
+We exported the table to HTML and LaTeX via `gt`, and then generate a version for Microsoft Word using `flextable` with borders and layout:
+
+```{r}
+#| label: tbl-Geo_Top10-Word
+#| message: false
+#| warning: false
+
+library(flextable)
+library(officer)
+
+geo_top10_ft <- flextable(geo_top10)
+
+geo_top10_ft <- geo_top10_ft %>%
+  # set simple header labels
+  set_header_labels(
+    Department      = "Department",
+    F808            = "F808",
+    F809            = "F809",
+    F900            = "F900",
+    Total_All_Cases = "Total"
+  ) %>%
+  theme_apa_flextable() %>%
+  # center header, bold
+  align(part = "header", align = "center") %>%
+  bold(part = "header", bold = TRUE) %>%
+  # right-align numeric columns
+  align(
+    j     = c("F808", "F809", "F900", "Total_All_Cases"),
+    align = "right",
+    part  = "body"
+  ) %>%
+  # add table note
+  add_footer_lines(
+    values = "Note. Departments are ordered by the total median burden across the three most frequent diagnostic categories."
+  ) %>%
+  align(part = "footer", align = "left")
+
+# Export to Word
+save_as_docx(
+  "Table X. Top 10 departments by median neurodevelopmental consultations per 10,000 inhabitants" = geo_top10_ft,
+  path = "Tables/Geo_Top10.docx"
+)
+
+```
+
+### Data Visualization (Faceted Map)
+
+We join our `Summary_Common_Geography` with the `Col_map_fixed` object (from `_common.R`). We then use `facet_wrap(~ Diagnostic)` to create a "small multiple" map, showing the geographic distribution for each of the three diagnostics side-by-side.
+
+We next create a visualization for the three most common neurodevelopmental diagnostic categories (F808, F809, and F900). We join the calculated rate per 10,000 inhabitants with the national shapefile and generate a faceted map to make regional differences easier to compare. Departments with lower consultation rates appear in light colors (yellow–green), while those with higher rates appear in darker tones.
+
+```{r}
+#| label: fig-Cases_Diagnostic-Map
+#| fig-cap: Distribution of neurodevelopmental diagnostics per department and capital city status
+#| fig-width: 12
+#| fig-height: 8
+
+# Join map data with top-3 diagnostic data
+Map_df <- Col_map_fixed %>%
+  left_join(Summary_Common_Geography, by = "Department")
+
+# We exclude NAs (departments with no cases for these diagnostics)
+Map_df <- Map_df %>%
+  filter(!is.na(MedianCases))
+
+# Create the faceted map
+Cases_Diagnostic_map <- ggplot(Map_df) +
+  geom_sf(aes(fill = MedianCases), colour = "white", size = 0.2) +
+  scale_fill_viridis_c(
+    option    = "viridis",
+    direction = -1,
+    name      = "Median number of consultations \nper 10.000 (reference population)",
+    guide = guide_colorbar(
+      barwidth        = unit(10, "cm"),  
+      barheight       = unit(0.5, "cm")   
+    )
+  ) +
+  facet_wrap(~ Diagnostic) +
+  labs(title = "Consultations per department (2016-2022)") +
+  theme_minimal() +
+  Plot_theme +
+  theme(
+    plot.title = element_text(size=18, face="bold", vjust = 2, hjust = 0.5),
+    legend.title = element_text(colour="black", face="bold", size=18),
+    axis.text.y = element_blank(),
+    axis.text.x = element_blank(),
+    axis.ticks.y = element_blank(),
+    axis.ticks.x = element_blank(),
+    legend.position = "bottom",
+    legend.direction = "horizontal",
+    strip.text = element_text(size = 18)
+  ) 
+
+ggsave(Cases_Diagnostic_map,
+       filename = "Plots/Cases_Diagnostic_map.png",
+       width    = 40, 
+       height   = 20, 
+       units    = "cm")
+
+Cases_Diagnostic_map
+
+```
+
+The resulting @fig-Cases_Diagnostic-Map displays three side-by-side maps covering the entire period (2016–2022), providing an overview of which regions report the highest and lowest median consultation intensity for each diagnostic code.
+
+## Distribution per Diagnostic and Sex
+
+In this section, we examine whether the three most frequent diagnostic categories (F808, F809, and F900) show different consultation patterns for men and women across Colombian departments. We summarize the data by computing the median number of consultations per 10,000 inhabitants for each combination of department, diagnostic category, and biological sex.
+
+### Data Preparation
+
+To prepare the data, we group observations by Department, Diagnostic, and Sex, and compute two quantities for each combination:
+
+-   The median consultation rate per 10,000 inhabitants (`MedianCases`)
+-   The total population represented (`Total_Population`), aggregated across all years
+
+```{r}
+#| label: data-diag-sex
+
+Summary_Diagnostic_Sex <- Neuro_Data_MainDiag %>%
+  group_by(Department, Diagnostic, Sex) %>%
+  summarise(MedianCases = median(Diagnostics_per_tenthousand, na.rm = TRUE),
+            Total_Population = sum(Population, na.rm = TRUE)) %>%
+  ungroup() 
+
+Summary_Diagnostic_Sex
+```
+
+### Summary Table (Sex & Diagnostic)
+
+To quantify these patterns, we compute descriptive statistics—N, Mean, Median, SD, Min, Max—for each diagnostic category and sex. These values summarize the department-level distribution of consultation rates and reinforce the visualization.
+
+```{r}
+#| label: data-sex_summary
+
+summary_table_sex <- Summary_Diagnostic_Sex %>%
+  group_by(Diagnostic, Sex) %>%
+  summarize(
+    N = n(),
+    Mean = round(mean(MedianCases, na.rm = TRUE)),
+    Median = round(median(MedianCases, na.rm = TRUE)),
+    SD = round(sd(MedianCases, na.rm = TRUE)),
+    Min = round(min(MedianCases, na.rm = TRUE)),
+    Max = round(max(MedianCases, na.rm = TRUE)),
+    .groups = 'drop'
+  )
+```
+
+We see that across all three diagnostics, men show higher means and medians. The differences between sexes are largest for F809 and F900, where medians differ by about 20–25 consultations per 10,000 inhabitants. Standard deviations are consistently larger for men, suggesting more heterogeneity across departments.
+
+The summary data is formatted with `gt`. We use `gt(groupname_col = "Diagnostic")` to create a clean, hierarchical table grouped by diagnostic, which is ideal for this type of summary. We also format the numeric columns to 0 decimal places, as they are rounded integers.
+
+```{r}
+#| label: tbl-Diagnostics_sex_summary
+#| tbl-cap: Descriptive Statistics for Consultations by Diagnostic and Sex
+
+# Create the gt table
+publication_table_sex <- summary_table_sex %>%
+  gt(groupname_col = "Diagnostic") %>% 
+  
+  cols_label(
+    Sex = "Sex",
+    N = "N",
+    Mean = "Mean",
+    Median = "Median",
+    SD = "SD",
+    Min = "Min",
+    Max = "Max"
+  ) %>%
+  
+  # Format numbers with 0 decimals
+  fmt_number(
+    columns = c(N, Mean, Median, SD, Min, Max),
+    use_seps = TRUE,
+    decimals = 0
+  ) %>%
+  
+  # --- APA 7 STYLING ---
+  theme_apa_gt()
+
+# Save the table
+gtsave(publication_table_sex,
+       filename = "Tables/Diagnostic_Sex_Summary.html")
+gtsave(publication_table_sex,
+       filename = "Tables/Diagnostic_Sex_Summary.tex")
+
+publication_table_sex
+```
+
+### Data Visualization (Ridge-Density Plot)
+
+To visualize the distribution of consultation rates across departments, we generate a ridge-density plot for each diagnostic category. By overlaying the densities for men and women, we compare not only central tendencies but also variability and the presence of extreme values.
+
+```{r}
+#| label: fig-Diagostics_sex
+#| fig-cap: Distribution of neurodevelopmental diagnostics per biological sex
+#| fig-width: 6
+#| fig-height: 5
+
+Diagnostic_Sex_fig <- Summary_Diagnostic_Sex %>%
+  ggplot(aes(x=MedianCases, y=Diagnostic, color = Sex, fill = Sex)) +
+    geom_density_ridges2(alpha = 0.3) +
+    
+    scale_fill_manual(values = c("Men" = "#00BFC4", "Women" = "#F8766D")) +
+    scale_color_manual(values = c("Men" = "#00BFC4", "Women" = "#F8766D")) +
+    # ------------------------------------
+
+    ggtitle("") +
+    #xlim(0, 2000) +
+  labs(y = "ICD-10 neurodevelopmental diagnostics",
+       x = "Median number of consultations \nper 10.000 (reference population)") +
+  Plot_theme +
+  theme (legend.position = c(0.8, 0.9),
+         legend.direction = "vertical") 
+
+ggsave(Diagnostic_Sex_fig,
+       filename = "Plots/Diagnostic_Sex_fig.png",
+       width    = 15, 
+       height   = 15, 
+       units    = "cm")
+
+Diagnostic_Sex_fig
+```
+
+The @fig-Diagostics_sex shows clear and systematic sex differences across all three diagnostic groups:
+
+-   Men consistently present higher consultation rates than women for F808, F809, and F900.
+-   The shape of the distributions indicates greater variability among men, particularly for F809 and F900.
+-   Women generally show more concentrated distributions with lower medians and narrower ranges.
+
+### Statistical Model
+
+We now move from descriptive summaries to a hierarchical regression model that tests how consultation rates vary jointly by diagnostic category and biological sex while accounting for geographical structure.
+
+#### Data Preparation
+
+For the modeling step, we treat each city as an individual observation. We therefore summarize the data by city, department, diagnostic category, and sex, and compute the mean number of consultations per 10,000 inhabitants (`MeanCases`) for each combination. This gives us a dataset in which every row corresponds to a specific city–department–diagnostic–sex cell, which we then use as input for the model.
+
+```{r}
+#| label: data-diag-sex2
+
+Summary_Diagnostic_Sex_2 <- Neuro_Data_MainDiag %>%
+  group_by(City, Department, Diagnostic, Sex) %>%
+  summarise(MeanCases = mean(Diagnostics_per_tenthousand, na.rm = TRUE)) %>%
+  ungroup() 
+
+Summary_Diagnostic_Sex_2
+```
+
+#### Model Specification
+
+We use the `brms` package to fit a Bayesian multilevel model with a Student-t likelihood. The outcome is the mean number of consultations per 10,000 inhabitants (`MeanCases`). At the fixed-effect level, we include sex, diagnostic category, and their interaction (`Sex * Diagnostic`). To account for residual geographical differences between departments, we add a varying intercept for department `(1 | Department)`.
+
+This structure allows us to estimate:
+
+-   the overall differences between men and women,
+-   how those differences change across the three diagnostic categories, and
+-   how much consultation intensity varies between departments after controlling for sex and diagnosis.
+
+We use weakly informative priors (the `brms` defaults for the Student-t family), run four Markov chains with 5,000 iterations each (2,500 warm-up), and increase `adapt_delta` and `max_treedepth` to ensure stable sampling.
+
+#### Fit the Model
+
+We model the mean number of consultations per 10,000 inhabitants as:
+
+$$
+\text{MeanCases}_{i j k s}
+= \beta_0
++ \beta_{\text{Sex},s}
++ \beta_{\text{Diag},k}
++ \beta_{\text{Sex}\times\text{Diag}, s k}
++ u_j
++ \varepsilon_{i j k s},
+$$
+
+where:
+
+-   $i$ indexes cities,
+-   $j$ indexes departments,
+-   $k$ indexes diagnostic categories ($k \in \{\text{F808}, \text{F809}, \text{F900}\}$),
+-   $s$ indexes biological sex ($s \in \{\text{Men}, \text{Women}\}$).
+
+We use treatment coding so that:
+
+-   $s = \text{Men}$ and $k = \text{F808}$ define the **reference group**,
+-   $\beta_0$ is the expected mean consultation rate for men with diagnosis F808,
+-   $\beta_{\text{Sex},\text{Women}}$ is the average difference between women and men for F808,
+-   $\beta_{\text{Diag},\text{F809}}$ and $\beta_{\text{Diag},\text{F900}}$ are the average differences between F809 / F900 and F808 for men,
+-   $\beta_{\text{Sex}\times\text{Diag},\text{Women},k}$ are the additional sex differences specific to each diagnostic category (i.e., how the women–men contrast changes for F809 or F900 relative to F808).
+
+The department-level random intercepts are:
+
+$$
+u_j \sim \mathcal{N}(0, \sigma_{\text{Dept}}^2),
+$$
+
+and the observation-level errors follow a Student-t distribution:
+
+$$
+\varepsilon_{i j k s} \sim t_\nu(0, \sigma),
+$$
+
+with degrees of freedom $\nu$ and scale parameter $\sigma$ estimated from the data.
+
+```{r}
+#| label: Model_Cases_Sex
+#| include: true
+#| warning: false
+#| message: false
+#| results: false
+#| cache: true
+
+
+# Model formula
+Cases_Diagnostic_Sex_Mdl1 <- bf(MeanCases ~ Sex * Diagnostic + (1 | Department))
+               
+# List priors and variables
+get_prior(Cases_Diagnostic_Sex_Mdl1, Summary_Diagnostic_Sex_2, family = student)
+
+# Fit model 1
+Cases_Diagnostic_Sex_Fit1 <- 
+  brm(
+    family  = student,
+    data    = Summary_Diagnostic_Sex_2,
+    formula = Cases_Diagnostic_Sex_Mdl1,
+    chains  = 4,
+    cores   = 4,
+    warmup  = 2500, 
+    iter    = 5000, 
+    seed    = 8807,
+    control = list(adapt_delta = 0.99, max_treedepth = 15),
+    file    = "Models/Cases_Diagnostic_Sex_Fit1.rds",
+    file_refit = "never")
+
+```
+
+#### Results
+
+```{r}
+#| label: tbl-Cases_Sex
+#| message: false
+#| warning: false
+
+tbl_cases_sex <- tbl_regression(
+  x            = Cases_Diagnostic_Sex_Fit1,
+  intercept    = TRUE,
+  estimate_fun = ~ style_sigfig(., digits = 2),
+  conf.level   = 0.95
+) %>%
+  modify_header(
+    label    ~ "**Predictor**",
+    estimate ~ "**Estimate**",
+    ci       ~ "**95% CI**"
+  ) %>%
+  bold_labels() %>%
+  modify_caption(
+    "**Table 1. Effect of biological sex on neurodevelopmental consultation rates**"
+  )
+
+tbl_cases_sex 
+
+```
+
+The intercept of the model corresponds to men diagnosed with F808, who show an estimated mean of about 91 consultations per 10,000 inhabitants. This provides a baseline against which we interpret the remaining effects. The coefficient for `SexWomen` is strongly negative (around −12), with a 95% credible interval that excludes zero, meaning that, for F808, women show substantially fewer consultations than men on average.
+
+For men, F900 is associated with higher consultation rates than F808, with posterior estimates suggesting an increase of roughly 13 consultations per 10,000 inhabitants and a credible interval that lies entirely above zero. In contrast, the difference between F809 and F808 for men is small and uncertain, with a credible interval that spans zero. The interaction terms indicate that the sex difference for F809 and F900 may be slightly larger (more negative) than for F808, but the uncertainty is wide and the credible intervals include zero, so we treat these diagnosis-specific modifications as weak at best.
+
+The random-effect standard deviation for departments (around 40) highlights substantial variability in consultation intensity across regions after adjusting for sex and diagnosis, while the residual standard deviation (around 47) reflects remaining city-level variability and measurement noise.
+
+## Most Frequent per Year and Sex
+
+We now examine how the three most frequent diagnostic categories evolve over time for men and women. By combining **Year**, **Sex**, and **Diagnostic**, we obtain a compact view of temporal trends in consultation intensity.
+
+### Data Preparation
+
+We first summarize the data by **Year**, **Sex**, and **Diagnostic**. For every combination of these three variables, we compute the **median number of consultations per 10,000 inhabitants** (`MedianCases`). This gives us a balanced panel where each row corresponds to a specific year–sex–diagnostic cell, and the outcome is a robust central estimate that is less sensitive to extreme values than the mean.
+
+The resulting `Summary_Main_YearSex` table serves as the basis for the crosstab and for any subsequent visualizations of time trends.
+
+```{r}
+#| label: data-year-sex-diag
+
+Summary_Main_YearSex <- Neuro_Data_MainDiag %>%
+  group_by(Year, Sex, Diagnostic) %>%
+  summarise(MedianCases = median(Diagnostics_per_tenthousand, na.rm = TRUE)) %>%
+  ungroup()
+
+Summary_Main_YearSex
+```
+
+### Results Table
+
+Because we are working with three variables (Year, Sex, Diagnostic), a long table would be hard to read. Instead, we reorganize the data into a **wide-format crosstab** where:
+
+-   **rows** are defined by `Year` and `Sex`, and
+-   **columns** correspond to the three diagnostic codes (`F808`, `F809`, `F900`).
+
+We obtain this layout by applying `pivot_wider()` to `Summary_Main_YearSex`, using `Diagnostic` as the source of new column names and `MedianCases` as the cell values. We then order the rows by `Year` and `Sex` so that time flows from top to bottom and men/women appear consistently within each year.
+
+Finally, we format the table with `gt` using APA-style options. We label the `Year` and `Sex` columns, format all numeric diagnostic columns as whole numbers, and remove internal vertical lines to enhance readability.
+
+```{r}
+#| label: tbl-YearSexDiag_Wide
+#| tbl-cap: Total Cases by Year, Sex, and Main Diagnostic
+
+library(dplyr)
+library(tidyr)  
+library(gt)
+
+# --- 2. Pivot 'Diagnostic' to be wide ---
+wide_diag_summary <- Summary_Main_YearSex %>%
+  pivot_wider(
+    names_from = Diagnostic,
+    values_from = MedianCases,
+    values_fill = 0
+  ) %>%
+  arrange(Year, Sex) 
+
+# --- 3. Create the APA 7 gt table ---
+diag_table <- wide_diag_summary %>%
+  gt() %>%
+  
+  cols_label(
+    Year = "Year",
+    Sex = "Sex"
+  ) %>%
+  
+  # Format all numeric columns *except* 'Year' with commas
+  fmt_number(
+    columns = where(is.numeric) & !matches("^Year$"),
+    use_seps = TRUE,
+    decimals = 0
+  ) %>%
+  
+  # --- THIS IS THE FIX ---
+  # Format the 'Year' column *without* commas and *with 0 decimals*
+  fmt_number(
+    columns = Year,
+    use_seps = FALSE,
+    decimals = 0 
+  ) %>%
+
+  # --- APA 7 STYLING ---
+  theme_apa_gt()
+
+# --- 4. Save the table files ---
+gtsave(diag_table,
+       filename = "Tables/YearSexDiag_Wide.html")
+
+gtsave(diag_table,
+       filename = "Tables/YearSexDiag_Wide.tex")
+
+# --- 5. Display the table ---
+diag_table
+```
+
+### Data Visualization (Faceted Line Plot)
+
+We visualize these temporal patterns using a faceted line plot. The x-axis represents calendar year, and the y-axis shows the median number of consultations per 10,000 inhabitants. Each diagnostic category (F808, F809, F900) is plotted as a separate colored line with points marking annual values. The plot is faceted by sex (`facet_wrap(~ Sex)`), producing one panel for men and one for women.
+
+```{r}
+#| label: fig-Cases_year-line
+#| fig-cap: Distribution of neurodevelopmental disorder cases per year
+#| fig-width: 8
+#| fig-height: 6
+
+Cases_Year_fig <- Summary_Main_YearSex %>%
+  ggplot( aes(x= Year, y= MedianCases, colour = Diagnostic)) +
+    geom_line(size= 1) +
+    geom_point(shape=21, size=4) +
+    scale_y_continuous(name = "Median number of consultations \n per 10.000 (reference population)",
+                     labels = scales::label_number(scale_cut = scales::cut_short_scale())) +
+    ggtitle("") +
+    labs(x = "Year") +
+   
+    facet_wrap(~ Sex, ncol = 1) +
+  
+    Plot_theme +
+  
+    theme(
+      legend.position = c(0.9, 0.3),
+  # Style the facet labels to make them clear
+    strip.text = element_text(size = 12, face = "bold", hjust = 0.5),
+    strip.background = element_rect(fill = "grey90", color = NA)
+  ) 
+
+ggsave(Cases_Year_fig,
+       filename = "Plots/Cases_Year_fig.png",
+       width    = 14, 
+       height   = 13, 
+       units    = "cm")
+
+Cases_Year_fig 
+```
+
+## Cases by Sex and Age
+
+We first summarize the dataset by age and biological sex. For each age–sex combination, we compute the median number of neurodevelopmental consultations per 10,000 inhabitants and the total population size contributing to that value.
+
+### Data Preparation
+
+We group the data by Age and Sex, summarizing both `Total_Cases` and `Total_Population`.
+
+```{r}
+#| label: data-age-sex
+
+Summary_Age_Sex <- Neuro_Data_MainDiag %>%
+  group_by(Age, Sex) %>%
+  summarise(MedianCases = median(Diagnostics_per_tenthousand, na.rm = TRUE),
+            Total_Population = sum(Population, na.rm = TRUE)) %>%
+  ungroup()
+```
+
+### Results Table
+
+To present the results clearly, we reshape the data so that “Men” and “Women” appear as column groups. Each group contains two variables—median consultations and population size—making comparison across ages straightforward.
+
+```{r}
+#| label: tbl-AgeSex_Summary
+#| tbl-cap: Total Cases and Population by Age Group and Sex
+
+library(dplyr)
+library(tidyr)  # Needed for pivot_wider
+library(gt)
+
+# --- 2. Pivot 'Sex' to be wide ---
+# This creates new columns like "Total_Cases_Men", "Total_Population_Men", etc.
+wide_age_sex_summary <- Summary_Age_Sex %>%
+  pivot_wider(
+    names_from = Sex,
+    values_from = c(MedianCases, Total_Population),
+    values_fill = 0
+  ) %>%
+  arrange(Age) # Sort by Age
+
+# --- 3. Create the APA 7 gt table ---
+agesex_table <- wide_age_sex_summary %>%
+  gt() %>%
+  
+  # --- Create spanner headers for "Men" and "Women" ---
+  # Assumes your 'Sex' column has "Men" and "Women". Adjust if needed.
+  tab_spanner(
+    label = "Men",
+    columns = c(MedianCases_Men, Total_Population_Men)
+  ) %>%
+  tab_spanner(
+    label = "Women",
+    columns = c(MedianCases_Women, Total_Population_Women)
+  ) %>%
+  
+  # Relabel columns under the spanners
+  cols_label(
+    Age = "Age Group",
+    MedianCases_Men = "Consultations",
+    Total_Population_Men = "Population",
+    MedianCases_Women = "Consultations",
+    Total_Population_Women = "Population"
+  ) %>%
+  
+  # Format all numeric columns *except* 'Age' with commas
+  fmt_number(
+    columns = where(is.numeric) & !matches("^Age$"),
+    use_seps = TRUE,
+    decimals = 0
+  ) %>%
+
+  # --- APA 7 STYLING ---
+  theme_apa_gt()
+
+# --- 4. Save the table files ---
+gtsave(agesex_table,
+       filename = "Plots/AgeSex_Summary.html")
+
+gtsave(agesex_table,
+       filename = "Plots/AgeSex_Summary.tex")
+
+# --- 5. Display the table ---
+agesex_table
+```
+
+### Data Visualization
+
+We then visualize the age trajectories separately for men and women. The line chart displays median consultation rates at each age (0–11 years), allowing us to identify developmental windows where consultations increase sharply or begin to decline.
+
+```{r}
+#| label: fig-Diagostics_sex-age
+#| fig-cap: Distribution of neurodevelopmental diagnostics per biological sex and age
+#| fig-width: 6
+#| fig-height: 5
+
+Age_Sex_fig <- Summary_Age_Sex %>%
+  ggplot(aes(x= Age, y= MedianCases, color = Sex)) +
+    geom_line(size= 1.5) +
+    geom_point(shape=21, color = "black", fill = "black", size=4) +
+    ggtitle("") +
+    scale_fill_manual(values = c("Men" = "#00BFC4", "Women" = "#F8766D")) +
+    scale_color_manual(values = c("Men" = "#00BFC4", "Women" = "#F8766D")) +
+  
+  scale_x_continuous(breaks = seq(0, 11, by = 2)) +
+  labs(y = "Median number of consultations \n per 10.000 (reference population)",
+       x = "Age") +
+  Plot_theme +
+  theme (legend.position = c(0.9, 0.85),
+         legend.direction = "vertical") 
+
+ggsave(Age_Sex_fig ,
+       filename = "Plots/Age_Sex_fig .png",
+       width    = 12, 
+       height   = 12, 
+       units    = "cm")
+
+Age_Sex_fig
+```
+
+@fig-Diagostics_sex-age shows that males are more likely to be diagnosed, although both sexes peak at 6 years. Given the change in the trend, we find it suitable to model these behaviors using splines.
+
+### Statistical Modeling
+
+The age profiles in Figure @fig-Diagostics_sex-age show a clear non-linear pattern for both sexes, with a rapid increase in consultations during early childhood, a peak around school entry, and a gradual decline thereafter. To describe these trajectories more formally, we model the **mean number of consultations per 10,000 inhabitants** as a smooth function of age, allowing the shape of the curve to differ between men and women.
+
+We work at the level of **City × Sex × Age**, which preserves spatial and demographic variability while keeping the outcome interpretable as an age-specific rate. We use a Student-t likelihood to remain robust to occasional extreme values and include a department-level random intercept to account for clustering of cities within departments.
+
+#### Data Preparation for the Spline Model
+
+We next examine how consultation rates vary jointly with age and biological sex. To do this, we first summarise the neurodevelopmental diagnostics at the level of age–sex combinations. For each age in years (0–11) and each sex (men, women), we compute the mean number of consultations per 10,000 individuals in the corresponding reference population:
+
+`MeanCases` = mean of `Diagnostics_per_tenthousand`
+
+based on all city-level observations contributing to that age–sex cell.
+
+This aggregation gives us a smooth age profile for each sex and reduces the influence of highly variable single-city measurements.
+
+```{r}
+#| label: data-age-sex-city
+#| message: false
+#| warning: false
+
+Summary_Age_Sex <- Neuro_Data_MainDiag %>%
+  group_by(City, Department, Age, Sex) %>%
+  summarise(
+    MeanCases       = mean(Diagnostics_per_tenthousand, na.rm = TRUE),
+    Total_Population = sum(Population, na.rm = TRUE)
+  ) %>%
+  ungroup()
+
+Summary_Age_Sex
+
+```
+
+#### Fit the Model
+
+We model the mean consultation rate as a function of sex and a smooth function of age that is allowed to differ between men and women. The model is defined as:
+
+$$
+\text{MeanCases}_{i s a}
+= \beta_0
++ \beta_{\text{Sex},s}
++ f_s(\text{Age}_{a})
++ \varepsilon_{i s a},
+$$
+
+where:
+
+-   $i$ indexes cities,
+-   $s$ indexes biological sex ($s \in \{\text{Men}, \text{Women}\}$),
+-   $a$ indexes age groups.
+
+Here:
+
+-   $\beta_0$ is the intercept (expected consultation rate for men at Age = 0),
+-   $\beta_{\text{Sex},s}$ adjusts the baseline for women relative to men,
+-   $f_s(\text{Age})$ is a sex-specific smooth spline function that captures the nonlinear age profile,
+-   $\varepsilon_{i s a} \sim t_\nu(0, \sigma)$ is a Student-t residual term that provides robustness to extreme values and heterogeneity in the outcome.
+
+The Student-t likelihood is:
+
+$$
+\text{MeanCases}_{i s a} \sim t_\nu(\mu_{i s a},\, \sigma),
+$$
+
+with mean structure:
+
+$$
+\mu_{i s a}
+= \beta_0
++ \beta_{\text{Sex},s}
++ f_s(\text{Age}_{a}).
+$$
+
+In `brms` syntax, the model is:
+
+```{r}
+#| label: Model_Age_Sex_Spline
+#| include: true
+#| warning: false
+#| message: false
+#| results: false
+#| cache: true
+
+
+Age_Sex_mdl <- bf(
+  MeanCases ~ Sex + s(Age, by = Sex, k = 2))
+
+
+Age_Sex_Fit1  <- 
+  brm(
+    family  = student,
+    data    = Summary_Age_Sex,
+    formula = Age_Sex_mdl,
+    chains  = 4,
+    cores   = 4,
+    warmup  = 2500, 
+    iter    = 5000, 
+    seed    = 8807,
+    control = list(adapt_delta = 0.99, max_treedepth = 15),
+    file    = "Models/Age_Sex_Fit1.rds",
+    file_refit = "never")
+
+```
+
+Here, sex enters as a fixed effect and captures the average difference between men and women at the reference age.
+
+`s(Age, by = Sex)` fits separate penalised spline curves of age for men and women, so the shape of the age effect can differ by sex.
+
+We use a Student-t likelihood (`family = student`) to accommodate heavy-tailed residuals and occasional extreme age–sex observations.
+
+#### Model Results
+
+We can visualize the results using the `summary` function.
+
+```{r}
+summary(Age_Sex_Fit1)
+```
+
+The intercept (~93.8) represents the mean number of consultations per 10,000 for men at the reference age (the centre of the age distribution). The coefficient for `SexWomen` (about −22) indicates that, at the same reference age, women show substantially lower consultation rates than men. The spline hyperparameters (`sds(sAgeSexMen_1)` and `sds(sAgeSexwomen_1)`) quantify the amount of non-linear variability across age for each sex; both are clearly above zero, which supports modelling a curved age effect instead of a simple straight line.
+
+The residual scale (`sigma` ≈ 49) and degrees of freedom parameter (`nu` ≈ 1.7) confirm heavy-tailed residuals, consistent with our choice of a Student-t distribution.
+
+##### Estimate the Derivatives
+
+To describe the fitted trajectories in a more interpretable way, we use `estimate_relation()` from the `modelbased` package. We generate model-based predictions across age for each sex:
+
+-   We request a grid of 5 equally spaced ages between 0 and 11 years.
+-   For each age–sex combination, we obtain the posterior mean of `MeanCases` and its 95% credible interval.
+
+```{r}
+#| label: rel-Age_Sex
+#| fig-cap: Model-based age trajectories of mean consultation rates per 10,000 inhabitants by sex.
+#| fig-width: 6
+#| fig-height: 5
+#| message: false
+#| warning: false
+
+library(modelbased)
+
+# Create relation: predictions over Age, moderated by Sex
+rel_age_sex <- estimate_relation(
+  model          = Age_Sex_Fit1,
+  effect         = "Age",
+  moderator      = "Sex",
+  length         = 5,        # number of points along Age
+  include_random = FALSE       # population-level trajectories
+)
+
+rel_age_sex
+```
+
+The resulting table (model-based expectation) shows, for example:
+
+-   **Women**: predicted consultation rates increase from about 53 consultations per 10,000 at birth (95% CrI ≈ 49–57) to about 81 at age 5.5 (CrI ≈ 79–83), then gradually decline to about 59 at age 11 (CrI ≈ 56–62).
+-   **Men**: the corresponding trajectory is higher at every age: about 60 per 10,000 at birth (CrI ≈ 56–63), peaking around 109 at age 5.5 (CrI ≈ 107–111) and declining to about 74 at age 11 (CrI ≈ 70–77).
+
+We save the table in HTML and LaTeX format:
+
+```{r}
+#| label: tbl-AgeSex_relation
+#| tbl-cap: Model-based predicted consultation rates by age and sex
+#| message: false
+#| warning: false
+
+library(dplyr)
+library(gt)
+
+# Make a clean table dataframe
+rel_age_sex_tbl <- rel_age_sex %>%
+  # keep the key columns and rename if needed
+  transmute(
+    Age       = Age,
+    Sex       = Sex,
+    Predicted = Predicted,
+    CI_low    = CI_low,
+    CI_high   = CI_high
+  )
+
+# Build APA-like gt table
+age_sex_relation_gt <- rel_age_sex_tbl %>%
+  gt() %>%
+  cols_label(
+    Age       = "Age",
+    Sex       = "Sex",
+    Predicted = "Predicted mean",
+    CI_low    = "95% CI (low)",
+    CI_high   = "95% CI (high)"
+  ) %>%
+  fmt_number(
+    columns  = c(Predicted, CI_low, CI_high),
+    decimals = 1
+  ) %>%
+  tab_header(
+    title = md("**Table X. Model-based consultation rates per 10,000 inhabitants by age and sex**"),
+    subtitle = "Predicted values and 95% credible intervals from the spline model MeanCases ~ Sex + s(Age, by = Sex, k = 6)."
+  ) %>%
+  theme_apa_gt()
+
+# Save to HTML and LaTeX
+gtsave(age_sex_relation_gt, filename = "Tables/AgeSex_relation.html")
+gtsave(age_sex_relation_gt, filename = "Tables/AgeSex_relation.tex")
+
+age_sex_relation_gt
+
+```
+
+And finally in Word format:
+
+```{r}
+#| label: tbl-AgeSex_relation-Word
+#| message: false
+#| warning: false
+
+library(flextable)
+library(officer)
+library(dplyr)
+
+# Start from the same cleaned data
+rel_age_sex_ft_dat <- rel_age_sex %>%
+  transmute(
+    Age       = Age,
+    Sex       = Sex,
+    Predicted = round(Predicted, 1),
+    CI        = sprintf("%.1f, %.1f", CI_low, CI_high)
+  )
+
+age_sex_relation_ft <- rel_age_sex_ft_dat %>%
+  flextable() %>%
+  set_header_labels(
+    Age       = "Age",
+    Sex       = "Sex",
+    Predicted = "Predicted mean",
+    CI        = "95% CI"
+  ) %>%
+
+  theme_apa_flextable() %>%
+  align(part = "header", align = "center") %>%
+  bold(part = "header", bold = TRUE) %>%
+  align(j = c("Predicted", "CI"), align = "right", part = "body") %>%
+  add_footer_lines(
+    values = "Note. Predicted mean number of consultations per 10,000 inhabitants and 95% credible intervals from the spline model."
+  ) %>%
+  align(part = "footer", align = "left")
+
+# Export to Word
+save_as_docx(
+  "Table X. Model-based consultation rates per 10,000 inhabitants by age and sex" = age_sex_relation_ft,
+  path = "Tables/AgeSex_relation.docx"
+)
+
+```
+
+### Derivatives Plot
+
+We then visualise these predictions as in the attached figure: solid lines give the posterior means by age for each sex, and ribbons represent 95% credible intervals.
+
+```{r}
+#| label: fig-Age_Sex_plot
+#| fig-cap: Model-based age trajectories of mean consultation rates per 10,000 inhabitants by sex.
+#| fig-width: 6
+#| fig-height: 5
+#| message: false
+#| warning: false
+
+
+# Plot
+Age_Sex_relation_fig <- rel_age_sex %>%
+  ggplot(aes(x = Age, y = Predicted, colour = Sex, fill = Sex)) +
+  geom_ribbon(aes(ymin = CI_low, ymax = CI_high),
+              alpha = 0.2, colour = NA) +
+  geom_line(size = 1.2) +
+  scale_color_manual(values = c("Men" = "#00BFC4", "Women" = "#F8766D")) +
+  scale_fill_manual(values  = c("Men" = "#00BFC4", "Women" = "#F8766D")) +
+  labs(
+    x = "Age",
+    y = "Number of consultations\nper 10,000 (reference population)",
+    caption = "Model: MeanCases ~ Sex + s(Age, by = Sex, k = 6)"
+  ) +
+  Plot_theme +
+  theme(
+    legend.position  = c(0.9, 0.85),
+    legend.direction = "vertical"
+  )
+
+ggsave(
+  Age_Sex_relation_fig,
+  filename = "Plots/Age_Sex_relation_fig.png",
+  width    = 12,
+  height   = 12,
+  units    = "cm"
+)
+
+Age_Sex_relation_fig
+
+```
+
+The plot shows parallel, slightly curved trajectories, with men consistently above women and both sexes peaking in early school age.
