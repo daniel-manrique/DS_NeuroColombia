@@ -45,6 +45,8 @@ jobs:
             any::viridis
             any::scales
             any::flextable
+            any::shinylive
+            any::httpuv
 
       - name: Render Quarto Project
         uses: quarto-dev/quarto-actions/render@v2
