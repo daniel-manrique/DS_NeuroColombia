@@ -51,9 +51,9 @@ jobs:
         with:
           to: html
 
-      - name: Publish to GitHub Pages
-        uses: quarto-dev/quarto-actions/publish@v2
+      - name: Commit and Push to Main
+        uses: stefanzweifel/git-auto-commit-action@v5
         with:
-          target: gh-pages
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          commit_message: "Render Quarto book to docs/ [skip ci]"
+          branch: main
+          file_pattern: docs/
