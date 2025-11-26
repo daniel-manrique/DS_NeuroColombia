@@ -1,18 +1,3 @@
-# Script to optimize data for Shinylive app
-library(dplyr)
-library(readr)
-
-# Paths
-input_path <- "Data_Processed/Ministery_DiagnosticData_Compiled.csv"
-output_path <- "app/data/Neuro_Data_App.csv"
-
-# Create output directory if it doesn't exist
-if (!dir.exists("app/data")) {
-    dir.create("app/data", recursive = TRUE)
-}
-
-# Read data
-message("Reading data...")
 data <- read_csv(input_path, show_col_types = FALSE)
 
 # Aggregate
