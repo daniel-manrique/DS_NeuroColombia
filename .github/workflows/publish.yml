@@ -39,7 +39,7 @@ jobs:
             any::ggbeeswarm
             any::gtsummary
             any::here
-            any::hrbrthemes
+
             any::rnaturalearth
             any::tibble
             any::viridis

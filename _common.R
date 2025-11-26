@@ -17,7 +17,7 @@ if (!requireNamespace("ggbeeswarm", quietly = TRUE)) install.packages("ggbeeswar
 if (!requireNamespace("gt", quietly = TRUE)) install.packages("gt")
 if (!requireNamespace("gtsummary", quietly = TRUE)) install.packages("gtsummary")
 if (!requireNamespace("here", quietly = TRUE)) install.packages("here")
-if (!requireNamespace("hrbrthemes", quietly = TRUE)) install.packages("hrbrthemes")
+
 if (!requireNamespace("tibble", quietly = TRUE)) install.packages("tibble")
 if (!requireNamespace("tidybayes", quietly = TRUE)) install.packages("tidybayes")
 if (!requireNamespace("tidyr", quietly = TRUE)) install.packages("tidyr")
@@ -38,43 +38,38 @@ library(ggbeeswarm)
 library(gt)
 library(gtsummary)
 library(here)
-library(hrbrthemes)
+
 library(officer)
-library(rnaturalearth) 
+library(rnaturalearth)
 library(tibble)
 library(tidybayes)
 library(tidyr)
-library(stringi) 
-library(stringr) 
+library(stringi)
+library(stringr)
 library(viridis)
-library(scales) 
+library(scales)
 
 # --- 2. GLOBAL PLOT THEME ---
 # Define a consistent theme for all plots in the project
 Plot_theme <- theme_classic() +
   theme(
-    plot.title = element_text(size=16, face="bold", vjust = 2),
+    plot.title = element_text(size = 16, face = "bold", vjust = 2),
     plot.subtitle = element_text(size = 10, color = "black"),
     plot.caption = element_text(size = 8, color = "black", hjust = 1, vjust = -2),
-    
     axis.line = element_line(colour = "black", linewidth = 1.5, linetype = "solid"),
-    axis.ticks.length=unit(7,"pt"),
-    
+    axis.ticks.length = unit(7, "pt"),
     axis.title.x = element_text(colour = "black", size = 16, vjust = -1),
     axis.text.x = element_text(colour = "black", size = 16, angle = 0, hjust = 0.5),
     axis.ticks.x = element_line(colour = "black", linewidth = 1),
-    
     axis.title.y = element_text(colour = "black", size = 16, vjust = 3),
     axis.text.y = element_text(colour = "black", size = 16),
     axis.ticks.y = element_line(colour = "black", linewidth = 1),
-    
-    legend.position="right",
-    legend.direction="vertical",
-    legend.title = element_text(colour="black", face="bold", size=12),
-    legend.text = element_text(colour="black", size=10),
-    
-    plot.margin = margin(t = 10, r = 10, b = 10, l = 10) 
-  ) 
+    legend.position = "right",
+    legend.direction = "vertical",
+    legend.title = element_text(colour = "black", face = "bold", size = 12),
+    legend.text = element_text(colour = "black", size = 10),
+    plot.margin = margin(t = 10, r = 10, b = 10, l = 10)
+  )
 
 # --- 3. MAIN DATA LOADING ---
 # Load the primary dataset so it's available in all notebooks
@@ -93,7 +88,7 @@ Col_map_fixed <- Col_map %>%
   mutate(
     Department = recode(
       Department,
-      "Bogota"                       = "Bogota D.C",
+      "Bogota" = "Bogota D.C",
       "Archipelago of Saint Andrews" = "Archipielago de San Andres, Providencia Y Santa Catalina",
       .default = Department
     )
