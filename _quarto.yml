@@ -1,6 +1,9 @@
 project:
   type: book
   output-dir: docs
+  render:
+    - "*.qmd"
+    - "standalone_app.qmd"
 
 book:
   title: "NeuroColombia Data Analysis"
@@ -18,7 +21,7 @@ book:
     search: true
   page-footer:
     left: "Copyright 2024, Daniel Manrique-Castano"
-    right: 
+    right:
       - icon: github
         href: https://github.com/daniel-manrique/DS_NeuroColombia
 
