@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 
-<title>5&nbsp; Interactive App – NeuroColombia Data Analysis</title>
+<title>Interactive App – NeuroColombia Data Analysis</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -161,7 +161,7 @@ ul.task-list li input[type="checkbox"] {
 
 <header id="title-block-header" class="quarto-title-block default">
 <div class="quarto-title">
-<h1 class="title"><span class="chapter-number">5</span>&nbsp; <span class="chapter-title">Interactive App</span></h1>
+<h1 class="title">Interactive App</h1>
 </div>
 
 
@@ -190,6 +190,29 @@ Note
 </div>
 <div class="callout-body-container callout-body">
 <p>This application runs entirely in your web browser via WebAssembly. No server is required!</p>
+<p><a href="standalone_app.html" target="_blank"><strong>Open App in New Window (Fullscreen)</strong></a></p>
+</div>
+</div>
+<pre class="shinylive-r" data-engine="r"><code>#| '!! shinylive warning !!': |
+#|   shinylive does not work in self-contained HTML documents.
+#|   Please set `embed-resources: false` in your metadata.
+#| standalone: true
+#| viewerHeight: 800
+
+library(shiny)
+library(bslib)</code></pre>
+<p>This chapter features a fully interactive version of the <strong>NeuroColombia Explorer</strong>, running directly in your browser using <a href="https://github.com/posit-dev/r-shinylive">Shinylive</a>.</p>
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Note
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>This application runs entirely in your web browser via WebAssembly. No server is required!</p>
 </div>
 </div>
 <pre class="shinylive-r" data-engine="r"><code>#| '!! shinylive warning !!': |
@@ -206,7 +229,6 @@ library(ggplot2)
 library(plotly)
 library(leaflet)
 library(sf)
-library(rnaturalearth)
 library(scales)
 library(DT)
 library(glue)
@@ -218,6 +240,7 @@ library(labeling)
 # ---- Data Loading ----
 # Load optimized data from GitHub Raw URL
 data_url &lt;- "https://raw.githubusercontent.com/daniel-manrique/DS_NeuroColombia/main/app/data/Neuro_Data_App.csv"
+map_url &lt;- "https://raw.githubusercontent.com/daniel-manrique/DS_NeuroColombia/main/app/data/Colombia_Map.rds"
 
 # Function to read CSV safely
 read_data &lt;- function(url) {
@@ -231,7 +254,16 @@ read_data &lt;- function(url) {
   )
 }
 
+# Function to download and read RDS map safely
+read_map &lt;- function(url) {
+  tryCatch({
+    download.file(url, "map.rds", mode = "wb")
+    readRDS("map.rds")
+  }, error = function(e) NULL)
+}
+
 raw_data &lt;- read_data(data_url)
+colombia_map &lt;- read_map(map_url)
 
 # Fallback or Processing
 if (is.null(raw_data)) {
@@ -253,29 +285,10 @@ if (is.null(raw_data)) {
 
 diagnostic_choices &lt;- sort(unique(Neuro_Data$Diagnostic))
 diag_default &lt;- intersect(c("F900", "F809", "F808"), diagnostic_choices)
+dept_choices &lt;- sort(unique(Neuro_Data$Department))
 
 year_range &lt;- range(Neuro_Data$Year, na.rm = TRUE)
 age_range &lt;- range(Neuro_Data$Age, na.rm = TRUE)
-
-# Build Colombia map (Simplified for WebR if needed, but rnaturalearth should work)
-# Note: rnaturalearth might need internet to fetch map data if not cached. 
-# Ideally we would bundle the map sf object, but for now we try fetching.
-colombia_map &lt;- tryCatch({
-  rnaturalearth::ne_states(country = "Colombia", returnclass = "sf") |&gt;
-    dplyr::select(name_en, geometry) |&gt;
-    mutate(
-      Department = name_en # Simplified mapping for now, assuming name_en matches or is close
-    ) |&gt;
-    # Manual fix for matching names in dataset if needed
-    mutate(
-      Department = case_when(
-        Department == "Bogota" ~ "Bogota, D.C.",
-        Department == "Archipelago of Saint Andrews" ~ "Archipielago de San Andres, Providencia Y Santa Catalina",
-        TRUE ~ Department
-      )
-    )
-}, error = function(e) NULL)
-
 
 # Custom Theme
 my_theme &lt;- bs_theme(
@@ -304,6 +317,7 @@ ui &lt;- page_sidebar(
   sidebar = sidebar(
     title = "Filters",
     width = 300,
+    selectInput("dept_filter", "Department", choices = c("All Departments" = "All", dept_choices), selected = "All"),
     sliderInput("year_range", "Year range", min = year_range[1], max = year_range[2], value = year_range, sep = ""),
     sliderInput("age_range", "Age range", min = age_range[1], max = age_range[2], value = age_range),
     checkboxGroupInput("sex", "Sex", choices = sort(unique(Neuro_Data$Sex)), selected = sort(unique(Neuro_Data$Sex))),
@@ -434,6 +448,10 @@ server &lt;- function(input, output, session) {
         Capital %in% capitals
       )
       
+    if (input$dept_filter != "All") {
+      res &lt;- res |&gt; filter(Department == input$dept_filter)
+    }
+      
     if (length(input$diagnostics) &gt; 0) {
       res &lt;- res |&gt; filter(Diagnostic %in% input$diagnostics)
     }
@@ -502,22 +520,30 @@ server &lt;- function(input, output, session) {
     d &lt;- dept_summary()
     map_data &lt;- colombia_map |&gt; left_join(d, by = "Department")
     
-    metric &lt;- if(input$map_rate_toggle) "Rate" else "Total"
-    vals &lt;- map_data[[metric]]
-    pal &lt;- colorNumeric("YlOrRd", domain = vals, na.color = "#eee")
-    
     # Pre-calculate strings to avoid parser issues
     suffix &lt;- if(input$map_rate_toggle) " per 100k" else " cases"
     legend_title &lt;- if(input$map_rate_toggle) "Rate / 100k" else "Total Cases"
     
-    leaflet(map_data) |&gt;
-      addProviderTiles(providers$CartoDB.Positron) |&gt;
-      addPolygons(
-        fillColor = ~pal(vals), weight = 1, color = "#666", fillOpacity = 0.8,
-        label = ~paste0(Department, ": ", comma(round(vals, 1)), suffix),
-        highlight = highlightOptions(weight = 3, color = "#333", bringToFront = TRUE)
-      ) |&gt;
-      addLegend(pal = pal, values = vals, title = legend_title)
+    metric &lt;- if(input$map_rate_toggle) "Rate" else "Total"
+    vals &lt;- map_data[[metric]]
+    
+    # Handle case where all values are NA or 0 to prevent palette error
+    if(all(is.na(vals)) || all(vals == 0)) {
+       leaflet(map_data) |&gt;
+        addProviderTiles(providers$CartoDB.Positron) |&gt;
+        addPolygons(weight = 1, color = "#666", fillOpacity = 0.1)
+    } else {
+      pal &lt;- colorNumeric("YlOrRd", domain = vals, na.color = "#eee")
+      
+      leaflet(map_data) |&gt;
+        addProviderTiles(providers$CartoDB.Positron) |&gt;
+        addPolygons(
+          fillColor = ~pal(vals), weight = 1, color = "#666", fillOpacity = 0.8,
+          label = ~paste0(Department, ": ", comma(round(vals, 1)), suffix),
+          highlight = highlightOptions(weight = 3, color = "#333", bringToFront = TRUE)
+        ) |&gt;
+        addLegend(pal = pal, values = vals, title = legend_title)
+    }
   })
 
   output$department_bar &lt;- renderPlotly({
