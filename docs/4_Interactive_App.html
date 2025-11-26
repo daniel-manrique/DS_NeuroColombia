@@ -421,7 +421,7 @@ server &lt;- function(input, output, session) {
     sexes &lt;- if (length(input$sex) &gt; 0) input$sex else unique(Neuro_Data$Sex)
     capitals &lt;- if (length(input$capital) &gt; 0) input$capital else c("Yes", "No")
 
-    Neuro_Data |&gt;
+    res &lt;- Neuro_Data |&gt;
       filter(
         Year &gt;= input$year_range[1],
         Year &lt;= input$year_range[2],
@@ -429,8 +429,13 @@ server &lt;- function(input, output, session) {
         Age &lt;= input$age_range[2],
         Sex %in% sexes,
         Capital %in% capitals
-      ) |&gt;
-      { if (length(input$diagnostics) &gt; 0) filter(., Diagnostic %in% input$diagnostics) else . }
+      )
+      
+    if (length(input$diagnostics) &gt; 0) {
+      res &lt;- res |&gt; filter(Diagnostic %in% input$diagnostics)
+    }
+    
+    res
   })
 
   # ---- Value Boxes ----
@@ -498,14 +503,18 @@ server &lt;- function(input, output, session) {
     vals &lt;- map_data[[metric]]
     pal &lt;- colorNumeric("YlOrRd", domain = vals, na.color = "#eee")
     
+    # Pre-calculate strings to avoid parser issues
+    suffix &lt;- if(input$map_rate_toggle) " per 100k" else " cases"
+    legend_title &lt;- if(input$map_rate_toggle) "Rate / 100k" else "Total Cases"
+    
     leaflet(map_data) |&gt;
       addProviderTiles(providers$CartoDB.Positron) |&gt;
       addPolygons(
         fillColor = ~pal(vals), weight = 1, color = "#666", fillOpacity = 0.8,
-        label = ~paste0(Department, ": ", comma(round(vals, 1)), if(input$map_rate_toggle) " per 100k" else " cases"),
+        label = ~paste0(Department, ": ", comma(round(vals, 1)), suffix),
         highlight = highlightOptions(weight = 3, color = "#333", bringToFront = TRUE)
       ) |&gt;
-      addLegend(pal = pal, values = vals, title = if(input$map_rate_toggle) "Rate / 100k" else "Total Cases")
+      addLegend(pal = pal, values = vals, title = legend_title)
   })
 
   output$department_bar &lt;- renderPlotly({
