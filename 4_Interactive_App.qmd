@@ -27,6 +27,9 @@ library(scales)
 library(DT)
 library(glue)
 library(bsicons)
+library(munsell)
+library(colorspace)
+library(labeling)
 
 # ---- Data Loading ----
 # Load optimized data from GitHub Raw URL

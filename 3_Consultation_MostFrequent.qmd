@@ -1,5 +1,5 @@
 ---
-title: "Deep Dive: Top 3 Diagnostics"
+title: "Frequency of the top 3 Diagnostics"
 ---
 
 ## Load Project Setup and Data

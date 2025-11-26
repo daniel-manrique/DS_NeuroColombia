@@ -47,6 +47,9 @@ jobs:
             any::flextable
             any::shinylive
             any::httpuv
+            any::munsell
+            any::colorspace
+            any::labeling
 
       - name: Render Quarto Project
         uses: quarto-dev/quarto-actions/render@v2
