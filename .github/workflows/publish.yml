@@ -55,6 +55,15 @@ jobs:
             any::officer
             any::broom
             any::broom.helpers
+            any::broom.mixed
+            any::glue
+            any::bsicons
+            any::shiny
+            any::bslib
+            any::leaflet
+            any::plotly
+            any::DT
+            any::sf
 
       - name: Render Quarto Project
         uses: quarto-dev/quarto-actions/render@v2
