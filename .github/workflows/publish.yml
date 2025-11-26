@@ -64,6 +64,10 @@ jobs:
             any::plotly
             any::DT
             any::sf
+            any::modelbased
+            any::parameters
+            any::performance
+            any::see
 
       - name: Render Quarto Project
         uses: quarto-dev/quarto-actions/render@v2

@@ -48,6 +48,7 @@ library(stringi)
 library(stringr)
 library(viridis)
 library(scales)
+library(modelbased)
 
 # --- 2. GLOBAL PLOT THEME ---
 # Define a consistent theme for all plots in the project
