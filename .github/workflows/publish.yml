@@ -50,6 +50,9 @@ jobs:
             any::munsell
             any::colorspace
             any::labeling
+            any::brms
+            any::tidybayes
+            any::officer
 
       - name: Render Quarto Project
         uses: quarto-dev/quarto-actions/render@v2
