@@ -199,6 +199,12 @@ window.Quarto = {
  <span class="menu-text"><span class="chapter-number">4</span>&nbsp; <span class="chapter-title">Deep Dive: Top 3 Diagnostics</span></span></a>
   </div>
 </li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./4_Interactive_App.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">5</span>&nbsp; <span class="chapter-title">Interactive App</span></span></a>
+  </div>
+</li>
     </ul>
     </div>
 </nav>
@@ -330,7 +336,7 @@ Figure&nbsp;2.1: Distribution of consultation cases for neurodevelopmental disor
 </div>
 </div>
 </div>
-<p>The temporal trend is visualized using a line plot with points (<a href="3_Consultation_MostFrequent.html#fig-Cases_year-line" class="quarto-xref">Figure&nbsp;<span>4.3</span></a>). The annual totals reveal a clear upward trajectory during the pre-pandemic years: consultations increased steadily from 154,453 cases in 2016 to a peak of 332,318 cases in 2019. In 2020, the first year of the COVID-19 pandemic, we observe a sharp decline to 179,859 cases, likely reflecting the widespread disruption of outpatient services and reduced healthcare access.</p>
+<p>The temporal trend is visualized using a line plot with points (<a href="#fig-Cases_year-line" class="quarto-xref">Figure&nbsp;<span class="quarto-unresolved-ref">fig-Cases_year-line</span></a>). The annual totals reveal a clear upward trajectory during the pre-pandemic years: consultations increased steadily from 154,453 cases in 2016 to a peak of 332,318 cases in 2019. In 2020, the first year of the COVID-19 pandemic, we observe a sharp decline to 179,859 cases, likely reflecting the widespread disruption of outpatient services and reduced healthcare access.</p>
 <p>Following this drop, the number of consultations rises again, reaching 240,548 cases in 2021 and 283,661 cases in 2022, though not yet returning to the 2019 peak. This temporal structure provides important context for interpreting subsequent spatial and demographic analyses, and motivates the need to examine how consultation patterns varied across departments and patient subgroups during this period.</p>
 </section>
 </section>
@@ -1305,7 +1311,7 @@ Figure&nbsp;2.4: Distribution of consultations per department and capital city s
 </div>
 </div>
 </div>
-<p>We observe that the resulting distribution is not uniform in <a href="#fig-Cases_Sex-Map" class="quarto-xref">Figure&nbsp;<span>2.4</span></a>. Men show several departments with particularly high consultation rates, including Nariño (109 per 10,000), Boyacá (85), Caldas (57), Cundinamarca (52), and Putumayo (51). Women show a similar pattern but with overall lower values; the highest consultation rates occur in Nariño (89) and Boyacá (65). These sex-specific maps highlight areas where diagnostic engagement is substantially higher for one group than the other and provide geographical context for interpreting the statistical models developed in later sections.</p>
+<p>We observe that the resulting distribution is not uniform in <a href="#fig-Cases_Sex-Map" class="quarto-xref">Figure&nbsp;<span class="quarto-unresolved-ref">fig-Cases_Sex-Map</span></a>. Men show several departments with particularly high consultation rates, including Nariño (109 per 10,000), Boyacá (85), Caldas (57), Cundinamarca (52), and Putumayo (51). Women show a similar pattern but with overall lower values; the highest consultation rates occur in Nariño (89) and Boyacá (65). These sex-specific maps highlight areas where diagnostic engagement is substantially higher for one group than the other and provide geographical context for interpreting the statistical models developed in later sections.</p>
 </section>
 <section id="statistical-modeling" class="level2" data-number="2.6">
 <h2 data-number="2.6" class="anchored" data-anchor-id="statistical-modeling"><span class="header-section-number">2.6</span> Statistical Modeling</h2>
@@ -1935,7 +1941,7 @@ Table&nbsp;2.2: <strong>Table 1. Effect of biological sex on neurodevelopmental 
 </figure>
 </div>
 </div>
-<p>The intercept in <a href="3_Consultation_MostFrequent.html#tbl-Cases_Sex" class="quarto-xref">Table&nbsp;<span>4.5</span></a> represents the expected mean number of consultations per 10,000 inhabitants for men in an average department. The model estimates this baseline at 94 consultations (95 % CI: 77–112), which reflects the national-level average once we account for department-level heterogeneity. The coefficient for Women (<code>SexWomen</code>) captures the global average difference in consultation rate between women and men across the country. The model estimates this effect as −5 consultations per 10,000 inhabitants (95 % CI: −11 to −1.1). This negative estimate indicates that, on average, women show lower consultation rates than men. Importantly, this fixed effect represents the population-level average, while the random slope structure in the model allows each department to deviate from this mean sex effect.</p>
+<p>The intercept in <a href="#tbl-Cases_Sex" class="quarto-xref">Table&nbsp;<span class="quarto-unresolved-ref">tbl-Cases_Sex</span></a> represents the expected mean number of consultations per 10,000 inhabitants for men in an average department. The model estimates this baseline at 94 consultations (95 % CI: 77–112), which reflects the national-level average once we account for department-level heterogeneity. The coefficient for Women (<code>SexWomen</code>) captures the global average difference in consultation rate between women and men across the country. The model estimates this effect as −5 consultations per 10,000 inhabitants (95 % CI: −11 to −1.1). This negative estimate indicates that, on average, women show lower consultation rates than men. Importantly, this fixed effect represents the population-level average, while the random slope structure in the model allows each department to deviate from this mean sex effect.</p>
 <p>We save the results tables as LaTeX and Word documents:</p>
 <section id="posterior-draws" class="level4" data-number="2.6.3.1">
 <h4 data-number="2.6.3.1" class="anchored" data-anchor-id="posterior-draws"><span class="header-section-number">2.6.3.1</span> Posterior Draws</h4>
@@ -2069,7 +2075,7 @@ Figure&nbsp;2.6: Effect size for Women
 </div>
 </div>
 </div>
-<p><a href="#fig-Cases_Sex-Contrast" class="quarto-xref">Figure&nbsp;<span>2.6</span></a> shows the posterior distribution of this global sex effect. The horizontal axis corresponds to the difference in the mean number of consultations per 10,000 inhabitants for women relative to men. The vertical dashed line at zero marks the point of no difference between sexes. The posterior mass lies entirely below zero, with a posterior mean of approximately −8.6 consultations per 10,000 inhabitants and a 95% credible interval from −11 to −6.1. This distribution indicates that, on average, women have lower consultation rates than men.</p>
+<p><a href="#fig-Cases_Sex-Contrast" class="quarto-xref">Figure&nbsp;<span class="quarto-unresolved-ref">fig-Cases_Sex-Contrast</span></a> shows the posterior distribution of this global sex effect. The horizontal axis corresponds to the difference in the mean number of consultations per 10,000 inhabitants for women relative to men. The vertical dashed line at zero marks the point of no difference between sexes. The posterior mass lies entirely below zero, with a posterior mean of approximately −8.6 consultations per 10,000 inhabitants and a 95% credible interval from −11 to −6.1. This distribution indicates that, on average, women have lower consultation rates than men.</p>
 </section>
 <section id="department-level-variability-in-baseline-consultation-rates" class="level4" data-number="2.6.3.3">
 <h4 data-number="2.6.3.3" class="anchored" data-anchor-id="department-level-variability-in-baseline-consultation-rates"><span class="header-section-number">2.6.3.3</span> Department-level Variability in Baseline Consultation Rates</h4>
@@ -2120,7 +2126,7 @@ Figure&nbsp;2.7: Standart deviation for the random effects variable (department)
 </div>
 </div>
 </div>
-<p><a href="#fig-Sex_Departmentsd" class="quarto-xref">Figure&nbsp;<span>2.7</span></a> displays the posterior distribution of this standard deviation. The entire distribution lies far from zero and concentrates around relatively large values, indicating marked variability in baseline consultation rates across departments. In other words, even before considering sex-specific differences, some departments show much higher overall consultation rates than others. This result complements the descriptive maps and confirms that geographical heterogeneity is a central feature of the data.</p>
+<p><a href="#fig-Sex_Departmentsd" class="quarto-xref">Figure&nbsp;<span class="quarto-unresolved-ref">fig-Sex_Departmentsd</span></a> displays the posterior distribution of this standard deviation. The entire distribution lies far from zero and concentrates around relatively large values, indicating marked variability in baseline consultation rates across departments. In other words, even before considering sex-specific differences, some departments show much higher overall consultation rates than others. This result complements the descriptive maps and confirms that geographical heterogeneity is a central feature of the data.</p>
 </section>
 <section id="department-specific-effects-of-biological-sex" class="level4" data-number="2.6.3.4">
 <h4 data-number="2.6.3.4" class="anchored" data-anchor-id="department-specific-effects-of-biological-sex"><span class="header-section-number">2.6.3.4</span> Department-specific Effects of Biological Sex</h4>
@@ -2201,7 +2207,7 @@ Figure&nbsp;2.8: Department-specific effects of biological sex on consultation r
 </div>
 </div>
 </div>
-<p><a href="#fig-Cases_Sex-DepartmentSex" class="quarto-xref">Figure&nbsp;<span>2.8</span></a> displays posterior distributions. Each half-eye corresponds to one department. Negative values indicate departments where women have lower consultation rates than men, whereas positive values would indicate the opposite. The vertical dashed line at zero marks the point of no difference between sexes.</p>
+<p><a href="#fig-Cases_Sex-DepartmentSex" class="quarto-xref">Figure&nbsp;<span class="quarto-unresolved-ref">fig-Cases_Sex-DepartmentSex</span></a> displays posterior distributions. Each half-eye corresponds to one department. Negative values indicate departments where women have lower consultation rates than men, whereas positive values would indicate the opposite. The vertical dashed line at zero marks the point of no difference between sexes.</p>
 
 
 </section>

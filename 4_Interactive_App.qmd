@@ -1,0 +1,400 @@
+---
+title: "Interactive App"
+filters:
+  - shinylive
+---
+
+This chapter features a fully interactive version of the **NeuroColombia Explorer**, running directly in your browser using [Shinylive](https://github.com/posit-dev/r-shinylive).
+
+::: {.callout-note}
+This application runs entirely in your web browser via WebAssembly. No server is required!
+:::
+
+```{shinylive-r}
+#| standalone: true
+#| viewerHeight: 800
+
+library(shiny)
+library(bslib)
+library(dplyr)
+library(tidyr)
+library(ggplot2)
+library(plotly)
+library(leaflet)
+library(sf)
+library(rnaturalearth)
+library(scales)
+library(DT)
+library(glue)
+library(bsicons)
+
+# ---- Data Loading ----
+# Load optimized data from GitHub Raw URL
+data_url <- "https://raw.githubusercontent.com/daniel-manrique/DS_NeuroColombia/main/app/data/Neuro_Data_App.csv"
+
+# Function to read CSV safely
+read_data <- function(url) {
+  tryCatch(
+    {
+      read.csv(url, stringsAsFactors = FALSE)
+    },
+    error = function(e) {
+      NULL
+    }
+  )
+}
+
+raw_data <- read_data(data_url)
+
+# Fallback or Processing
+if (is.null(raw_data)) {
+  Neuro_Data <- data.frame(
+    Year = integer(), Department = character(), Capital = character(),
+    Diagnostic = character(), Age = numeric(), Sex = character(),
+    Cases = numeric(), Population = numeric()
+  )
+} else {
+  Neuro_Data <- raw_data |>
+    mutate(
+      Year = as.integer(Year),
+      Age = suppressWarnings(as.numeric(Age)),
+      Cases = as.numeric(Cases),
+      Population = as.numeric(Population),
+      Capital = if_else(Capital == "Yes", "Yes", "No")
+    )
+}
+
+diagnostic_choices <- sort(unique(Neuro_Data$Diagnostic))
+diag_default <- intersect(c("F900", "F809", "F808"), diagnostic_choices)
+
+year_range <- range(Neuro_Data$Year, na.rm = TRUE)
+age_range <- range(Neuro_Data$Age, na.rm = TRUE)
+
+# Build Colombia map (Simplified for WebR if needed, but rnaturalearth should work)
+# Note: rnaturalearth might need internet to fetch map data if not cached. 
+# Ideally we would bundle the map sf object, but for now we try fetching.
+colombia_map <- tryCatch({
+  rnaturalearth::ne_states(country = "Colombia", returnclass = "sf") |>
+    dplyr::select(name_en, geometry) |>
+    mutate(
+      Department = name_en # Simplified mapping for now, assuming name_en matches or is close
+    ) |>
+    # Manual fix for matching names in dataset if needed
+    mutate(
+      Department = case_when(
+        Department == "Bogota" ~ "Bogota, D.C.",
+        Department == "Archipelago of Saint Andrews" ~ "Archipielago de San Andres, Providencia Y Santa Catalina",
+        TRUE ~ Department
+      )
+    )
+}, error = function(e) NULL)
+
+
+# Custom Theme
+my_theme <- bs_theme(
+  bootswatch = "zephyr",
+  primary = "#0a4f63",
+  secondary = "#4DB6D0",
+  success = "#69b3a2"
+)
+
+# Plot Theme
+plot_theme <- theme_minimal() +
+  theme(
+    plot.title = element_text(size = 14, face = "bold"),
+    axis.title = element_text(size = 12),
+    axis.text = element_text(size = 10),
+    legend.position = "bottom",
+    panel.grid.minor = element_blank()
+  )
+
+# ---- UI ----------------------------------------------------------------------
+
+ui <- page_sidebar(
+  theme = my_theme,
+  title = "NeuroColombia Explorer",
+  
+  sidebar = sidebar(
+    title = "Filters",
+    width = 300,
+    sliderInput("year_range", "Year range", min = year_range[1], max = year_range[2], value = year_range, sep = ""),
+    sliderInput("age_range", "Age range", min = age_range[1], max = age_range[2], value = age_range),
+    checkboxGroupInput("sex", "Sex", choices = sort(unique(Neuro_Data$Sex)), selected = sort(unique(Neuro_Data$Sex))),
+    checkboxGroupInput("capital", "Capital city status", choices = c("Yes", "No"), selected = c("Yes", "No"), inline = TRUE),
+    selectizeInput("diagnostics", "ICD-10 diagnostics", choices = diagnostic_choices, selected = diag_default, multiple = TRUE, options = list(placeholder = "All diagnostics", maxOptions = 500)),
+    actionLink("clear_diags", "Clear selection")
+  ),
+
+  navset_card_underline(
+    title = "Analysis Modules",
+    
+    # --- Tab 1: Overview ---
+    nav_panel(
+      "Overview",
+      layout_columns(
+        fill = FALSE,
+        value_box(
+          title = "Total Consultations",
+          value = textOutput("vb_total_cases"),
+          showcase = bs_icon("people-fill"),
+          theme_color = "primary"
+        ),
+        value_box(
+          title = "Departments",
+          value = textOutput("vb_departments"),
+          showcase = bs_icon("geo-alt-fill"),
+          theme_color = "secondary"
+        ),
+        value_box(
+          title = "Top Diagnostic",
+          value = textOutput("vb_top_diag"),
+          showcase = bs_icon("activity"),
+          theme_color = "success"
+        )
+      ),
+      layout_columns(
+        card(
+          full_screen = TRUE,
+          card_header("Consultations over Time"),
+          plotlyOutput("cases_over_time")
+        ),
+        card(
+          full_screen = TRUE,
+          card_header("Age & Sex Distribution"),
+          plotlyOutput("age_sex_plot")
+        )
+      )
+    ),
+
+    # --- Tab 2: Geography ---
+    nav_panel(
+      "Geography",
+      layout_columns(
+        col_widths = c(8, 4),
+        card(
+          full_screen = TRUE,
+          card_header(
+            class = "d-flex justify-content-between align-items-center",
+            "Geographic Distribution",
+            input_switch("map_rate_toggle", "Show Rate per 100k", value = FALSE)
+          ),
+          leafletOutput("department_map", height = "600px")
+        ),
+        card(
+          full_screen = TRUE,
+          card_header("Top Departments"),
+          plotlyOutput("department_bar", height = "600px")
+        )
+      )
+    ),
+
+    # --- Tab 3: Distributions ---
+    nav_panel(
+      "Distributions",
+      layout_columns(
+        card(
+          full_screen = TRUE,
+          card_header("Departmental Variability (Box Plot)"),
+          plotlyOutput("dept_boxplot")
+        ),
+        card(
+          full_screen = TRUE,
+          card_header("Age Distribution by Sex (Box Plot)"),
+          plotlyOutput("age_sex_boxplot")
+        )
+      )
+    ),
+
+    # --- Tab 4: Diagnostics ---
+    nav_panel(
+      "Diagnostics",
+      layout_columns(
+        card(
+          full_screen = TRUE,
+          card_header("Most Frequent Diagnostics"),
+          plotlyOutput("diagnostic_bar")
+        ),
+        card(
+          full_screen = TRUE,
+          card_header("Detailed Statistics"),
+          DTOutput("diagnostic_table")
+        )
+      )
+    )
+  )
+)
+
+# ---- Server ------------------------------------------------------------------
+
+server <- function(input, output, session) {
+
+  observeEvent(input$clear_diags, {
+    updateSelectizeInput(session, "diagnostics", selected = character(0))
+  })
+
+  filtered_data <- reactive({
+    req(nrow(Neuro_Data) > 0)
+    sexes <- if (length(input$sex) > 0) input$sex else unique(Neuro_Data$Sex)
+    capitals <- if (length(input$capital) > 0) input$capital else c("Yes", "No")
+
+    Neuro_Data |>
+      filter(
+        Year >= input$year_range[1],
+        Year <= input$year_range[2],
+        Age >= input$age_range[1],
+        Age <= input$age_range[2],
+        Sex %in% sexes,
+        Capital %in% capitals
+      ) |>
+      { if (length(input$diagnostics) > 0) filter(., Diagnostic %in% input$diagnostics) else . }
+  })
+
+  # ---- Value Boxes ----
+  overview_metrics <- reactive({
+    data <- filtered_data()
+    list(
+      total = sum(data$Cases, na.rm = TRUE),
+      depts = n_distinct(data$Department),
+      top = data |> count(Diagnostic, wt = Cases, sort = TRUE) |> slice(1)
+    )
+  })
+
+  output$vb_total_cases <- renderText({ comma(overview_metrics()$total) })
+  output$vb_departments <- renderText({ overview_metrics()$depts })
+  output$vb_top_diag <- renderText({
+    m <- overview_metrics()$top
+    if(nrow(m) > 0) paste0(m$Diagnostic, " (", comma(m$n), ")") else "N/A"
+  })
+
+  # ---- Plots: Overview ----
+  output$cases_over_time <- renderPlotly({
+    d <- filtered_data() |> group_by(Year) |> summarise(Total = sum(Cases, na.rm = TRUE))
+    validate(need(nrow(d) > 0, "No data"))
+    
+    p <- ggplot(d, aes(x = Year, y = Total)) +
+      geom_line(color = "#4DB6D0", linewidth = 1.2) +
+      geom_point(color = "#0a4f63", size = 3) +
+      scale_y_continuous(labels = label_number(scale_cut = cut_short_scale())) +
+      labs(x = NULL, y = "Consultations") +
+      plot_theme
+    
+    ggplotly(p) |> config(displayModeBar = FALSE)
+  })
+
+  output$age_sex_plot <- renderPlotly({
+    d <- filtered_data() |> group_by(Age, Sex) |> summarise(Total = sum(Cases, na.rm = TRUE), .groups = "drop")
+    validate(need(nrow(d) > 0, "No data"))
+    
+    p <- ggplot(d, aes(x = Age, y = Total, color = Sex)) +
+      geom_line(linewidth = 1) +
+      scale_color_manual(values = c("Men" = "#00BFC4", "Women" = "#F8766D")) +
+      labs(x = "Age", y = "Consultations") +
+      plot_theme
+    
+    ggplotly(p) |> config(displayModeBar = FALSE)
+  })
+
+  # ---- Geography ----
+  dept_summary <- reactive({
+    filtered_data() |>
+      group_by(Department) |>
+      summarise(
+        Total = sum(Cases, na.rm = TRUE),
+        Rate = ifelse(sum(Population) > 0, (sum(Cases)/sum(Population))*1e5, 0),
+        .groups = "drop"
+      )
+  })
+
+  output$department_map <- renderLeaflet({
+    req(colombia_map)
+    d <- dept_summary()
+    map_data <- colombia_map |> left_join(d, by = "Department")
+    
+    metric <- if(input$map_rate_toggle) "Rate" else "Total"
+    vals <- map_data[[metric]]
+    pal <- colorNumeric("YlOrRd", domain = vals, na.color = "#eee")
+    
+    leaflet(map_data) |>
+      addProviderTiles(providers$CartoDB.Positron) |>
+      addPolygons(
+        fillColor = ~pal(vals), weight = 1, color = "#666", fillOpacity = 0.8,
+        label = ~paste0(Department, ": ", comma(round(vals, 1)), if(input$map_rate_toggle) " per 100k" else " cases"),
+        highlight = highlightOptions(weight = 3, color = "#333", bringToFront = TRUE)
+      ) |>
+      addLegend(pal = pal, values = vals, title = if(input$map_rate_toggle) "Rate / 100k" else "Total Cases")
+  })
+
+  output$department_bar <- renderPlotly({
+    d <- dept_summary() |> arrange(desc(Total)) |> slice_head(n = 15)
+    validate(need(nrow(d) > 0, "No data"))
+    
+    p <- ggplot(d, aes(x = Total, y = reorder(Department, Total))) +
+      geom_col(fill = "#69b3a2") +
+      geom_text(aes(label = comma(Total)), hjust = -0.1, size = 3) +
+      labs(x = "Total Cases", y = NULL) +
+      plot_theme +
+      scale_x_continuous(expand = expansion(mult = c(0, 0.2)))
+    
+    ggplotly(p) |> config(displayModeBar = FALSE)
+  })
+
+  # ---- Distributions (Box Plots) ----
+  output$dept_boxplot <- renderPlotly({
+    d <- filtered_data() |>
+      group_by(Department, Year) |>
+      summarise(Total = sum(Cases, na.rm = TRUE), .groups = "drop")
+    
+    validate(need(nrow(d) > 0, "No data"))
+    
+    p <- ggplot(d, aes(x = reorder(Department, Total, median), y = Total)) +
+      geom_boxplot(fill = "#4DB6D0", alpha = 0.7, outlier.size = 1) +
+      coord_flip() +
+      labs(x = NULL, y = "Annual Cases") +
+      plot_theme
+    
+    ggplotly(p) |> config(displayModeBar = FALSE)
+  })
+
+  output$age_sex_boxplot <- renderPlotly({
+    d <- filtered_data() |>
+      group_by(Age, Sex, Year) |>
+      summarise(Cases = sum(Cases, na.rm = TRUE), .groups = "drop")
+      
+    validate(need(nrow(d) > 0, "No data"))
+
+    p <- ggplot(d, aes(x = factor(Age), y = Cases, fill = Sex)) +
+      geom_boxplot(outlier.size = 0.5) +
+      scale_fill_manual(values = c("Men" = "#00BFC4", "Women" = "#F8766D")) +
+      labs(x = "Age", y = "Annual Cases") +
+      plot_theme +
+      theme(legend.position = "none")
+      
+    ggplotly(p) |> config(displayModeBar = FALSE)
+  })
+
+  # ---- Diagnostics ----
+  output$diagnostic_bar <- renderPlotly({
+    d <- filtered_data() |> group_by(Diagnostic) |> summarise(Total = sum(Cases, na.rm = TRUE)) |> arrange(desc(Total)) |> slice_head(n = 15)
+    validate(need(nrow(d) > 0, "No data"))
+    
+    p <- ggplot(d, aes(x = Total, y = reorder(Diagnostic, Total), fill = Total)) +
+      geom_col(show.legend = FALSE) +
+      scale_fill_distiller(palette = "Blues", direction = 1) +
+      labs(x = "Total Cases", y = NULL) +
+      plot_theme
+    
+    ggplotly(p) |> config(displayModeBar = FALSE)
+  })
+
+  output$diagnostic_table <- renderDT({
+    filtered_data() |>
+      group_by(Diagnostic) |>
+      summarise(Total = sum(Cases, na.rm = TRUE)) |>
+      arrange(desc(Total)) |>
+      mutate(Total = comma(Total)) |>
+      datatable(options = list(pageLength = 10))
+  })
+}
+
+shinyApp(ui, server)
+```

@@ -170,6 +170,12 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
  <span class="menu-text"><span class="chapter-number">4</span>&nbsp; <span class="chapter-title">Deep Dive: Top 3 Diagnostics</span></span></a>
   </div>
 </li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./4_Interactive_App.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">5</span>&nbsp; <span class="chapter-title">Interactive App</span></span></a>
+  </div>
+</li>
     </ul>
     </div>
 </nav>
@@ -253,7 +259,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </section>
 <section id="data-visualization-top-10-diagnostics" class="level3" data-number="3.2.2">
 <h3 data-number="3.2.2" class="anchored" data-anchor-id="data-visualization-top-10-diagnostics"><span class="header-section-number">3.2.2</span> Data Visualization: Top 10 Diagnostics</h3>
-<p>The full dataset contains dozens of diagnostic categories, and plotting all of them at once would obscure meaningful patterns. To focus on the most prevalent conditions, we extract the 10 diagnostic categories with the highest number of consultations using <code>slice_max()</code>. The bar chart in <a href="#fig-Diagnostics_Top10" class="quarto-xref">Figure&nbsp;<span>3.1</span></a> displays these top diagnoses, ordered from the most to the least frequent. We annotate each bar with the exact number of consultations and use a color gradient to highlight the relative magnitude of each category.</p>
+<p>The full dataset contains dozens of diagnostic categories, and plotting all of them at once would obscure meaningful patterns. To focus on the most prevalent conditions, we extract the 10 diagnostic categories with the highest number of consultations using <code>slice_max()</code>. The bar chart in <a href="#fig-Diagnostics_Top10" class="quarto-xref">Figure&nbsp;<span class="quarto-unresolved-ref">fig-Diagnostics_Top10</span></a> displays these top diagnoses, ordered from the most to the least frequent. We annotate each bar with the exact number of consultations and use a color gradient to highlight the relative magnitude of each category.</p>
 <div class="cell">
 <details class="code-fold">
 <summary>Code</summary>

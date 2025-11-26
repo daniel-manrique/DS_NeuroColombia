@@ -1,0 +1,39 @@
+---
+title: "Optimize Data"
+format: html
+execute:
+  echo: false
+---
+
+```{r}
+library(dplyr)
+library(readr)
+
+# Paths
+input_path <- "Data_Processed/Ministery_DiagnosticData_Compiled.csv"
+output_path <- "app/data/Neuro_Data_App.csv"
+
+# Create output directory if it doesn't exist
+if (!dir.exists("app/data")) {
+  dir.create("app/data", recursive = TRUE)
+}
+
+# Read data
+message("Reading data...")
+data <- read_csv(input_path, show_col_types = FALSE)
+
+# Aggregate
+message("Aggregating data...")
+data_agg <- data |>
+  group_by(Year, Department, Capital, Diagnostic, Age, Sex) |>
+  summarise(
+    Cases = sum(Cases, na.rm = TRUE),
+    Population = sum(Population, na.rm = TRUE),
+    .groups = "drop"
+  )
+
+# Save
+message("Saving optimized data to ", output_path)
+write_csv(data_agg, output_path)
+message("Done.")
+```

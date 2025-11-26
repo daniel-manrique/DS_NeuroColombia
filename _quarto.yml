@@ -12,6 +12,7 @@ book:
     - 1_Consultation_Frequency.qmd
     - 2_Consultation_DiagnosticFrecuency.qmd
     - 3_Consultation_MostFrequent.qmd
+    - 4_Interactive_App.qmd
   sidebar:
     style: "docked"
     search: true

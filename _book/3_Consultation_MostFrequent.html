@@ -64,6 +64,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <script src="site_libs/quarto-search/fuse.min.js"></script>
 <script src="site_libs/quarto-search/quarto-search.js"></script>
 <meta name="quarto:offset" content="./">
+<link href="./4_Interactive_App.html" rel="next">
 <link href="./2_Consultation_DiagnosticFrecuency.html" rel="prev">
 <script src="site_libs/quarto-html/quarto.js"></script>
 <script src="site_libs/quarto-html/popper.min.js"></script>
@@ -196,6 +197,12 @@ window.Quarto = {
   <div class="sidebar-item-container"> 
   <a href="./3_Consultation_MostFrequent.html" class="sidebar-item-text sidebar-link active">
  <span class="menu-text"><span class="chapter-number">4</span>&nbsp; <span class="chapter-title">Deep Dive: Top 3 Diagnostics</span></span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./4_Interactive_App.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">5</span>&nbsp; <span class="chapter-title">Interactive App</span></span></a>
   </div>
 </li>
     </ul>
@@ -1040,7 +1047,7 @@ Table&nbsp;4.1: Total Cases by Department and Main Diagnostic
 </figure>
 </div>
 </div>
-<p>After summarizing the median burden of the three most frequent neurodevelopmental diagnostic categories (F808, F809, F900) across all departments in <a href="#tbl-Geo_Summary" class="quarto-xref">Table&nbsp;<span>4.1</span></a>, we identify the ten departments with the highest combined consultation rates and extract them using <code>slice_max()</code> on the total median burden.</p>
+<p>After summarizing the median burden of the three most frequent neurodevelopmental diagnostic categories (F808, F809, F900) across all departments in <a href="#tbl-Geo_Summary" class="quarto-xref">Table&nbsp;<span class="quarto-unresolved-ref">tbl-Geo_Summary</span></a>, we identify the ten departments with the highest combined consultation rates and extract them using <code>slice_max()</code> on the total median burden.</p>
 <div class="cell">
 <details class="code-fold">
 <summary>Code</summary>
@@ -1758,7 +1765,7 @@ Figure&nbsp;4.1: Distribution of neurodevelopmental diagnostics per department a
 </div>
 </div>
 </div>
-<p>The resulting <a href="#fig-Cases_Diagnostic-Map" class="quarto-xref">Figure&nbsp;<span>4.1</span></a> displays three side-by-side maps covering the entire period (2016–2022), providing an overview of which regions report the highest and lowest median consultation intensity for each diagnostic code.</p>
+<p>The resulting <a href="#fig-Cases_Diagnostic-Map" class="quarto-xref">Figure&nbsp;<span class="quarto-unresolved-ref">fig-Cases_Diagnostic-Map</span></a> displays three side-by-side maps covering the entire period (2016–2022), providing an overview of which regions report the highest and lowest median consultation intensity for each diagnostic code.</p>
 </section>
 </section>
 <section id="distribution-per-diagnostic-and-sex" class="level2" data-number="4.3">
@@ -2463,7 +2470,7 @@ Figure&nbsp;4.2: Distribution of neurodevelopmental diagnostics per biological s
 </div>
 </div>
 </div>
-<p>The <a href="#fig-Diagostics_sex" class="quarto-xref">Figure&nbsp;<span>4.2</span></a> shows clear and systematic sex differences across all three diagnostic groups:</p>
+<p>The <a href="#fig-Diagostics_sex" class="quarto-xref">Figure&nbsp;<span class="quarto-unresolved-ref">fig-Diagostics_sex</span></a> shows clear and systematic sex differences across all three diagnostic groups:</p>
 <ul>
 <li>Men consistently present higher consultation rates than women for F808, F809, and F900.</li>
 <li>The shape of the distributions indicates greater variability among men, particularly for F809 and F900.</li>
@@ -4610,11 +4617,11 @@ Figure&nbsp;4.4: Distribution of neurodevelopmental diagnostics per biological s
 </div>
 </div>
 </div>
-<p><a href="#fig-Diagostics_sex-age" class="quarto-xref">Figure&nbsp;<span>4.4</span></a> shows that males are more likely to be diagnosed, although both sexes peak at 6 years. Given the change in the trend, we find it suitable to model these behaviors using splines.</p>
+<p><a href="#fig-Diagostics_sex-age" class="quarto-xref">Figure&nbsp;<span class="quarto-unresolved-ref">fig-Diagostics_sex-age</span></a> shows that males are more likely to be diagnosed, although both sexes peak at 6 years. Given the change in the trend, we find it suitable to model these behaviors using splines.</p>
 </section>
 <section id="statistical-modeling" class="level3" data-number="4.5.4">
 <h3 data-number="4.5.4" class="anchored" data-anchor-id="statistical-modeling"><span class="header-section-number">4.5.4</span> Statistical Modeling</h3>
-<p>The age profiles in Figure <a href="#fig-Diagostics_sex-age" class="quarto-xref">Figure&nbsp;<span>4.4</span></a> show a clear non-linear pattern for both sexes, with a rapid increase in consultations during early childhood, a peak around school entry, and a gradual decline thereafter. To describe these trajectories more formally, we model the <strong>mean number of consultations per 10,000 inhabitants</strong> as a smooth function of age, allowing the shape of the curve to differ between men and women.</p>
+<p>The age profiles in Figure <a href="#fig-Diagostics_sex-age" class="quarto-xref">Figure&nbsp;<span class="quarto-unresolved-ref">fig-Diagostics_sex-age</span></a> show a clear non-linear pattern for both sexes, with a rapid increase in consultations during early childhood, a peak around school entry, and a gradual decline thereafter. To describe these trajectories more formally, we model the <strong>mean number of consultations per 10,000 inhabitants</strong> as a smooth function of age, allowing the shape of the curve to differ between men and women.</p>
 <p>We work at the level of <strong>City × Sex × Age</strong>, which preserves spatial and demographic variability while keeping the outcome interpretable as an age-specific rate. We use a Student-t likelihood to remain robust to occasional extreme values and include a department-level random intercept to account for clustering of cities within departments.</p>
 <section id="data-preparation-for-the-spline-model" class="level4" data-number="4.5.4.1">
 <h4 data-number="4.5.4.1" class="anchored" data-anchor-id="data-preparation-for-the-spline-model"><span class="header-section-number">4.5.4.1</span> Data Preparation for the Spline Model</h4>
@@ -5935,6 +5942,9 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
       </a>          
   </div>
   <div class="nav-page nav-page-next">
+      <a href="./4_Interactive_App.html" class="pagination-link" aria-label="Interactive App">
+        <span class="nav-page-text"><span class="chapter-number">5</span>&nbsp; <span class="chapter-title">Interactive App</span></span> <i class="bi bi-arrow-right-short"></i>
+      </a>
   </div>
 </nav>
 </div> <!-- /content -->
