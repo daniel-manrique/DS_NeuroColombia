@@ -4,7 +4,6 @@ format:
   html:
     page-layout: custom
     theme: cosmo
-    css: styles.css
 filters:
   - shinylive
 ---
