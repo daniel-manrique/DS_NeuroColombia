@@ -1,0 +1,46 @@
+---
+title: "Generate Map"
+format: html
+---
+
+```{r}
+# Load libraries
+library(sf)
+library(dplyr)
+library(rnaturalearth)
+
+# Create app/data directory if it doesn't exist
+if (!dir.exists("app/data")) {
+  dir.create("app/data", recursive = TRUE)
+}
+
+# Fetch Colombia map
+tryCatch({
+  colombia_map <- ne_states(country = "Colombia", returnclass = "sf")
+  print(paste("Map rows:", nrow(colombia_map)))
+  
+  colombia_map <- colombia_map |>
+    select(name_en, geometry) |>
+    mutate(
+      Department = name_en
+    ) |>
+    mutate(
+      Department = case_when(
+        Department == "Bogota" ~ "Bogota, D.C.",
+        Department == "Archipelago of Saint Andrews" ~ "Archipielago de San Andres, Providencia Y Santa Catalina",
+        TRUE ~ Department
+      )
+    )
+
+  # Save as RDS
+  abs_path <- file.path(getwd(), "app/data/Colombia_Map.rds")
+  saveRDS(colombia_map, abs_path)
+  writeLines(paste("Success: Saved RDS to", abs_path), "map_log.txt")
+}, error = function(e) {
+  writeLines(paste("Error:", e$message), "map_log.txt")
+})
+
+print(paste("CWD:", getwd()))
+print("Files in app/data:")
+print(list.files("app/data"))
+```
