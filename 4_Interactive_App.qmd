@@ -9,6 +9,8 @@ This chapter features a fully interactive version of the **NeuroColombia Explore
 
 ::: {.callout-note}
 This application runs entirely in your web browser via WebAssembly. No server is required!
+
+[**Open App in New Window (Fullscreen)**](standalone_app.html){target="_blank"}
 :::
 
 ```{shinylive-r}

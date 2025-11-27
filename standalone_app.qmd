@@ -16,18 +16,6 @@ filters:
 library(shiny)
 library(bslib)
 library(dplyr)
-library(tidyr)
-library(ggplot2)
-library(plotly)
-library(leaflet)
-library(sf)
-library(scales)
-library(DT)
-library(glue)
-library(bsicons)
-library(munsell)
-library(colorspace)
-library(labeling)
 
 # ---- Data Loading ----
 # Load optimized data from GitHub Raw URL
@@ -76,36 +64,6 @@ if (is.null(raw_data)) {
 }
 
 diagnostic_choices <- sort(unique(Neuro_Data$Diagnostic))
-diag_default <- intersect(c("F900", "F809", "F808"), diagnostic_choices)
-dept_choices <- sort(unique(Neuro_Data$Department))
-
-year_range <- range(Neuro_Data$Year, na.rm = TRUE)
-age_range <- range(Neuro_Data$Age, na.rm = TRUE)
-
-# Custom Theme
-my_theme <- bs_theme(
-  bootswatch = "zephyr",
-  primary = "#0a4f63",
-  secondary = "#4DB6D0",
-  success = "#69b3a2"
-)
-
-# Plot Theme
-plot_theme <- theme_minimal() +
-  theme(
-    plot.title = element_text(size = 14, face = "bold"),
-    axis.title = element_text(size = 12),
-    axis.text = element_text(size = 10),
-    legend.position = "bottom",
-    panel.grid.minor = element_blank()
-  )
-
-# ---- UI ----------------------------------------------------------------------
-
-ui <- page_sidebar(
-  theme = my_theme,
-  title = "NeuroColombia Explorer",
-  
   sidebar = sidebar(
     title = "Filters",
     width = 300,
