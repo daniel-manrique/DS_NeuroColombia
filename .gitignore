@@ -4,3 +4,15 @@
 .Ruserdata
 
 /.quarto/
+/_book/
+/site_libs/
+*_files/
+*_cache/
+*.html
+!/docs/**/*.html
+!/app/**/*.html
+*.knit.md
+*.utf8.md
+rsconnect/
+*.log
+*_log.txt
